@@ -21,9 +21,9 @@
 // and GPIO documentation at https://siliconlabs.github.io/Gecko_SDK_Doc/efm32g/html/group__GPIO.html
 // to determine the correct values for these.
 
-#define	LED0_port  _GPIO_PORT_F_PIN_MASK // change to correct ports and pins
+#define	LED0_port  gpioPortF // change to correct ports and pins
 #define LED0_pin   4
-#define LED1_port  _GPIO_PORT_F_PIN_MASK
+#define LED1_port  gpioPortF
 #define LED1_pin   5
 
 
