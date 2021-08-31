@@ -86,7 +86,7 @@ SL_WEAK void app_init(void)
 
 
   // Student Edit: Add a call to gpioInit() here
-  
+  gpioInit();
 
 
 
