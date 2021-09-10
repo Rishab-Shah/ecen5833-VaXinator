@@ -50,7 +50,37 @@
 #include "src/ble_device_type.h"
 #include "src/gpio.h"
 #include "src/lcd.h"
+#include "src/oscillators.h"
+#include "src/timers.h"
+#include "src/irq.h"
+#include "em_cmu.h"
 
+#define EM0 (0)
+#define EM1 (1)
+#define EM2 (2)
+#define EM3 (3)
+
+
+#define LOWEST_ENERGY_LEVEL  (EM3)
+
+#define LFXO_FREQ   (32768)
+#define ULFRCO_FREQ (1000)
+
+#define MS_PER_SEC  (1000)
+
+#if (LOWEST_ENERGY_LEVEL == EMO)
+ #define CLK_FREQ (LFXO_FREQ)
+ #define CLK_DIV  (cmuClkDiv_4)
+#elif (LOWEST_ENERGY_LEVEL == EM1)
+ #define CLK_FREQ (LFXO_FREQ)
+ #define CLK_DIV  (cmuClkDiv_4)
+#elif (LOWEST_ENERGY_LEVEL == EM2)
+ #define CLK_FREQ (LFXO_FREQ)
+ #define CLK_DIV  (cmuClkDiv_4)
+#elif (LOWEST_ENERGY_LEVEL == EM3)
+ #define CLK_FREQ (ULFRCO_FREQ)
+ #define CLK_DIV  (cmuClkDiv_1)
+#endif
 
 
 // See: https://docs.silabs.com/gecko-platform/latest/service/power_manager/overview
@@ -65,8 +95,15 @@
 //   up the MCU from the call to sl_power_manager_sleep() in the main while (1)
 //   loop.
 // Students: We'll need to modify this for A2 onward.
-#define APP_IS_OK_TO_SLEEP      (false)
-//#define APP_IS_OK_TO_SLEEP      (true)
+#if (LOWEST_ENERGY_LEVEL == EMO)
+ #define APP_IS_OK_TO_SLEEP      (false)
+#elif (LOWEST_ENERGY_LEVEL == EM1)
+ #define APP_IS_OK_TO_SLEEP      (true)
+#elif (LOWEST_ENERGY_LEVEL == EM2)
+ #define APP_IS_OK_TO_SLEEP      (true)
+#elif (LOWEST_ENERGY_LEVEL == EM3)
+ #define APP_IS_OK_TO_SLEEP      (true)
+#endif
 
 // Return values for app_sleep_on_isr_exit():
 //   SL_POWER_MANAGER_IGNORE; // The module did not trigger an ISR and it doesn't want to contribute to the decision

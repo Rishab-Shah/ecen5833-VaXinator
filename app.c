@@ -43,8 +43,6 @@
 #include "src/log.h"
 
 
-
-
 /*****************************************************************************
  * Application Power Manager callbacks
  *****************************************************************************/
@@ -80,15 +78,14 @@ sl_power_manager_on_isr_exit_t app_sleep_on_isr_exit(void)
  *****************************************************************************/
 SL_WEAK void app_init(void)
 {
-  // Put your application 1-time init code here
-  // This is called once during start-up.
-  // Don't call any Bluetooth API functions until after the boot event.
+  if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2) {
+    sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
+  }
 
-
-  // Student Edit: Add a call to gpioInit() here
+  init_letimer0_clock();
+  init_letimer0();
   gpioInit();
-
-
+  start_letimer0();
 
 }
 
@@ -99,7 +96,7 @@ SL_WEAK void app_init(void)
  * comment out this function. Wait loops are a bad idea in general.
  * We'll discuss how to do this a better way in the next assignment.
  *****************************************************************************/
-static void delayApprox(int delay)
+/*static void delayApprox(int delay)
 {
   volatile int i;
 
@@ -107,7 +104,7 @@ static void delayApprox(int delay)
       i=i+1;
   }
 
-} // delayApprox()
+} // delayApprox()*/
 
 
 
@@ -122,7 +119,7 @@ SL_WEAK void app_process_action(void)
   // Notice: This function is not passed or has access to Bluetooth stack events.
   //         We will create/use a scheme that is far more energy efficient in
   //         later assignments.
-
+/*
   delayApprox(3500000);
 
   gpioLed0SetOn();
@@ -132,7 +129,7 @@ SL_WEAK void app_process_action(void)
 
   gpioLed0SetOff();
   gpioLed1SetOff();
-
+*/
 }
 
 /**************************************************************************//**
