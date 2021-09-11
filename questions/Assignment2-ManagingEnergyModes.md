@@ -24,7 +24,7 @@ EM3         |   2.22     |        174
 
 ***EM0***  
 Period average current    
-![em0_avg_current_period][em0_avg_curremt_period]
+![em0_avg_current_period][em0_avg_current_period]
 Average Current with LED ***off***  
 ![em0_avg_current_ledoff][em0_avg_current_ledoff]  
 Average Current with LED ***on***  
