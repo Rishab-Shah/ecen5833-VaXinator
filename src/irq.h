@@ -1,5 +1,5 @@
 /*
- * irq.h
+ * irq.h - Interrupt service routines
  *
  *  Created on: Sep 5, 2021
  *      Author: vishn
@@ -11,6 +11,13 @@
 #include "em_letimer.h"
 #include "gpio.h"
 
+/*
+ * LETIMER0 ISR
+ *
+ * @param None
+ *
+ * @return None
+ */
 void LETIMER0_IRQHandler(void);
 
 #endif /* SRC_IRQ_H_ */

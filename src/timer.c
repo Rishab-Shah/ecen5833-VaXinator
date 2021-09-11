@@ -1,5 +1,5 @@
 /*
- * timer.c
+ * timer.c - Timer functions
  *
  *  Created on: Sep 5, 2021
  *      Author: vishn

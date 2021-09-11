@@ -1,5 +1,5 @@
 /*
- * irq.c
+ * irq.c - Interrupt service routines
  *
  *  Created on: Sep 5, 2021
  *      Author: vishn
@@ -14,14 +14,8 @@ void LETIMER0_IRQHandler(void) {
 
   if (interrupt_flags & _LETIMER_IF_COMP1_MASK) {
       gpioLed0SetOn();
-    //turn on led
-      //cnt = LETIMER0->CNT;
-      //cnt--;
   }
   else if (interrupt_flags & _LETIMER_IF_UF_MASK) {
       gpioLed0SetOff();
-    //turn off led
-      //cnt = LETIMER0->CNT;
-      //cnt--;
   }
 }

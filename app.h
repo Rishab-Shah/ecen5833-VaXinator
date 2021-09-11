@@ -32,6 +32,8 @@
  *              and started as "Bluetooth - SoC Empty".
  *              It is to be used only for ECEN 5823 "IoT Embedded Firmware".
  *              The MSLA referenced above is in effect.
+ * Attribution: The #define code was sourced from Professor Sluiter
+ *              during his office hour period on Sept 7, 2021.
  *
  ******************************************************************************/
 
