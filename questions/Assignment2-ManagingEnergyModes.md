@@ -24,7 +24,7 @@ EM3         |   2.22     |        174
 
 ***EM0***  
 Period average current    
-![em0_avg_current_period][https://github.com/CU-ECEN-5823/ecen5823-assignment2-vido2373/blob/master/questions/Assignment2-Screenshots/em0_avg_current_ledoff.PNG]  
+![em0_avg_current_period](https://github.com/CU-ECEN-5823/ecen5823-assignment2-vido2373/blob/master/questions/Assignment2-Screenshots/em0_avg_current_ledoff.PNG)
 Average Current with LED ***off***  
 ![em0_avg_current_ledoff][em0_avg_current_ledoff]  
 Average Current with LED ***on***  
