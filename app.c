@@ -53,7 +53,7 @@
 bool app_is_ok_to_sleep(void)
 {
 
-  return APP_IS_OK_TO_SLEEP;
+    return APP_IS_OK_TO_SLEEP;
 
 } // app_is_ok_to_sleep()
 
@@ -62,7 +62,7 @@ bool app_is_ok_to_sleep(void)
 sl_power_manager_on_isr_exit_t app_sleep_on_isr_exit(void)
 {
 
-  return APP_SLEEP_ON_ISR_EXIT;
+    return APP_SLEEP_ON_ISR_EXIT;
 
 } // app_sleep_on_isr_exit()
 
@@ -78,14 +78,14 @@ sl_power_manager_on_isr_exit_t app_sleep_on_isr_exit(void)
  *****************************************************************************/
 SL_WEAK void app_init(void)
 {
-  if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2) {
-    sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
-  }
+    if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2) {
+            sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
+    }
 
-  init_letimer0_clock();
-  init_letimer0();
-  gpioInit();
-  start_letimer0();
+    init_letimer0_clock();
+    init_letimer0();
+    gpioInit();
+    start_letimer0();
 
 }
 
@@ -98,11 +98,11 @@ SL_WEAK void app_init(void)
  *****************************************************************************/
 /*static void delayApprox(int delay)
 {
-  volatile int i;
+    volatile int i;
 
-  for (i = 0; i < delay; ) {
+    for (i = 0; i < delay; ) {
       i=i+1;
-  }
+    }
 
 } // delayApprox()*/
 
@@ -114,22 +114,22 @@ SL_WEAK void app_init(void)
  *****************************************************************************/
 SL_WEAK void app_process_action(void)
 {
-  // Put your application code here.
-  // This is called repeatedly from the main while(1) loop
-  // Notice: This function is not passed or has access to Bluetooth stack events.
-  //         We will create/use a scheme that is far more energy efficient in
-  //         later assignments.
-/*
-  delayApprox(3500000);
+    // Put your application code here.
+    // This is called repeatedly from the main while(1) loop
+    // Notice: This function is not passed or has access to Bluetooth stack events.
+    //         We will create/use a scheme that is far more energy efficient in
+    //         later assignments.
+    /*
+    delayApprox(3500000);
 
-  gpioLed0SetOn();
-  gpioLed1SetOn();
+    gpioLed0SetOn();
+    gpioLed1SetOn();
 
-  delayApprox(3500000);
+    delayApprox(3500000);
 
-  gpioLed0SetOff();
-  gpioLed1SetOff();
-*/
+    gpioLed0SetOff();
+    gpioLed1SetOff();
+     */
 }
 
 /**************************************************************************//**
@@ -143,22 +143,22 @@ SL_WEAK void app_process_action(void)
  *****************************************************************************/
 void sl_bt_on_event(sl_bt_msg_t *evt)
 {
-  
-  // Just a trick to hide a compiler warning about unused input parameter evt.
-  // We will add real functionality here later.
-  if (evt->header) {
-      printf(".\n");
-  }
 
-  // Some events require responses from our application code,
-  // and don’t necessarily advance our state machines.
-  // For assignment 5 uncomment the next 2 function calls
-  // handle_ble_event(evt); // put this code in ble.c/.h
+    // Just a trick to hide a compiler warning about unused input parameter evt.
+    // We will add real functionality here later.
+    if (evt->header) {
+            printf(".\n");
+    }
 
-  // sequence through states driven by events
-  // state_machine(evt);    // put this code in scheduler.c/.h
-  
-  
-   
+    // Some events require responses from our application code,
+    // and don’t necessarily advance our state machines.
+    // For assignment 5 uncomment the next 2 function calls
+    // handle_ble_event(evt); // put this code in ble.c/.h
+
+    // sequence through states driven by events
+    // state_machine(evt);    // put this code in scheduler.c/.h
+
+
+
 } // sl_bt_on_event()
 

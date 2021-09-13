@@ -10,6 +10,7 @@
 
 #include "em_letimer.h"
 #include "gpio.h"
+#include "scheduler.h"
 
 /*
  * LETIMER0 ISR
