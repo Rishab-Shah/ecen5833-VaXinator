@@ -78,10 +78,18 @@ sl_power_manager_on_isr_exit_t app_sleep_on_isr_exit(void)
  *****************************************************************************/
 SL_WEAK void app_init(void)
 {
-    if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2) {
-            sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
-    }
 
+    gpioInit(); // DOS, added this back in.
+
+    printf("printf() test\n");
+    LOG_INFO("LOG_INFO() test");
+
+    // DOS
+#if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2)
+            sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
+#endif
+
+ /*
     letimer0_clock_init();
     i2c0_clock_init();
     //logInit();
@@ -93,6 +101,9 @@ SL_WEAK void app_init(void)
 
     //uint32_t f = I2C_BusFreqGet(I2C0);
     //f++;
+ */
+
+
 }
 
 
