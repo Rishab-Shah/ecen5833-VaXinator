@@ -56,7 +56,6 @@
 #include "src/timers.h"
 #include "src/irq.h"
 #include "src/scheduler.h"
-//#include "src/log.h"
 #include "src/i2c.h"
 #include "em_cmu.h"
 

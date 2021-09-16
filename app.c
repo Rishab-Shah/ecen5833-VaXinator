@@ -125,7 +125,7 @@ SL_WEAK void app_process_action(void)
     // Notice: This function is not passed or has access to Bluetooth stack events.
     //         We will create/use a scheme that is far more energy efficient in
     //         later assignments.
-    event_t event = ev_NONE;
+    /*event_t event = ev_NONE;
     uint8_t temp_buffer[2];
     uint16_t temp_buffer_len = 2;
     I2C_TransferReturn_TypeDef i2c_ret;
@@ -145,9 +145,9 @@ SL_WEAK void app_process_action(void)
             timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
             temperature_sensor_Enable(false);
             i2c_ret++;
-            LOG_INFO("Foo");
+            LOG_INFO("Foo\n");
             break;
-    }
+    }*/
 }
 
 /**************************************************************************//**
