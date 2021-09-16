@@ -82,11 +82,17 @@ SL_WEAK void app_init(void)
             sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
     }
 
-    init_letimer0_clock();
-    init_letimer0();
-    gpioInit();
-    start_letimer0();
+    letimer0_clock_init();
+    i2c0_clock_init();
+    //logInit();
 
+    letimer0_init();
+    temperature_sensor_Init();
+
+    letimer0_start();
+
+    //uint32_t f = I2C_BusFreqGet(I2C0);
+    //f++;
 }
 
 
@@ -119,17 +125,29 @@ SL_WEAK void app_process_action(void)
     // Notice: This function is not passed or has access to Bluetooth stack events.
     //         We will create/use a scheme that is far more energy efficient in
     //         later assignments.
-    /*
-    delayApprox(3500000);
+    event_t event = ev_NONE;
+    uint8_t temp_buffer[2];
+    uint16_t temp_buffer_len = 2;
+    I2C_TransferReturn_TypeDef i2c_ret;
 
-    gpioLed0SetOn();
-    gpioLed1SetOn();
+    event = get_next_event();
 
-    delayApprox(3500000);
+    switch(event) {
+        case ev_NONE:
+            break;
 
-    gpioLed0SetOff();
-    gpioLed1SetOff();
-     */
+        case ev_LETIMER0_UF:
+            temperature_sensor_Enable(true);
+            timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
+            i2c_ret = temperature_sensor_SendCommand(CMD_READ_TEMP);
+            timerWaitUs(TEMP_SENSOR_READ_TEMP_WAIT_US);
+            i2c_ret = temperature_sensor_ReadTemp(temp_buffer, temp_buffer_len);
+            timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
+            temperature_sensor_Enable(false);
+            i2c_ret++;
+            LOG_INFO("Foo");
+            break;
+    }
 }
 
 /**************************************************************************//**

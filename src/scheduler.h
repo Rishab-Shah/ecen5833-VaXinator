@@ -8,8 +8,8 @@
 #ifndef SRC_SCHEDULER_H_
 #define SRC_SCHEDULER_H_
 
-#include "em_core.h"
 #include <stdlib.h>
+#include "em_core.h"
 
 
 /*
@@ -17,7 +17,6 @@
  */
 typedef enum {
     ev_NONE,
-    ev_LETIMER0_COMP1,
     ev_LETIMER0_UF
 } event_t;
 

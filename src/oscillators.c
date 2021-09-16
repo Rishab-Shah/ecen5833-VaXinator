@@ -7,7 +7,7 @@
 
 #include "oscillators.h"
 
-void init_letimer0_clock(void) {
+void letimer0_clock_init(void) {
     if (LOWEST_ENERGY_LEVEL == EM3) {
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
         CMU_ClockDivSet(cmuClock_LETIMER0, cmuClkDiv_1);
@@ -22,4 +22,13 @@ void init_letimer0_clock(void) {
         CMU_ClockEnable(cmuClock_LFA, true);
         CMU_ClockEnable(cmuClock_LETIMER0, true);
     }
+}
+
+
+void i2c0_clock_init(void) {
+    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);
+    CMU_ClockDivSet(cmuClock_HFPER, cmuClkDiv_4);
+    CMU_OscillatorEnable(cmuOsc_HFRCO, true, true);
+    //CMU_ClockEnable(cmuClock_HFPER, true);
+    //CMU_ClockEnable(cmuClock_I2C0, true);
 }

@@ -11,8 +11,10 @@
 #include "em_letimer.h"
 #include "app.h"
 
-#define LED_PERIOD_MS (2250)
+#define LETIMER_PERIOD_MS (3000)
+#define LETIMER_PERIOD_US (3000000)
 #define LED_ON_MS     (175)
+
 
 /*
  * Initializes the LETIMER0
@@ -21,7 +23,7 @@
  *
  * @return None
  */
-void init_letimer0(void);
+void letimer0_init(void);
 
 
 /*
@@ -31,6 +33,16 @@ void init_letimer0(void);
  *
  * @return None
  */
-void start_letimer0(void);
+void letimer0_start(void);
+
+
+/*
+ * Waits for given time in microseconds
+ *
+ * @param us_wait - Time to wait in microseconds
+ *
+ * @return None
+ */
+void timerWaitUs(uint32_t us_wait);
 
 #endif /* SRC_TIMERS_H_ */

@@ -55,6 +55,9 @@
 #include "src/oscillators.h"
 #include "src/timers.h"
 #include "src/irq.h"
+#include "src/scheduler.h"
+//#include "src/log.h"
+#include "src/i2c.h"
 #include "em_cmu.h"
 
 #define EM0 (0)
@@ -63,12 +66,13 @@
 #define EM3 (3)
 
 
-#define LOWEST_ENERGY_LEVEL  (EM3)
+#define LOWEST_ENERGY_LEVEL  (EM0)
 
 #define LFXO_FREQ   (32768)
 #define ULFRCO_FREQ (1000)
 
 #define MS_PER_SEC  (1000)
+#define US_PER_SEC  (1000000)
 
 #if (LOWEST_ENERGY_LEVEL == EMO)
  #define CLK_FREQ (LFXO_FREQ)
