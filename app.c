@@ -39,7 +39,7 @@
 #include "app.h"
 
 // Include logging for this file
-#define INCLUDE_LOG_DEBUG 0
+#define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
 
