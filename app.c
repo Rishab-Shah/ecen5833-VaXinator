@@ -39,7 +39,7 @@
 #include "app.h"
 
 // Include logging for this file
-#define INCLUDE_LOG_DEBUG 1
+#define INCLUDE_LOG_DEBUG 0
 #include "src/log.h"
 
 
@@ -81,18 +81,14 @@ SL_WEAK void app_init(void)
 
     gpioInit(); // DOS, added this back in.
 
-    printf("printf() test\n");
-    LOG_INFO("LOG_INFO() test");
-
     // DOS
 #if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2)
             sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
 #endif
 
- /*
+
     letimer0_clock_init();
-    i2c0_clock_init();
-    //logInit();
+    //i2c0_clock_init();
 
     letimer0_init();
     temperature_sensor_Init();
@@ -101,7 +97,7 @@ SL_WEAK void app_init(void)
 
     //uint32_t f = I2C_BusFreqGet(I2C0);
     //f++;
- */
+
 
 
 }
@@ -136,10 +132,8 @@ SL_WEAK void app_process_action(void)
     // Notice: This function is not passed or has access to Bluetooth stack events.
     //         We will create/use a scheme that is far more energy efficient in
     //         later assignments.
-    /*event_t event = ev_NONE;
-    uint8_t temp_buffer[2];
-    uint16_t temp_buffer_len = 2;
-    I2C_TransferReturn_TypeDef i2c_ret;
+    event_t event = ev_NONE;
+    int16_t temperature_C;
 
     event = get_next_event();
 
@@ -148,17 +142,10 @@ SL_WEAK void app_process_action(void)
             break;
 
         case ev_LETIMER0_UF:
-            temperature_sensor_Enable(true);
-            timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
-            i2c_ret = temperature_sensor_SendCommand(CMD_READ_TEMP);
-            timerWaitUs(TEMP_SENSOR_READ_TEMP_WAIT_US);
-            i2c_ret = temperature_sensor_ReadTemp(temp_buffer, temp_buffer_len);
-            timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
-            temperature_sensor_Enable(false);
-            i2c_ret++;
-            LOG_INFO("Foo\n");
+            temperature_C = temperature_sensor_GetTempReading();
+            LOG_INFO("Temp in Celsius: %d\r\n", temperature_C);
             break;
-    }*/
+    }
 }
 
 /**************************************************************************//**
