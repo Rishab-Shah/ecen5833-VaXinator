@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include "em_core.h"
 
+#define EVENT_QUEUE_SIZE  (256)
+#define EVENT_QUEUE_SIZE_MASK  (255)
+
 
 /*
  * Event enum
