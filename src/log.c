@@ -20,7 +20,7 @@
 #define INCLUDE_LOG_DEBUG 1
 #include "log.h"
 
-
+#include "timers.h"
 
 /**
  * @return a timestamp value for the logger, typically based on a free running timer.
@@ -44,8 +44,8 @@ uint32_t loggerGetTimestamp()
        //           and not return 0. This will be the function to call for your graded
        //           assignments. Put this function in your irq.c/.h files.
        
-       //return letimerMilliseconds();
-	   return (0);
+     return letimerMilliseconds();
+	   //return (0);
 	   
     #endif
 

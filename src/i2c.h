@@ -28,44 +28,44 @@
 
 
 /*
- * Initializes the temperature sensor
+ * Initializes the I2C0 module
  *
  * @param None
  *
  * @return None
  */
-void temperature_sensor_Init(void);
+void I2C0_Init(void);
 
 
 /*
- * Enables the temperature sensor
+ * Enables the I2C0 module
  *
  * @param None
  *
  * @return None
  */
-void temperature_sensor_Enable(bool enable);
+void I2C0_Enable(bool enable);
 
 
 /*
- * Sends command to temperature sensor
+ * Sends command to I2C0
  *
  * @param command - Command to send to temperature sensor
  *
  * @return status of write
  */
-I2C_TransferReturn_TypeDef temperature_sensor_SendCommand(uint8_t command);
+I2C_TransferReturn_TypeDef I2C0_SendCommand(uint8_t command);
 
 
 /*
- * Reads data from temperature sensor
+ * Reads data from I2C0
  *
  * @param read_buff - Buffer to fill with read data
  * @param read_buff_len - Number of bytes to read
  *
  * @return status of read
  */
-I2C_TransferReturn_TypeDef temperature_sensor_ReadFromSensor(uint8_t* read_buff, uint8_t read_buff_len);
+I2C_TransferReturn_TypeDef I2C0_ReadFromSensor(uint8_t* read_buff, uint8_t read_buff_len);
 
 
 /*
@@ -75,6 +75,6 @@ I2C_TransferReturn_TypeDef temperature_sensor_ReadFromSensor(uint8_t* read_buff,
  *
  * @return temperature in Celsius
  */
-int16_t temperature_sensor_GetTempReading(void);
+int16_t I2C0_GetTempReading(void);
 
 #endif /* SRC_I2C_H_ */

@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include "em_core.h"
 
-#define EVENT_QUEUE_SIZE  (256)
-#define EVENT_QUEUE_SIZE_MASK  (255)
+#define EVENT_QUEUE_SIZE  (128)
+#define EVENT_QUEUE_SIZE_MASK  (127)
 
 
 /*
@@ -20,8 +20,20 @@
  */
 typedef enum {
     ev_NONE,
-    ev_LETIMER0_UF
+    ev_LETIMER0_COMP1,
+    ev_LETIMER0_UF,
+    ev_I2C0_TRANSFER_DONE
 } event_t;
+
+
+/*
+ * Sets LETIMER0_UF event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void scheduler_set_event_LETIMER0_UF(void);
 
 
 /*
@@ -35,13 +47,13 @@ void scheduler_set_event_LETIMER0_COMP1(void);
 
 
 /*
- * Sets LETIMER0_UF event
+ * Sets I2C0_TRANSFER_DONE event
  *
  * @param None
  *
  * @return None
  */
-void scheduler_set_event_LETIMER0_UF(void);
+void set_scheduler_event_I2C0_TRANSFER_DONE(void);
 
 
 /*

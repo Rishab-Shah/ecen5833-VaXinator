@@ -27,12 +27,11 @@ I2CSPM_Init_TypeDef temp_sensor_init = {
 };
 
 
-I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
 I2C_TransferSeq_TypeDef temp_sensor_transfer_seq;
 uint8_t temp_sensor_command = CMD_READ_TEMP;
 
 
-void temperature_sensor_Init(void) {
+void I2C0_Init(void) {
     I2CSPM_Init(&temp_sensor_init);
 
     GPIO_DriveStrengthSet(TEMP_SENSOR_POWER_PORT, gpioDriveStrengthWeakAlternateWeak);
@@ -40,20 +39,7 @@ void temperature_sensor_Init(void) {
 }
 
 
-I2C_TransferReturn_TypeDef temperature_sensor_SendCommand(uint8_t command) {
-    temp_sensor_command = command;
-
-    temp_sensor_transfer_seq.addr = (TEMP_SENSOR_ADDR << 1);
-    temp_sensor_transfer_seq.flags = I2C_FLAG_WRITE;
-    temp_sensor_transfer_seq.buf[0].data = &temp_sensor_command;
-    temp_sensor_transfer_seq.buf[0].len = 1;
-
-    temp_sensor_transfer_ret = I2CSPM_Transfer(SL_I2CSPM_SENSOR_PERIPHERAL, &temp_sensor_transfer_seq);
-    return temp_sensor_transfer_ret;
-}
-
-
-void temperature_sensor_Enable(bool enable) {
+void I2C0_Enable(bool enable) {
     if (enable) {
         GPIO_PinOutSet(TEMP_SENSOR_POWER_PORT, TEMP_SENSOR_POWER_PIN);
     }
@@ -63,7 +49,25 @@ void temperature_sensor_Enable(bool enable) {
 }
 
 
-I2C_TransferReturn_TypeDef temperature_sensor_ReadFromSensor(uint8_t* read_buff, uint8_t read_buff_len) {
+I2C_TransferReturn_TypeDef I2C0_SendCommand(uint8_t command) {
+    I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
+    temp_sensor_command = command;
+
+    temp_sensor_transfer_seq.addr = (TEMP_SENSOR_ADDR << 1);
+    temp_sensor_transfer_seq.flags = I2C_FLAG_WRITE;
+    temp_sensor_transfer_seq.buf[0].data = &temp_sensor_command;
+    temp_sensor_transfer_seq.buf[0].len = 1;
+
+    NVIC_Enable(I2C0_IRQn);
+
+    temp_sensor_transfer_ret = I2C_TransferInit(SL_I2CSPM_SENSOR_PERIPHERAL, &temp_sensor_transfer_seq);
+    return temp_sensor_transfer_ret;
+}
+
+
+I2C_TransferReturn_TypeDef I2C0_ReadFromSensor(uint8_t* read_buff, uint8_t read_buff_len) {
+    I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
+
     temp_sensor_transfer_seq.addr = (TEMP_SENSOR_ADDR << 1);
     temp_sensor_transfer_seq.flags = I2C_FLAG_READ;
     temp_sensor_transfer_seq.buf[0].data = read_buff;
@@ -74,30 +78,30 @@ I2C_TransferReturn_TypeDef temperature_sensor_ReadFromSensor(uint8_t* read_buff,
 }
 
 
-int16_t temperature_sensor_GetTempReading(void) {
+int16_t I2C0_GetTempReading(void) {
     uint8_t temp_buffer[2];
     uint16_t temp_buffer_len = 2;
     I2C_TransferReturn_TypeDef i2c_ret;
     int16_t temperature_code;
     int16_t temperature_C;
 
-    temperature_sensor_Enable(true);
-    timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
-    i2c_ret = temperature_sensor_SendCommand(CMD_READ_TEMP);
+    I2C0_Enable(true);
+    timerWaitUs_polled(TEMP_SENSOR_POWER_ON_WAIT_US);
+    i2c_ret = I2C0_SendCommand(CMD_READ_TEMP);
     if (i2c_ret != i2cTransferDone) {
         LOG_ERROR("I2C Write Error\r\n");
         return -1;
     }
-    timerWaitUs(TEMP_SENSOR_READ_TEMP_WAIT_US);
+    timerWaitUs_polled(TEMP_SENSOR_READ_TEMP_WAIT_US);
 
-    i2c_ret = temperature_sensor_ReadFromSensor(temp_buffer, temp_buffer_len);
+    i2c_ret = I2C0_ReadFromSensor(temp_buffer, temp_buffer_len);
     if (i2c_ret != i2cTransferDone) {
         LOG_ERROR("I2C Read Error\r\n");
         return -1;
     }
 
-    timerWaitUs(TEMP_SENSOR_POWER_ON_WAIT_US);
-    temperature_sensor_Enable(false);
+    timerWaitUs_polled(TEMP_SENSOR_POWER_ON_WAIT_US);
+    I2C0_Enable(false);
 
     temperature_code = (temp_buffer[0] << 8) | temp_buffer[1];
     temperature_C = (175.25 * temperature_code) / 65536.0 - 46.85; //calculation taken from data sheet

@@ -91,7 +91,7 @@ SL_WEAK void app_init(void)
     //i2c0_clock_init();
 
     letimer0_init();
-    temperature_sensor_Init();
+    I2C0_Init();
 
     letimer0_start();
 
@@ -101,26 +101,6 @@ SL_WEAK void app_init(void)
 
 
 }
-
-
-/*****************************************************************************
- * delayApprox(), private to this file.
- * A value of 3500000 is ~ 1 second. After assignment 1 you can delete or
- * comment out this function. Wait loops are a bad idea in general.
- * We'll discuss how to do this a better way in the next assignment.
- *****************************************************************************/
-/*static void delayApprox(int delay)
-{
-    volatile int i;
-
-    for (i = 0; i < delay; ) {
-      i=i+1;
-    }
-
-} // delayApprox()*/
-
-
-
 
 /**************************************************************************//**
  * Application Process Action.
@@ -132,7 +112,7 @@ SL_WEAK void app_process_action(void)
     // Notice: This function is not passed or has access to Bluetooth stack events.
     //         We will create/use a scheme that is far more energy efficient in
     //         later assignments.
-    event_t event = ev_NONE;
+    /*event_t event = ev_NONE;
     int16_t temperature_C;
 
     event = get_next_event();
@@ -141,10 +121,13 @@ SL_WEAK void app_process_action(void)
         case ev_NONE:
             break;
 
+        case ev_LETIMER0_COMP1:
+            break;
+
         case ev_LETIMER0_UF:
             temperature_C = temperature_sensor_GetTempReading();
             LOG_INFO("Temp in Celsius: %d\r\n", temperature_C);
-            break;
+            break;*/
     }
 }
 

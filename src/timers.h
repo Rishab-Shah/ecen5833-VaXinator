@@ -37,12 +37,32 @@ void letimer0_start(void);
 
 
 /*
- * Waits for given time in microseconds
+ * Waits for given time in microseconds - polling based
  *
  * @param us_wait - Time to wait in microseconds
  *
  * @return None
  */
-void timerWaitUs(uint32_t us_wait);
+void timerWaitUs_polled(uint32_t us_wait);
+
+
+/*
+ * Waits for given time in microseconds - interrupt based
+ *
+ * @param us_wait - Time to wait in microseconds
+ *
+ * @return None
+ */
+void timerWaitUs_irq(uint32_t us_wait);
+
+
+/*
+ * Gets number of milliseconds since execution began (resolution of 3000 ms)
+ *
+ * @param None
+ *
+ * @return Milliseconds since execution began (resolution of 3000 ms)
+ */
+uint64_t letimerMilliseconds(void);
 
 #endif /* SRC_TIMERS_H_ */
