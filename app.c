@@ -88,18 +88,10 @@ SL_WEAK void app_init(void)
 
 
     Osc_InitLETIMER0();
-    //i2c0_clock_init();
 
     LETIMER0_Init();
-    I2C0_Init();
 
     LETIMER0_Start();
-
-    //uint32_t f = I2C_BusFreqGet(I2C0);
-    //f++;
-
-
-
 }
 
 /**************************************************************************//**
@@ -112,23 +104,50 @@ SL_WEAK void app_process_action(void)
     // Notice: This function is not passed or has access to Bluetooth stack events.
     //         We will create/use a scheme that is far more energy efficient in
     //         later assignments.
-    /*event_t event = ev_NONE;
-    int16_t temperature_C;
 
-    event = get_next_event();
+    temp_fsm_state_t current_state;
+    static temp_fsm_state_t next_state = PERIOD_WAIT;
 
-    switch(event) {
-        case ev_NONE:
-            break;
+    current_state = next_state;
 
-        case ev_LETIMER0_COMP1:
-            break;
+    event_t event = Scheduler_GetNextEvent();
 
-        case ev_LETIMER0_UF:
-            temperature_C = temperature_sensor_GetTempReading();
-            LOG_INFO("Temp in Celsius: %d\r\n", temperature_C);
-            break;
-    }*/
+    switch (current_state) {
+      case PERIOD_WAIT:
+          if (event == ev_LETIMER0_UF) {
+              PowerUp();
+              next_state = POWERING_UP;
+          }
+          break;
+
+      case POWERING_UP:
+          if (event == ev_LETIMER0_COMP1) {
+              SendReadTempCommand();
+              next_state = REQUEST_TEMP;
+          }
+          break;
+
+      case REQUEST_TEMP:
+          if (event == ev_I2C0_TRANSFER_DONE) {
+              WaitForTempSensorReading();
+              next_state = READING_TEMP;
+          }
+          break;
+
+      case READING_TEMP:
+          if (event == ev_LETIMER0_COMP1) {
+              RequestTempSensorReading();
+              next_state = RECEIVED_TEMP;
+          }
+          break;
+
+      case RECEIVED_TEMP:
+          if (event == ev_I2C0_TRANSFER_DONE) {
+              ReadTempSensorReading();
+              next_state = PERIOD_WAIT;
+          }
+          break;
+    }
 }
 
 /**************************************************************************//**

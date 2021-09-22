@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "em_i2c.h"
 #include "em_gpio.h"
+#include "em_cmu.h"
 #include "sl_i2cspm.h"
 #include "sl_i2cspm_sensor_config.h"
 #include "src/timers.h"
@@ -58,14 +59,24 @@ I2C_TransferReturn_TypeDef I2C0_SendCommand(uint8_t command);
 
 
 /*
- * Reads data from I2C0
+ * Requests an I2C0 read into i2c_read_buffer
+ *
+ * @param None
+ *
+ * @return status of read
+ */
+I2C_TransferReturn_TypeDef I2C0_RequestRead(void);
+
+
+/*
+ * Copies data stored in i2c_read_buffer into read_buff
  *
  * @param read_buff - Buffer to fill with read data
  * @param read_buff_len - Number of bytes to read
  *
- * @return status of read
+ * @return None
  */
-I2C_TransferReturn_TypeDef I2C0_ReadFromSensor(uint8_t* read_buff, uint8_t read_buff_len);
+void I2C0_ReadBytes(uint8_t* read_buff, uint8_t read_buff_len);
 
 
 /*
@@ -89,12 +100,22 @@ void I2C0_DisableIntForTransfer(void);
 
 
 /*
+ * Tears down the I2C0 module
+ *
+ * @param None
+ *
+ * @return None
+ */
+void I2C0_Teardown(void);
+
+
+/*
  * Gets temperature reading
  *
  * @param None
  *
  * @return temperature in Celsius
  */
-int16_t I2C0_GetTempReading(void);
+//int16_t I2C0_GetTempReading(void);
 
 #endif /* SRC_I2C_H_ */

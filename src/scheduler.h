@@ -10,9 +10,24 @@
 
 #include <stdlib.h>
 #include "em_core.h"
+#include "i2c.h"
+#include "timers.h"
+#include "app.h"
 
 #define EVENT_QUEUE_SIZE  (128)
 #define EVENT_QUEUE_SIZE_MASK  (127)
+
+
+/*
+ * Temperature FSM states enum
+ */
+typedef enum {
+    PERIOD_WAIT,
+    POWERING_UP,
+    REQUEST_TEMP,
+    READING_TEMP,
+    RECEIVED_TEMP
+} temp_fsm_state_t;
 
 
 /*
@@ -64,5 +79,55 @@ void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void);
  * @return current event
  */
 event_t Scheduler_GetNextEvent(void);
+
+
+/*
+ * Powers up I2C0 module and sets up wait time for power-up
+ *
+ * @param None
+ *
+ * @return None
+ */
+void PowerUp(void);
+
+
+/*
+ * Sends read temperature command to temperature sensor
+ *
+ * @param None
+ *
+ * @return None
+ */
+void SendReadTempCommand(void);
+
+
+/*
+ * Sets wait time for temperature reading to complete
+ *
+ * @param None
+ *
+ * @return None
+ */
+void WaitForTempSensorReading(void);
+
+
+/*
+ * Kicks off read from temperature sensor
+ *
+ * @param None
+ *
+ * @return None
+ */
+void RequestTempSensorReading(void);
+
+
+/*
+ * Reads temperature sensor reading and completes teardown of I2C0
+ *
+ * @param None
+ *
+ * @return None
+ */
+void ReadTempSensorReading(void);
 
 #endif /* SRC_SCHEDULER_H_ */
