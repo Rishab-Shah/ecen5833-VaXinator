@@ -87,13 +87,13 @@ SL_WEAK void app_init(void)
 #endif
 
 
-    letimer0_clock_init();
+    Osc_InitLETIMER0();
     //i2c0_clock_init();
 
-    letimer0_init();
+    LETIMER0_Init();
     I2C0_Init();
 
-    letimer0_start();
+    LETIMER0_Start();
 
     //uint32_t f = I2C_BusFreqGet(I2C0);
     //f++;
@@ -127,8 +127,8 @@ SL_WEAK void app_process_action(void)
         case ev_LETIMER0_UF:
             temperature_C = temperature_sensor_GetTempReading();
             LOG_INFO("Temp in Celsius: %d\r\n", temperature_C);
-            break;*/
-    }
+            break;
+    }*/
 }
 
 /**************************************************************************//**

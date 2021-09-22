@@ -10,7 +10,7 @@
 uint64_t letimer0_ticker;
 
 
-void letimer0_init(void) {
+void LETIMER0_Init(void) {
     LETIMER_Init_TypeDef timer_settings;
     uint32_t timer_period_count;
 
@@ -29,7 +29,7 @@ void letimer0_init(void) {
 }
 
 
-void letimer0_start(void) {
+void LETIMER0_Start(void) {
     LETIMER_Enable(LETIMER0, true);
 }
 

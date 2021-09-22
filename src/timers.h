@@ -23,7 +23,7 @@
  *
  * @return None
  */
-void letimer0_init(void);
+void LETIMER0_Init(void);
 
 
 /*
@@ -33,7 +33,7 @@ void letimer0_init(void);
  *
  * @return None
  */
-void letimer0_start(void);
+void LETIMER0_Start(void);
 
 
 /*

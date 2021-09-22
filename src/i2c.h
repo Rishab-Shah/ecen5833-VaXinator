@@ -69,6 +69,26 @@ I2C_TransferReturn_TypeDef I2C0_ReadFromSensor(uint8_t* read_buff, uint8_t read_
 
 
 /*
+ * Enables I2C0 interrupts for transfer
+ *
+ * @param None
+ *
+ * @return None
+ */
+void I2C0_EnableIntForTransfer(void);
+
+
+/*
+ * Disables I2C0 interrupts for transfer
+ *
+ * @param None
+ *
+ * @return None
+ */
+void I2C0_DisableIntForTransfer(void);
+
+
+/*
  * Gets temperature reading
  *
  * @param None

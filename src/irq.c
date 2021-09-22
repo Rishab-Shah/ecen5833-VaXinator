@@ -13,10 +13,10 @@ void LETIMER0_IRQHandler(void) {
     LETIMER0->IFC = 0x1F;
 
     if (interrupt_flags & _LETIMER_IF_UF_MASK) {
-        scheduler_set_event_LETIMER0_UF();
+        Scheduler_SetEvent_LETIMER0_UF();
     }
     else if (interrupt_flags & _LETIMER_IF_COMP1_MASK) {
-        scheduler_set_event_LETIMER0_COMP1();
+        Scheduler_SetEvent_LETIMER0_COMP1();
     }
 }
 
@@ -27,6 +27,6 @@ void I2C0_IRQHandler(void) {
     transfer_status = I2C_Transfer(I2C0);
 
     if (transfer_status == i2cTransferDone) {
-        set_scheduler_event_I2C0_TRANSFER_DONE();
+        Scheduler_SetEvent_I2C0_TRANSFER_DONE();
     }
 }

@@ -33,7 +33,7 @@ typedef enum {
  *
  * @return None
  */
-void scheduler_set_event_LETIMER0_UF(void);
+void Scheduler_SetEvent_LETIMER0_UF(void);
 
 
 /*
@@ -43,7 +43,7 @@ void scheduler_set_event_LETIMER0_UF(void);
  *
  * @return None
  */
-void scheduler_set_event_LETIMER0_COMP1(void);
+void Scheduler_SetEvent_LETIMER0_COMP1(void);
 
 
 /*
@@ -53,7 +53,7 @@ void scheduler_set_event_LETIMER0_COMP1(void);
  *
  * @return None
  */
-void set_scheduler_event_I2C0_TRANSFER_DONE(void);
+void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void);
 
 
 /*
@@ -63,6 +63,6 @@ void set_scheduler_event_I2C0_TRANSFER_DONE(void);
  *
  * @return current event
  */
-event_t get_next_event(void);
+event_t Scheduler_GetNextEvent(void);
 
 #endif /* SRC_SCHEDULER_H_ */

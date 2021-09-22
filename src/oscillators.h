@@ -19,7 +19,7 @@
  *
  * @return None
  */
-void letimer0_clock_init(void);
+void Osc_InitLETIMER0(void);
 
 
 /*
@@ -29,6 +29,6 @@ void letimer0_clock_init(void);
  *
  * @return None
  */
-void i2c0_clock_init(void);
+void Osc_InitI2C0(void);
 
 #endif /* SRC_OSCILLATORS_H_ */

@@ -58,7 +58,7 @@ I2C_TransferReturn_TypeDef I2C0_SendCommand(uint8_t command) {
     temp_sensor_transfer_seq.buf[0].data = &temp_sensor_command;
     temp_sensor_transfer_seq.buf[0].len = 1;
 
-    NVIC_Enable(I2C0_IRQn);
+    NVIC_EnableIRQ(I2C0_IRQn);
 
     temp_sensor_transfer_ret = I2C_TransferInit(SL_I2CSPM_SENSOR_PERIPHERAL, &temp_sensor_transfer_seq);
     return temp_sensor_transfer_ret;
@@ -73,7 +73,9 @@ I2C_TransferReturn_TypeDef I2C0_ReadFromSensor(uint8_t* read_buff, uint8_t read_
     temp_sensor_transfer_seq.buf[0].data = read_buff;
     temp_sensor_transfer_seq.buf[0].len = read_buff_len;
 
-    temp_sensor_transfer_ret = I2CSPM_Transfer(SL_I2CSPM_SENSOR_PERIPHERAL, &temp_sensor_transfer_seq);
+    NVIC_EnableIRQ(I2C0_IRQn);
+
+    temp_sensor_transfer_ret = I2C_TransferInit(SL_I2CSPM_SENSOR_PERIPHERAL, &temp_sensor_transfer_seq);
     return temp_sensor_transfer_ret;
 }
 

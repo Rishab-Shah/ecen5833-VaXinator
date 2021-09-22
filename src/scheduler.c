@@ -21,7 +21,7 @@ static uint8_t q_len = 0;
  *
  * @return None
  */
-void enqueue_event(event_t event);
+static void EventQ_EnqueueEvent(event_t event);
 
 
 /*
@@ -31,10 +31,10 @@ void enqueue_event(event_t event);
  *
  * @return Next event
  */
-event_t dequeue_event(void);
+static event_t EventQ_DequeueEvent(void);
 
 
-void enqueue_event(event_t event) {
+static void EventQ_EnqueueEvent(event_t event) {
     if (q_len == EVENT_QUEUE_SIZE) {
         return;
     }
@@ -43,7 +43,7 @@ void enqueue_event(event_t event) {
 }
 
 
-event_t dequeue_event(void) {
+static event_t EventQ_DequeueEvent(void) {
     event_t current_event;
     if (q_len == 0) {
         current_event = ev_NONE;
@@ -56,39 +56,39 @@ event_t dequeue_event(void) {
 }
 
 
-void scheduler_set_event_LETIMER0_UF(void) {
+void Scheduler_SetEvent_LETIMER0_UF(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
-    enqueue_event(ev_LETIMER0_UF);
+    EventQ_EnqueueEvent(ev_LETIMER0_UF);
     CORE_EXIT_CRITICAL();
 }
 
 
-void scheduler_set_event_LETIMER0_COMP1(void) {
+void Scheduler_SetEvent_LETIMER0_COMP1(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
-    enqueue_event(ev_LETIMER0_COMP1);
+    EventQ_EnqueueEvent(ev_LETIMER0_COMP1);
     CORE_EXIT_CRITICAL();
 }
 
 
-void scheduler_set_event_I2C0_TRANSFER_DONE(void) {
+void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
-    enqueue_event(ev_I2C0_TRANSFER_DONE);
+    EventQ_EnqueueEvent(ev_I2C0_TRANSFER_DONE);
     CORE_EXIT_CRITICAL();
 }
 
 
-event_t get_next_event(void) {
+event_t Scheduler_GetNextEvent(void) {
     event_t current_event;
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
-    current_event = dequeue_event();
+    current_event = EventQ_DequeueEvent();
     CORE_EXIT_CRITICAL();
     return current_event;
 }
