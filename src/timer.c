@@ -7,7 +7,7 @@
 
 #include "timers.h"
 
-uint64_t letimer0_ticker;
+uint64_t letimer0_ticker = 0;
 
 
 void LETIMER0_Init(void) {
@@ -31,6 +31,11 @@ void LETIMER0_Init(void) {
 
 void LETIMER0_Start(void) {
     LETIMER_Enable(LETIMER0, true);
+}
+
+
+void LETIMER0_IncrementTicker(void) {
+    letimer0_ticker++;
 }
 
 

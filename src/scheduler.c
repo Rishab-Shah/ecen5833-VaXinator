@@ -7,7 +7,7 @@
 
 #include "scheduler.h"
 
-#define INCLUDE_LOG_DEBUG 1
+#define INCLUDE_LOG_DEBUG 0
 #include "src/log.h"
 
 static event_t event_q[EVENT_QUEUE_SIZE];
@@ -98,6 +98,7 @@ event_t Scheduler_GetNextEvent(void) {
 
 
 void PowerUp(void) {
+    LETIMER0_IncrementTicker();
     I2C0_Init();
     I2C0_Enable(true);
     timerWaitUs_irq(TEMP_SENSOR_POWER_ON_WAIT_US);
@@ -105,12 +106,13 @@ void PowerUp(void) {
 
 
 void SendReadTempCommand(void) {
-    I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
+    //I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
 
     LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
     sl_power_manager_add_em_requirement(EM1);
 
-    temp_sensor_transfer_ret = I2C0_SendCommand(CMD_READ_TEMP);
+    I2C0_SendCommand(CMD_READ_TEMP);
+    //temp_sensor_transfer_ret = I2C0_SendCommand(CMD_READ_TEMP);
     /*if (temp_sensor_transfer_ret != i2cTransferDone) {
         LOG_ERROR("%d\r\n", temp_sensor_transfer_ret);
     }*/
@@ -126,12 +128,13 @@ void WaitForTempSensorReading(void) {
 
 
 void RequestTempSensorReading(void) {
-    I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
+    //I2C_TransferReturn_TypeDef temp_sensor_transfer_ret;
 
     LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
     sl_power_manager_add_em_requirement(EM1);
 
-    temp_sensor_transfer_ret = I2C0_RequestRead();
+    I2C0_RequestRead();
+    //temp_sensor_transfer_ret = I2C0_RequestRead();
     /*if (temp_sensor_transfer_ret != i2cTransferDone) {
         LOG_ERROR("%d\r\n", temp_sensor_transfer_ret);
     }*/

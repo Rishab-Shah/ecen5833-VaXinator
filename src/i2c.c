@@ -10,7 +10,7 @@
 
 #include "i2c.h"
 
-#define INCLUDE_LOG_DEBUG 1
+#define INCLUDE_LOG_DEBUG 0
 #include "src/log.h"
 
 I2CSPM_Init_TypeDef temp_sensor_init = {

@@ -37,6 +37,16 @@ void LETIMER0_Start(void);
 
 
 /*
+ * Increments LETIMER0 ticker
+ *
+ * @param None
+ *
+ * @return None
+ */
+void LETIMER0_IncrementTicker(void);
+
+
+/*
  * Waits for given time in microseconds - polling based
  *
  * @param us_wait - Time to wait in microseconds
