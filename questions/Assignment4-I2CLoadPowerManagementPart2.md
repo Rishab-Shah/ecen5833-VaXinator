@@ -8,30 +8,32 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
 1. What is the average current per period?
    Answer: 9.90 uA
    <br>Screenshot:  
-   ![Avg_current_per_period](Assignment4-Screenshots/avg_current_per_period.jpg)  
+   ![Avg_current_per_period](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/avg_current_per_period.JPG)  
 
 2. What is the average current when the Si7021 is Powered Off?
-   Answer:
+   Answer: 1.61 uA
    <br>Screenshot:  
-   ![Avg_current_LPM_Off](screenshots/assignment4/avg_current_lpm_off.jpg)  
+   ![Avg_current_LPM_Off](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/avg_current_lpm_off.JPG)  
 
 3. What is the average current when the Si7021 is Powered On?
-   Answer:
+   Answer: 199.58 uA
    <br>Screenshot:  
-   ![Avg_current_LPM_Off](screenshots/assignment4/avg_current_lpm_on.jpg)  
+   ![Avg_current_LPM_Off](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/avg_current_lpm_on.JPG)  
 
 4. How long is the Si7021 Powered On for 1 temperature reading?
-   Answer:
+   Answer: 97.5 ms
    <br>Screenshot:  
-   ![duration_lpm_on](screenshots/assignment4/avg_current_lpm_on.jpg)  
+   ![duration_lpm_on](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/avg_current_lpm_on.JPG)  
 
 5. Compute what the total operating time of your design for assignment 4 would be in hours, assuming a 1000mAh battery power supply?
-   Answer:
+   Answer: 1000 mAh / 9.90 uA = 101,010.101 hours
    
 6. How has the power consumption performance of your design changed since the previous assignment?
-   Answer:
+   Answer: With interrupt-based I2C transactions, the average current for the transaction is much lower than in the previous assignment, and thus has lower power consumption.
    
 7. Describe how you have tested your code to ensure you are sleeping in EM1 mode during I2C transfers.
-   Answer:
+   Answer: I would look at the screenshots from Assignment 2 and check the average current for when the Gecko is sleeping in EM1 there, and compared the currents for when I know the Gecko to be sleeping in this assignment.
+    <br>Screenshot:
+   ![EM1_Sleep_Current](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/EM1_sleep_current.JPG)
    
 
