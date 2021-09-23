@@ -7,7 +7,7 @@
 
 #include "scheduler.h"
 
-#define INCLUDE_LOG_DEBUG 0
+#define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
 static event_t event_q[EVENT_QUEUE_SIZE];
