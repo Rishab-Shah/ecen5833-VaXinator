@@ -32,7 +32,7 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
    Answer: With interrupt-based I2C transactions, the average current for the transaction is much lower than in the previous assignment, and thus has lower power consumption.
    
 7. Describe how you have tested your code to ensure you are sleeping in EM1 mode during I2C transfers.
-   Answer: I would look at the screenshots from Assignment 2 and check the average current for when the Gecko is sleeping in EM1 there, and compared the currents for when I know the Gecko to be sleeping in this assignment.
+   Answer: I would look at the screenshots from Assignment 2 and check the average current for when the Gecko is sleeping in EM1 there, and compared the currents for when I know the Gecko to be sleeping in this assignment. The current measured for sleeping in EM1 in Assignment 2 was around 3.5 mA, and from the screenshot below, we can see that the current at the point where we are sleeping in EM1 is 3.87 mA, which is very close.
     <br>Screenshot:
    ![EM1_Sleep_Current](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/EM1_sleep_current.JPG)
    
