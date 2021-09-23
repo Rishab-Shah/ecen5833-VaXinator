@@ -6,9 +6,9 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
 *Please include screenshots of the profiler window detailing each current measurement captured.  See the file Instructions to add screenshots in assignment.docx in the ECEN 5823 Student Public Folder.* 
 
 1. What is the average current per period?
-   Answer:
+   Answer: 9.90 uA
    <br>Screenshot:  
-   ![Avg_current_per_period](screenshots/assignment4/avg_current_per_period.jpg)  
+   ![Avg_current_per_period](Assignment4-Screenshots/avg_current_per_period.jpg)  
 
 2. What is the average current when the Si7021 is Powered Off?
    Answer:
