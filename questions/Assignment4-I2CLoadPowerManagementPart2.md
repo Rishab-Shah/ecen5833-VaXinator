@@ -26,7 +26,7 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
    ![duration_lpm_on](https://github.com/CU-ECEN-5823/ecen5823-assignment4-vido2373/blob/master/questions/Assignment4-Screenshots/avg_current_lpm_on.JPG)  
 
 5. Compute what the total operating time of your design for assignment 4 would be in hours, assuming a 1000mAh battery power supply?
-   Answer: 1000 mAh / 9.90 uA = 101,010.101 hours
+   Answer: 1000 mAh / (9.90 uA/3 sec * 60 sec/min * 60 min/hr) = 84.175 hours
    
 6. How has the power consumption performance of your design changed since the previous assignment?
    Answer: With interrupt-based I2C transactions, the average current for the transaction is much lower than in the previous assignment, and thus has lower power consumption.
