@@ -105,49 +105,11 @@ SL_WEAK void app_process_action(void)
     //         We will create/use a scheme that is far more energy efficient in
     //         later assignments.
 
-    temp_fsm_state_t current_state;
-    static temp_fsm_state_t next_state = PERIOD_WAIT;
 
-    current_state = next_state;
 
-    event_t event = Scheduler_GetNextEvent();
+    //event_t event = Scheduler_GetNextEvent();
 
-    switch (current_state) {
-      case PERIOD_WAIT:
-          if (event == ev_LETIMER0_UF) {
-              PowerUp();
-              next_state = POWERING_UP;
-          }
-          break;
-
-      case POWERING_UP:
-          if (event == ev_LETIMER0_COMP1) {
-              SendReadTempCommand();
-              next_state = REQUEST_TEMP;
-          }
-          break;
-
-      case REQUEST_TEMP:
-          if (event == ev_I2C0_TRANSFER_DONE) {
-              WaitForTempSensorReading();
-              next_state = READING_TEMP;
-          }
-          break;
-
-      case READING_TEMP:
-          if (event == ev_LETIMER0_COMP1) {
-              RequestTempSensorReading();
-              next_state = RECEIVED_TEMP;
-          }
-          break;
-
-      case RECEIVED_TEMP:
-          if (event == ev_I2C0_TRANSFER_DONE) {
-              ReadTempSensorReading();
-              next_state = PERIOD_WAIT;
-          }
-          break;
-    }
+    //TemperatureStateMachine(event);
 }
 
 /**************************************************************************//**
@@ -164,17 +126,17 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     // Just a trick to hide a compiler warning about unused input parameter evt.
     // We will add real functionality here later.
-    if (evt->header) {
-            printf(".\n");
-    }
+    //if (evt->header) {
+    //        printf(".\n");
+    //}
 
     // Some events require responses from our application code,
     // and don’t necessarily advance our state machines.
     // For assignment 5 uncomment the next 2 function calls
-    // handle_ble_event(evt); // put this code in ble.c/.h
+    handle_ble_event(evt); // put this code in ble.c/.h
 
     // sequence through states driven by events
-    // state_machine(evt);    // put this code in scheduler.c/.h
+    state_machine(evt);    // put this code in scheduler.c/.h
 
 
 

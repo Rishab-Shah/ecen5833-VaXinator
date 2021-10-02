@@ -50,6 +50,7 @@
 #include "sl_status.h" // for sl_status_print()
 
 #include "src/ble_device_type.h"
+#include "src/ble.h"
 #include "src/gpio.h"
 #include "src/lcd.h"
 #include "src/oscillators.h"
@@ -65,7 +66,7 @@
 #define EM3 (3)
 
 
-#define LOWEST_ENERGY_LEVEL  (EM3)
+#define LOWEST_ENERGY_LEVEL  (EM2)
 
 #define LFXO_FREQ   (32768)
 #define ULFRCO_FREQ (1000)

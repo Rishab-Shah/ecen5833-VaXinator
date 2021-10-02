@@ -13,6 +13,7 @@ void LETIMER0_IRQHandler(void) {
     LETIMER0->IFC = 0x1F;
 
     if (interrupt_flags & _LETIMER_IF_UF_MASK) {
+        LETIMER0_IncrementTicker();
         Scheduler_SetEvent_LETIMER0_UF();
     }
     else if (interrupt_flags & _LETIMER_IF_COMP1_MASK) {

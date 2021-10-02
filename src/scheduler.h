@@ -13,6 +13,9 @@
 #include "i2c.h"
 #include "timers.h"
 #include "app.h"
+#include "sl_bluetooth.h"
+#include "ble.h"
+#include "gatt_db.h"
 
 #define EVENT_QUEUE_SIZE  (128)
 #define EVENT_QUEUE_SIZE_MASK  (127)
@@ -37,7 +40,8 @@ typedef enum {
     ev_NONE,
     ev_LETIMER0_COMP1,
     ev_LETIMER0_UF,
-    ev_I2C0_TRANSFER_DONE
+    ev_I2C0_TRANSFER_DONE,
+    ev_SHUTDOWN
 } event_t;
 
 
@@ -122,12 +126,32 @@ void RequestTempSensorReading(void);
 
 
 /*
- * Reads temperature sensor reading and completes teardown of I2C0
+ * Reads out temperature sensor reading and completes teardown of I2C0
  *
- * @param None
+ * @param ble_data - BLE data struct with connection info
  *
  * @return None
  */
-void ReadTempSensorReading(void);
+void ReadOutTempSensorReading(ble_data_struct_t* ble_data);
+
+
+/*
+ * State machine code
+ *
+ * @param event - Event to pass into state machine
+ *
+ * @return None
+ */
+//void TemperatureStateMachine(event_t event);
+
+
+/*
+ * State machine for BLE events
+ *
+ * @param event - BLE event to pass into state machine
+ *
+ * @return None
+ */
+void state_machine(sl_bt_msg_t* event);
 
 #endif /* SRC_SCHEDULER_H_ */
