@@ -19,7 +19,7 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
    <br>Screenshot:  
    ![peak_current_of_advertisement](https://github.com/CU-ECEN-5823/ecen5823-assignment5-vido2373/blob/master/questions/Assignment5-Screenshots/peak_current_of_advertisement.PNG)  
 
-4. Provide screen shot showing the connection interval settings. Do they match the values you set in your slave(server) code or the master's(client) values?.
+4. Provide screen shot showing the connection interval settings. Do they match the values you set in your slave(server) code or the master's(client) values? *No, they do not, we see in the log that the connection interval is set to about 24 ms, and here we are seeing around 30 ms.*
    <br>Screenshot: 
    ![connection_interval](https://github.com/CU-ECEN-5823/ecen5823-assignment5-vido2373/blob/master/questions/Assignment5-Screenshots/connection_interval.PNG)  
 
