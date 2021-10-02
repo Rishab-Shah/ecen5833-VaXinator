@@ -7,7 +7,7 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
 
 1. Provide screen shot verifying the Advertising period matches the values required for the assignment.
    <br>Screenshot:  
-   ![advertising_period](https://github.com/CU-ECEN-5823/ecen5823-assignment5-vido2373/blob/master/questions/Assignment5-Screenshots/advertising_period.PNG)  
+   ![advertising_period]()  
 
 2. What is the average current between advertisements?
    Answer: 897.36 nA
