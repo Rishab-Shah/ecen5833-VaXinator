@@ -108,14 +108,14 @@ void PowerUp(void) {
 
 void SendReadTempCommand(void) {
     LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
-    //sl_power_manager_add_em_requirement(EM1);
+    sl_power_manager_add_em_requirement(EM1);
 
     I2C0_SendCommand(CMD_READ_TEMP);
 }
 
 
 void WaitForTempSensorReading(void) {
-    //sl_power_manager_remove_em_requirement(EM1);
+    sl_power_manager_remove_em_requirement(EM1);
     I2C0_DisableIntForTransfer();
 
     timerWaitUs_irq(TEMP_SENSOR_READ_TEMP_WAIT_US);
@@ -124,7 +124,7 @@ void WaitForTempSensorReading(void) {
 
 void RequestTempSensorReading(void) {
     LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
-    //sl_power_manager_add_em_requirement(EM1);
+    sl_power_manager_add_em_requirement(EM1);
 
     I2C0_RequestRead();
 }
@@ -139,7 +139,7 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
     uint32_t temp_C_float;
     sl_status_t ble_status;
 
-    //sl_power_manager_remove_em_requirement(EM1);
+    sl_power_manager_remove_em_requirement(EM1);
     I2C0_DisableIntForTransfer();
 
     I2C0_ReadBytes(read_buff, 2);
@@ -226,6 +226,7 @@ void state_machine(sl_bt_msg_t* event) {
             LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
             NVIC_DisableIRQ(I2C0_IRQn);
             I2C0_Teardown();
+            sl_power_manager_remove_em_requirement(EM1);
             ev = ev_SHUTDOWN;
         }
         else {

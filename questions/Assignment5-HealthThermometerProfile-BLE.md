@@ -33,12 +33,12 @@ See [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
    ![slave_latency](https://github.com/CU-ECEN-5823/ecen5823-assignment5-vido2373/blob/master/questions/Assignment5-Screenshots/slave_latency.PNG)  
 
 7. What is the peak current of a data transmission when the phone is connected and placed next to the Blue Gecko? 
-   Answer: 4.51 mA
+   Answer: 5.05 mA
    <br>Screenshot:  
    ![peak_current_phone_next_to](https://github.com/CU-ECEN-5823/ecen5823-assignment5-vido2373/blob/master/questions/Assignment5-Screenshots/peak_current_phone_next_to.PNG)  
    
 8. What is the peak current of a data transmission when the phone is connected and placed approximately 20 feet away from the Blue Gecko? 
-   Answer: 4.91 mA
+   Answer: 23.48 mA
    <br>Screenshot:  
    ![peak_current_phone_20ft_away](https://github.com/CU-ECEN-5823/ecen5823-assignment5-vido2373/blob/master/questions/Assignment5-Screenshots/peak_current_phone_20ft_away.PNG)  
    
