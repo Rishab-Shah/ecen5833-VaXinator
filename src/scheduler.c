@@ -226,7 +226,6 @@ void state_machine(sl_bt_msg_t* event) {
             LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
             NVIC_DisableIRQ(I2C0_IRQn);
             I2C0_Teardown();
-            sl_power_manager_remove_em_requirement(EM1);
             ev = ev_SHUTDOWN;
         }
         else {
