@@ -35,8 +35,8 @@ uint8_t temp_sensor_command = CMD_READ_TEMP;
 void I2C0_Init(void) {
     I2CSPM_Init(&temp_sensor_init);
 
-    GPIO_DriveStrengthSet(TEMP_SENSOR_POWER_PORT, gpioDriveStrengthWeakAlternateWeak);
-    GPIO_PinModeSet(TEMP_SENSOR_POWER_PORT, TEMP_SENSOR_POWER_PIN, gpioModePushPull, false);
+    //GPIO_DriveStrengthSet(TEMP_SENSOR_POWER_PORT, gpioDriveStrengthWeakAlternateWeak);
+    //GPIO_PinModeSet(TEMP_SENSOR_POWER_PORT, TEMP_SENSOR_POWER_PIN, gpioModePushPull, false);
 }
 
 
@@ -97,7 +97,7 @@ void I2C0_DisableIntForTransfer(void) {
 
 
 void I2C0_Teardown(void) {
-    GPIO_PinModeSet(TEMP_SENSOR_POWER_PORT, TEMP_SENSOR_POWER_PORT, gpioModeDisabled, 0);
+    //GPIO_PinModeSet(TEMP_SENSOR_POWER_PORT, TEMP_SENSOR_POWER_PORT, gpioModeDisabled, 0);
     GPIO_PinModeSet(SL_I2CSPM_SENSOR_SCL_PORT, SL_I2CSPM_SENSOR_SCL_PIN, gpioModeDisabled, 0);
     GPIO_PinModeSet(SL_I2CSPM_SENSOR_SDA_PORT, SL_I2CSPM_SENSOR_SDA_PIN, gpioModeDisabled, 0);
 

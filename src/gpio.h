@@ -26,6 +26,12 @@
 #define LED1_port  gpioPortF
 #define LED1_pin   5
 
+#define LCD_ENABLE_PORT  (gpioPortD)
+#define LCD_ENABLE_PIN   (15)
+
+#define LCD_EXCOMIN_PORT (gpioPortD)
+#define LCD_EXCOMIN_PIN  (13)
+
 
 
 
@@ -39,8 +45,8 @@ void gpioLed0SetOff();
 void gpioLed1SetOn();
 void gpioLed1SetOff();
 
-
-
+void gpioSensorEnSetOn(void);
+void gpioSetDisplayExtcomin(int on);
 
 
 #endif /* SRC_GPIO_H_ */

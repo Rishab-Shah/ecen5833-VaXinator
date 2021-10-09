@@ -44,6 +44,9 @@ void handle_ble_event(sl_bt_msg_t* event) {
             BLE_HandleIndicationTimeoutEvent();
             break;
 
+        case sl_bt_evt_system_soft_timer_id:
+            BLE_HandleSoftTimerEvent();
+
     }
 }
 
@@ -94,6 +97,16 @@ void BLE_HandleBootEvent(void) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_advertiser_start: %d\r\n", ble_status);
     }
+
+    displayInit();
+
+    displayPrintf(DISPLAY_ROW_NAME, "Server");
+    displayPrintf(DISPLAY_ROW_BTADDR, "%x:%x:%x:%x:%x:%x",
+                  ble_data.address.addr[0], ble_data.address.addr[1],
+                  ble_data.address.addr[2], ble_data.address.addr[3],
+                  ble_data.address.addr[4], ble_data.address.addr[5]);
+    displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
+    displayPrintf(DISPLAY_ROW_ASSIGNMENT, "A6");
 }
 
 
@@ -115,6 +128,8 @@ void BLE_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_connection_set_parameters: %d\r\n", ble_status);
     }
+
+    displayPrintf(DISPLAY_ROW_CONNECTION, "Connected");
 }
 
 
@@ -131,6 +146,8 @@ void BLE_HandleConnectionClosedEvent(void) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_advertiser_start: %d\r\n", ble_status);
     }
+
+    displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
 }
 
 
@@ -144,6 +161,7 @@ void BLE_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
 
 
 void BLE_HandleExternalSignalEvent(void) {
+    ble_data.readingTemp = 1;
     return;
 }
 
@@ -178,4 +196,9 @@ void BLE_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
 
 void BLE_HandleIndicationTimeoutEvent(void) {
     LOG_ERROR("Timeout occurred on indication\r\n");
+}
+
+
+void BLE_HandleSoftTimerEvent(void) {
+    displayUpdate();
 }

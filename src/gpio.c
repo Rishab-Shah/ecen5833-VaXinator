@@ -38,6 +38,8 @@ void gpioInit()
 } // gpioInit()
 
 
+
+
 void gpioLed0SetOn()
 {
 	GPIO_PinOutSet(LED0_port,LED0_pin);
@@ -62,7 +64,19 @@ void gpioLed1SetOff()
 }
 
 
+void gpioSensorEnSetOn(void) {
+    GPIO_DriveStrengthSet(LCD_ENABLE_PORT, gpioDriveStrengthWeakAlternateWeak);
+    GPIO_PinModeSet(LCD_ENABLE_PORT, LCD_ENABLE_PIN, gpioModePushPull, false);
+    GPIO_PinOutSet(LCD_ENABLE_PORT, LCD_ENABLE_PIN);
+}
 
 
-
+void gpioSetDisplayExtcomin(int on) {
+    if (on) {
+        GPIO_PinOutSet(LCD_EXCOMIN_PORT, LCD_EXCOMIN_PIN);
+    }
+    else {
+        GPIO_PinOutClear(LCD_EXCOMIN_PORT, LCD_EXCOMIN_PIN);
+    }
+}
 

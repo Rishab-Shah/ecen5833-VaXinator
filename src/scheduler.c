@@ -101,7 +101,7 @@ event_t Scheduler_GetNextEvent(void) {
 
 void PowerUp(void) {
     I2C0_Init();
-    I2C0_Enable(true);
+    //I2C0_Enable(true);
     timerWaitUs_irq(TEMP_SENSOR_POWER_ON_WAIT_US);
 }
 
@@ -143,7 +143,7 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
     I2C0_DisableIntForTransfer();
 
     I2C0_ReadBytes(read_buff, 2);
-    I2C0_Enable(false);
+    //I2C0_Enable(false);
 
     temperature_code = (read_buff[0] << 8) | read_buff[1];
     temperature_C = (175.25 * temperature_code) / 65536.0 - 46.85; //calculation taken from data sheet
@@ -163,6 +163,8 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_gatt_server_send_indication: %d\r\n", ble_status);
     }
+
+    displayPrintf(DISPLAY_ROW_TEMPVALUE, "Temp=%d", temperature_C);
 
     ble_data->indicationInFlight = true;
     I2C0_Teardown();
@@ -221,22 +223,18 @@ void state_machine(sl_bt_msg_t* event) {
     event_t ev;
 
     if (!(ble_data->connected) || !(ble_data->indicating)) {
-        if (ble_data->readingTemp) {
-            ble_data->readingTemp = 0;
-            LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
-            NVIC_DisableIRQ(I2C0_IRQn);
-            I2C0_Teardown();
-            ev = ev_SHUTDOWN;
-        }
-        else {
-            return;
-        }
+        ble_data->readingTemp = 0;
+        LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
+        NVIC_DisableIRQ(I2C0_IRQn);
+        I2C0_Teardown();
+        displayPrintf(DISPLAY_ROW_TEMPVALUE, "");
+        ev = ev_SHUTDOWN;
+    }
+    else if (!ble_data->readingTemp){
+        return;
     }
     else {
-      if (!(ble_data->readingTemp)) {
-          ble_data->readingTemp = 1;
-      }
-      ev = event->data.evt_system_external_signal.extsignals;
+        ev = event->data.evt_system_external_signal.extsignals;
     }
 
     current_state = next_state;
@@ -282,6 +280,7 @@ void state_machine(sl_bt_msg_t* event) {
         case RECEIVED_TEMP:
             if (ev == ev_I2C0_TRANSFER_DONE) {
                 ReadOutTempSensorReading(ble_data);
+                ble_data->readingTemp = 0;
                 next_state = PERIOD_WAIT;
             }
             else if (ev == ev_SHUTDOWN) {

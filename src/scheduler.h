@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include "em_core.h"
 #include "i2c.h"
+#include "lcd.h"
 #include "timers.h"
 #include "app.h"
 #include "sl_bluetooth.h"

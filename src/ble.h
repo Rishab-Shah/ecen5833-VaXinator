@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
+#include "lcd.h"
 
 #define UINT8_TO_BITSTREAM(p, n) { *(p)++ = (uint8_t)(n); }
 
@@ -135,6 +136,16 @@ void BLE_HandleCharacteristicStatusEvent(sl_bt_msg_t* event);
  * @return None
  */
 void BLE_HandleIndicationTimeoutEvent(void);
+
+
+/*
+ * Handles BLE soft timer event
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void BLE_HandleSoftTimerEvent(void);
 
 
 #endif /* SRC_BLE_H_ */
