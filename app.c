@@ -92,6 +92,8 @@ SL_WEAK void app_init(void)
     LETIMER0_Init();
 
     LETIMER0_Start();
+
+    BLE_Init();
 }
 
 /**************************************************************************//**
@@ -136,8 +138,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     handle_ble_event(evt); // put this code in ble.c/.h
 
     // sequence through states driven by events
-    state_machine(evt);    // put this code in scheduler.c/.h
-
+#if DEVICE_IS_BLE_SERVER
+    BleServer_TemperatureStateMachine(evt);    // put this code in scheduler.c/.h
+#else
+    BleClient_DiscoveryStateMachine(evt);
+#endif
 
 
 } // sl_bt_on_event()

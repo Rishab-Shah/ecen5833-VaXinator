@@ -23,7 +23,7 @@
 
 
 /*
- * Temperature FSM states enum
+ * Server Temperature FSM states enum
  */
 typedef enum {
     PERIOD_WAIT,
@@ -35,6 +35,18 @@ typedef enum {
 
 
 /*
+ * Client Discovery FSM states enum
+ */
+typedef enum {
+    SCANNING,
+    RECEIVING_SERVICE_INFO,
+    RECEIVING_CHARACTERISTIC_INFO,
+    ENABLING_INDICATIONS,
+    DISCOVERED
+} disc_fsm_state_t;
+
+
+/*
  * Event enum
  */
 typedef enum {
@@ -43,7 +55,7 @@ typedef enum {
     ev_LETIMER0_UF,
     ev_I2C0_TRANSFER_DONE,
     ev_SHUTDOWN
-} event_t;
+} temperature_event_t;
 
 
 /*
@@ -83,7 +95,22 @@ void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void);
  *
  * @return current event
  */
-event_t Scheduler_GetNextEvent(void);
+temperature_event_t Scheduler_GetNextEvent(void);
+
+
+/************************************************/
+/***************Server Functions*****************/
+/************************************************/
+
+
+/*
+ * Temperature state machine driven by BLE Server events
+ *
+ * @param event - BLE event to pass into state machine
+ *
+ * @return None
+ */
+void BleServer_TemperatureStateMachine(sl_bt_msg_t* event);
 
 
 /*
@@ -146,13 +173,68 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data);
 //void TemperatureStateMachine(event_t event);
 
 
+/************************************************/
+/***************Client Functions*****************/
+/************************************************/
+
+
 /*
- * State machine for BLE events
+ * Discovery state machine driven by BLE Client events
  *
  * @param event - BLE event to pass into state machine
  *
  * @return None
  */
-void state_machine(sl_bt_msg_t* event);
+void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event);
+
+
+/*
+ * Requests service info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestServiceInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Requests characteristic info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestCharacteristicInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Enables indications from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_EnableIndications(ble_data_struct_t* ble_data);
+
+
+/*
+ * Displays indications being handled from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_SetDisplayingOfIndications(ble_data_struct_t* ble_data);
+
+
+/*
+ * Restarts scanning upon closed connection
+ *
+ * @param None
+ *
+ * @return None
+ */
+void BleClient_RestartScanning(void);
 
 #endif /* SRC_SCHEDULER_H_ */
