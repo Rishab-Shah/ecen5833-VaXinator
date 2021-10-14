@@ -114,23 +114,7 @@ ble_data_struct_t* BLE_GetDataStruct(void) {
 void BleServer_HandleBootEvent(void) {
     sl_status_t ble_status;
 
-    // Get unique id
-    /*ble_status = sl_bt_system_get_identity_address(&(ble_data.deviceAddress), &(ble_data.myAddressType));
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_system_get_identity_address: %d\r\n", ble_status);
-    }*/
-
-    // Pad and reverse unique ID to get System ID.
-    ble_data.systemId[0] = ble_data.serverAddress.addr[5];
-    ble_data.systemId[1] = ble_data.serverAddress.addr[4];
-    ble_data.systemId[2] = ble_data.serverAddress.addr[3];
-    ble_data.systemId[3] = 0xFF;
-    ble_data.systemId[4] = 0xFE;
-    ble_data.systemId[5] = ble_data.serverAddress.addr[2];
-    ble_data.systemId[6] = ble_data.serverAddress.addr[1];
-    ble_data.systemId[7] = ble_data.serverAddress.addr[0];
-
-    ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_system_id, 0, sizeof(ble_data.systemId), ble_data.systemId);
+    ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_system_id, 0, sizeof(ble_data.serverAddress.addr), ble_data.serverAddress.addr);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %d\r\n", ble_status);
     }
@@ -285,10 +269,10 @@ void BleClient_HandleBootEvent(void) {
     }
 
     // Set the default connection parameters for subsequent connections
-    /*ble_status = sl_bt_connection_set_default_parameters(120, 120, 4, 1500, 0, 0xFFFF);
+    ble_status = sl_bt_connection_set_default_parameters(120, 120, 4, 1500, 0, 0xFFFF);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_connection_set_default_parameters: %d\r\n", ble_status);
-    }*/
+    }
 
     ble_status = sl_bt_scanner_start(sl_bt_gap_1m_phy, sl_bt_scanner_discover_generic);
     if (ble_status != SL_STATUS_OK) {
@@ -311,11 +295,11 @@ void BleClient_HandleScanReportEvent(sl_bt_msg_t* event) {
     sl_status_t ble_status;
 
     // Check for packet type: Connectable Scannable Undirected Advertising
-    if (event->data.evt_scanner_scan_report.packet_type == 0) {
+    if ((event->data.evt_scanner_scan_report.packet_type & 0x7) == 0) {
         // Check for address type: Public Address
-        if (event->data.evt_scanner_scan_report.address_type == 0) {
+        if (event->data.evt_scanner_scan_report.address_type == sl_bt_gap_public_address) {
             // Check for addresses matching
-            if (!memcmp(&(ble_data.serverAddress.addr[0]), &(event->data.evt_scanner_scan_report.address.addr[0]), 6)) {
+            if (!memcmp(&(ble_data.serverAddress.addr[0]), &(event->data.evt_scanner_scan_report.address.addr[0]), sizeof(bd_addr))) {
                 ble_status = sl_bt_scanner_stop();
                 if (ble_status != SL_STATUS_OK) {
                     LOG_ERROR("sl_bt_scanner_stop: %d\r\n", ble_status);
@@ -358,15 +342,16 @@ void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
 
 void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
     sl_status_t ble_status;
-    uint8array value_array;
+    uint8_t* value_array;
     int32_t temp_value;
 
     if (ble_data.c_Connected && ble_data.c_Indicating) {
-        value_array = event->data.evt_gatt_characteristic_value.value;
+        value_array = event->data.evt_gatt_characteristic_value.value.data;
 
-        temp_value = gattFloat32ToInt(value_array.data);
+        temp_value = gattFloat32ToInt(&value_array[0]);
+        //temp_value_final = UINT32_TO_FLOAT(temp_value * 1000, -3);
 
-        displayPrintf(DISPLAY_ROW_TEMPVALUE, "%d", temp_value);
+        displayPrintf(DISPLAY_ROW_TEMPVALUE, "Temp=%d", temp_value);
 
         ble_status = sl_bt_gatt_send_characteristic_confirmation(ble_data.c_ConnectionHandle);
         if (ble_status != SL_STATUS_OK) {
@@ -379,6 +364,9 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
 void BleClient_HandleConnectionClosedEvent(void) {
     ble_data.c_Connected = false;
     ble_data.c_Indicating = false;
+    displayPrintf(DISPLAY_ROW_BTADDR2, "");
+    displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
+    displayPrintf(DISPLAY_ROW_TEMPVALUE, "");
 }
 
 
@@ -400,12 +388,12 @@ int32_t gattFloat32ToInt(const uint8_t *value_start_little_endian)
     int8_t exponent = (int8_t)value_start_little_endian[4];
     // sign extend the mantissa value if the mantissa is negative
     if (value_start_little_endian[3] & 0x80) { // msb of [3] is the sign of the mantissa
-    signByte = 0xFF;
+        signByte = 0xFF;
     }
     mantissa = (int32_t) (value_start_little_endian[1] << 0) |
-    (value_start_little_endian[2] << 8) |
-    (value_start_little_endian[3] << 16) |
-    (signByte << 24) ;
+               (value_start_little_endian[2] << 8) |
+               (value_start_little_endian[3] << 16) |
+               (signByte << 24);
     // value = 10^exponent * mantissa, pow() returns a double type
     return (int32_t) (pow(10, exponent) * mantissa);
 } // gattFloat32ToInt

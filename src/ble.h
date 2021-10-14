@@ -38,7 +38,6 @@ typedef struct {
     // values that are common to servers and clients, no prefixes
     bd_addr serverAddress;
     uint8_t serverAddressType;
-    uint8_t systemId[8];
     // Values unique for server, prefixed with "s_"
     uint8_t s_AdvertisingHandle;
     uint8_t s_ConnectionHandle;
