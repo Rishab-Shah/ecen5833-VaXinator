@@ -30,8 +30,8 @@ void gpioInit()
 	GPIO_PinModeSet(LED0_port, LED0_pin, gpioModePushPull, false);
 
 	// GPIO_DriveStrengthSet(LED1_port, gpioDriveStrengthStrongAlternateStrong);
-	//GPIO_DriveStrengthSet(LED1_port, gpioDriveStrengthWeakAlternateWeak);
-	//GPIO_PinModeSet(LED1_port, LED1_pin, gpioModePushPull, false);
+	GPIO_DriveStrengthSet(LED1_port, gpioDriveStrengthWeakAlternateWeak);
+	GPIO_PinModeSet(LED1_port, LED1_pin, gpioModePushPull, false);
 
 
 
@@ -61,6 +61,13 @@ void gpioLed1SetOn()
 void gpioLed1SetOff()
 {
 	GPIO_PinOutClear(LED1_port,LED1_pin);
+}
+
+
+void PB0_Init(void) {
+    GPIO_PinModeSet(PB0_port, PB0_pin, gpioModeInputPullFilter, true);
+    GPIO_ExtIntConfig(PB0_port, PB0_pin, PB0_pin, true, true, true);
+    NVIC_EnableIRQ(GPIO_EVEN_IRQn);
 }
 
 

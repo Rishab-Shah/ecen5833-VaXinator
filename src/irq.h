@@ -10,6 +10,7 @@
 
 #include "em_letimer.h"
 #include "em_i2c.h"
+#include "em_gpio.h"
 #include "gpio.h"
 #include "scheduler.h"
 
@@ -31,5 +32,15 @@ void LETIMER0_IRQHandler(void);
  * @return None
  */
 void I2C0_IRQHandler(void);
+
+
+/*
+ * PB0 ISR
+ *
+ * @param None
+ *
+ * @return None
+ */
+void GPIO_EVEN_IRQHandler(void);
 
 #endif /* SRC_IRQ_H_ */

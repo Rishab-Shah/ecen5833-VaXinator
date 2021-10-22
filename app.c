@@ -94,6 +94,9 @@ SL_WEAK void app_init(void)
     LETIMER0_Start();
 
     BLE_Init();
+
+    gpioInit();
+    PB0_Init();
 }
 
 /**************************************************************************//**

@@ -10,16 +10,13 @@
 
 #include <stdlib.h>
 #include "em_core.h"
+#include "ble.h"
 #include "i2c.h"
 #include "lcd.h"
 #include "timers.h"
 #include "app.h"
 #include "sl_bluetooth.h"
-#include "ble.h"
 #include "gatt_db.h"
-
-#define EVENT_QUEUE_SIZE  (128)
-#define EVENT_QUEUE_SIZE_MASK  (127)
 
 
 /*
@@ -46,16 +43,11 @@ typedef enum {
 } disc_fsm_state_t;
 
 
-/*
- * Event enum
- */
-typedef enum {
-    ev_NONE,
-    ev_LETIMER0_COMP1,
-    ev_LETIMER0_UF,
-    ev_I2C0_TRANSFER_DONE,
-    ev_SHUTDOWN
-} temperature_event_t;
+
+
+/************************************************/
+/****************Event Handlers******************/
+/************************************************/
 
 
 /*
@@ -89,13 +81,23 @@ void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void);
 
 
 /*
- * Gets next event from the scheduler
+ * Sets PB0_PRESSED event
  *
  * @param None
  *
- * @return current event
+ * @return None
  */
-temperature_event_t Scheduler_GetNextEvent(void);
+void Scheduler_SetEvent_PB0_PRESSED(void);
+
+
+/*
+ * Sets PB0_RELEASED event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void Scheduler_SetEvent_PB0_RELEASED(void);
 
 
 /************************************************/

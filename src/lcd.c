@@ -298,7 +298,7 @@ void displayInit()
     //           set up a 1 second repeating soft timer and uncomment the following lines
 
 	  sl_status_t          timer_response;
-	  timer_response = sl_bt_system_set_soft_timer(32768, 2, false);
+	  timer_response = sl_bt_system_set_soft_timer(LCD_TIMER_INTERVAL, LCD_TIMER_HANDLE, false);
 	  if (timer_response != SL_STATUS_OK) {
 	      LOG_ERROR("sl_bt_system_set_soft_timer");
     }

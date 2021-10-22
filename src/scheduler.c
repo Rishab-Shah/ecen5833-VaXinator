@@ -10,52 +10,10 @@
 #define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
-static temperature_event_t event_q[EVENT_QUEUE_SIZE];
-static uint8_t rd_ptr = 0;
-//static uint8_t wr_ptr = 0;
-static uint8_t q_len = 0;
 
-
-/*
- * Enqueues event onto event queue
- *
- * @param event - Event to be enqueued
- *
- * @return None
- */
-//static void EventQ_EnqueueEvent(event_t event);
-
-
-/*
- * Dequeues event from event queue
- *
- * @param None
- *
- * @return Next event
- */
-static temperature_event_t EventQ_DequeueEvent(void);
-
-
-/*static void EventQ_EnqueueEvent(event_t event) {
-    if (q_len == EVENT_QUEUE_SIZE) {
-        return;
-    }
-    event_q[(wr_ptr++) & EVENT_QUEUE_SIZE_MASK] = event;
-    q_len++;
-}*/
-
-
-static temperature_event_t EventQ_DequeueEvent(void) {
-    temperature_event_t current_event;
-    if (q_len == 0) {
-        current_event = ev_NONE;
-    }
-    else {
-        current_event = event_q[(rd_ptr++) & EVENT_QUEUE_SIZE_MASK];
-        q_len--;
-    }
-    return current_event;
-}
+/************************************************/
+/****************Event Handlers******************/
+/************************************************/
 
 
 void Scheduler_SetEvent_LETIMER0_UF(void) {
@@ -88,15 +46,27 @@ void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void) {
 }
 
 
-temperature_event_t Scheduler_GetNextEvent(void) {
-    temperature_event_t current_event;
+void Scheduler_SetEvent_PB0_PRESSED(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
-    current_event = EventQ_DequeueEvent();
+    //EventQ_EnqueueEvent(ev_PB0_PRESSED);
+    sl_bt_external_signal(ev_PB0_PRESSED);
     CORE_EXIT_CRITICAL();
-    return current_event;
 }
+
+
+void Scheduler_SetEvent_PB0_RELEASED(void) {
+    CORE_DECLARE_IRQ_STATE;
+
+    CORE_ENTER_CRITICAL();
+    //EventQ_EnqueueEvent(ev_PB0_RELEASED);
+    sl_bt_external_signal(ev_PB0_RELEASED);
+    CORE_EXIT_CRITICAL();
+}
+
+
+
 
 
 /************************************************/
@@ -108,9 +78,9 @@ void BleServer_TemperatureStateMachine(sl_bt_msg_t* event) {
     temp_fsm_state_t current_state;
     static temp_fsm_state_t next_state = PERIOD_WAIT;
     ble_data_struct_t* ble_data = BLE_GetDataStruct();
-    temperature_event_t ev;
+    ble_ext_signal_event_t ev;
 
-    if (!(ble_data->s_Connected) || !(ble_data->s_Indicating)) {
+    if (!(ble_data->s_ClientConnected) || !(ble_data->s_TemperatureIndicating)) {
         ble_data->s_ReadingTemp = 0;
         LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
         NVIC_DisableIRQ(I2C0_IRQn);
@@ -211,13 +181,13 @@ void RequestTempSensorReading(void) {
 
 
 void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
     uint8_t read_buff[2];
     int16_t temperature_code;
     int16_t temperature_C;
-    uint8_t temp_buff[5];
-    uint8_t* p = temp_buff;
+    indication_struct_t indication;
     uint32_t temp_C_float;
-    sl_status_t ble_status;
+    uint8_t* p = indication.buff;
 
     sl_power_manager_remove_em_requirement(EM1);
     I2C0_DisableIntForTransfer();
@@ -235,18 +205,25 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
     UINT8_TO_BITSTREAM(p, 0); //Celcius
     UINT32_TO_BITSTREAM(p, temp_C_float);
 
-    ble_status = sl_bt_gatt_server_send_indication(
-        ble_data->s_ConnectionHandle,
-        gattdb_temperature_measurement,
-        sizeof(temp_buff),
-        temp_buff);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_server_send_indication: %d\r\n", ble_status);
-    }
+    indication.characteristicHandle = gattdb_temperature_measurement;
+    indication.bufferLen = TEMP_BUFF_LEN;
 
+    if (!(ble_data->s_IndicationInFlight)) {
+        ble_status = sl_bt_gatt_server_send_indication(
+            ble_data->s_ConnectionHandle,
+            indication.characteristicHandle,
+            indication.bufferLen,
+            indication.buff);
+        if (ble_status != SL_STATUS_OK) {
+            LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r\n", ble_status);
+        }
+        ble_data->s_IndicationInFlight = true;
+    }
+    else {
+        IndicationQ_Enqueue(indication);
+    }
     displayPrintf(DISPLAY_ROW_TEMPVALUE, "Temp=%d", temperature_C);
 
-    ble_data->s_IndicationInFlight = true;
     I2C0_Teardown();
 }
 
@@ -358,7 +335,7 @@ void BleClient_RequestServiceInfo(ble_data_struct_t* ble_data) {
                                                                   sizeof(thermo_service),
                                                                   thermo_service);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %d\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r\n", ble_status);
     }
 }
 
@@ -371,7 +348,7 @@ void BleClient_RequestCharacteristicInfo(ble_data_struct_t* ble_data) {
                                                              sizeof(thermo_char),
                                                              thermo_char);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %d\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r\n", ble_status);
     }
 }
 
@@ -382,7 +359,7 @@ void BleClient_EnableIndications(ble_data_struct_t* ble_data) {
     ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
                                                             ble_data->c_CharacteristicHandle, 0x02);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %d\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
     }
 }
 
@@ -398,6 +375,6 @@ void BleClient_RestartScanning(void) {
 
     ble_status = sl_bt_scanner_start(sl_bt_gap_1m_phy, sl_bt_scanner_discover_generic);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_scanner_start: %d\r\n", ble_status);
+        LOG_ERROR("sl_bt_scanner_start: %x\r\n", ble_status);
     }
 }
