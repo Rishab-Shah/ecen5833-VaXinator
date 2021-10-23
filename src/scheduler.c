@@ -81,12 +81,14 @@ void BleServer_TemperatureStateMachine(sl_bt_msg_t* event) {
     ble_ext_signal_event_t ev;
 
     if (!(ble_data->s_ClientConnected) || !(ble_data->s_TemperatureIndicating)) {
+        if (ble_data->s_ReadingTemp) {
+            LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
+            NVIC_DisableIRQ(I2C0_IRQn);
+            I2C0_Teardown();
+            displayPrintf(DISPLAY_ROW_TEMPVALUE, "");
+            ev = ev_SHUTDOWN;
+        }
         ble_data->s_ReadingTemp = 0;
-        LETIMER_IntDisable(LETIMER0, LETIMER_IEN_COMP1);
-        NVIC_DisableIRQ(I2C0_IRQn);
-        I2C0_Teardown();
-        displayPrintf(DISPLAY_ROW_TEMPVALUE, "");
-        ev = ev_SHUTDOWN;
     }
     else if (!ble_data->s_ReadingTemp){
         return;
@@ -102,6 +104,9 @@ void BleServer_TemperatureStateMachine(sl_bt_msg_t* event) {
             if (ev == ev_LETIMER0_UF) {
                 PowerUp();
                 next_state = POWERING_UP;
+            }
+            else if (ev == ev_SHUTDOWN) {
+                next_state = PERIOD_WAIT;
             }
             break;
 

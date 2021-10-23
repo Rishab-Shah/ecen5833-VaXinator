@@ -23,8 +23,8 @@
 #define BONDING_FLAGS (0x0F)
 
 
-#define INDICATION_QUEUE_SIZE  (128)
-#define INDICATION_QUEUE_SIZE_MASK  (127)
+#define INDICATION_QUEUE_SIZE  (16)
+#define INDICATION_QUEUE_SIZE_MASK  (15)
 
 #define INDICATION_QUEUE_TIMER_HANDLE  (4)
 #define INDICATION_QUEUE_TIMER_INTERVAL  (6554)
@@ -97,9 +97,9 @@ typedef enum {
     ev_LETIMER0_COMP1,
     ev_LETIMER0_UF,
     ev_I2C0_TRANSFER_DONE,
-    ev_SHUTDOWN,
     ev_PB0_PRESSED,
-    ev_PB0_RELEASED
+    ev_PB0_RELEASED,
+    ev_SHUTDOWN
 } ble_ext_signal_event_t;
 
 

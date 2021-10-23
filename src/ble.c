@@ -259,6 +259,8 @@ void BleServer_HandleConnectionClosedEvent(void) {
     ble_data.s_ButtonIndicating = false;
     ble_data.s_IndicationInFlight = false;
     ble_data.s_Bonded = false;
+    gpioLed0SetOff();
+    gpioLed1SetOff();
 
     ble_status = sl_bt_sm_delete_bondings();
     if (ble_status != SL_STATUS_OK) {
@@ -304,7 +306,7 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
         if (ble_status != SL_STATUS_OK) {
             LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r\n", ble_status);
         }
-        if ((ble_data.s_IndicationInFlight) && (ble_data.s_ButtonIndicating)) {
+        if ((ble_data.s_IndicationInFlight) && (ble_data.s_ButtonIndicating) && (ble_data.s_Bonded)) {
             IndicationQ_Enqueue(indication);
         }
         else {
@@ -343,11 +345,11 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
             LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r\n", ble_status);
         }
 
-        if ((ble_data.s_IndicationInFlight) && (ble_data.s_ButtonIndicating)) {
+        if ((ble_data.s_IndicationInFlight) && (ble_data.s_ButtonIndicating) && (ble_data.s_Bonded)) {
             IndicationQ_Enqueue(indication);
         }
         else {
-            if (ble_data.s_ButtonIndicating) {
+            if (ble_data.s_ButtonIndicating && ble_data.s_Bonded) {
                 ble_status = sl_bt_gatt_server_send_indication(
                     ble_data.s_ConnectionHandle,
                     indication.characteristicHandle,
@@ -383,9 +385,11 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
 
         client_flags = event->data.evt_gatt_server_characteristic_status.client_config_flags;
         if (client_flags == 0x0) {
+            gpioLed0SetOff();
             ble_data.s_TemperatureIndicating = false;
         }
-        else if ((client_flags == 0x2)) {
+        else if (client_flags == 0x2) {
+            gpioLed0SetOn();
             ble_data.s_TemperatureIndicating = true;
         }
     }
@@ -401,10 +405,14 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
 
         client_flags = event->data.evt_gatt_server_characteristic_status.client_config_flags;
         if (client_flags == 0x0) {
+            gpioLed1SetOff();
             ble_data.s_ButtonIndicating = false;
         }
         else if ((client_flags == 0x2)) {
-            ble_data.s_ButtonIndicating = true;
+            gpioLed1SetOn();
+            if (ble_data.s_Bonded) {
+                ble_data.s_ButtonIndicating = true;
+            }
         }
     }
 }
