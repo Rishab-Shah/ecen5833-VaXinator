@@ -37,6 +37,12 @@
 #define BUTTON_STATE_RELEASED (0x00)
 
 
+#define IND_SEQ_PB0_PRESSED  (0x01)
+#define IND_SEQ_PB1_PRESSED  (0x02)
+#define IND_SEQ_PB1_RELEASED (0x04)
+#define IND_SEQ_PB0_RELEASED (0x08)
+
+
 #define UINT8_TO_BITSTREAM(p, n) { *(p)++ = (uint8_t)(n); }
 
 #define UINT32_TO_BITSTREAM(p, n) { *(p)++ = (uint8_t)(n); *(p)++ = (uint8_t)((n) >> 8); \
@@ -49,6 +55,16 @@ static const uint8_t thermo_service[2] = { 0x09, 0x18 };
 // Temperature Measurement characteristic UUID defined by Bluetooth SIG
 static const uint8_t thermo_char[2] = { 0x1c, 0x2a };
 
+// Button service UUID defined by Bluetooth SIG
+static const uint8_t button_service[16] = {
+    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
+    0x3e, 0x43, 0xc8, 0x38, 0x01, 0x00, 0x00, 0x00
+};
+// Button characteristic UUID defined by Bluetooth SIG
+static const uint8_t button_char[16] = {
+    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
+    0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
+};
 
 typedef struct indiaction_struct_s {
     uint16_t characteristicHandle;
@@ -72,7 +88,6 @@ typedef struct ble_data_struct_s {
     bool s_ClientConnected;
     bool s_TemperatureIndicating;
     bool s_ButtonIndicating;
-    //bool s_NotFirstConnection;
     bool s_ReadingTemp;
     bool s_IndicationInFlight;
     bool s_BondingPending;
@@ -81,11 +96,18 @@ typedef struct ble_data_struct_s {
     bd_addr c_DeviceAddress;
     uint8_t c_DeviceAddressType;
     uint8_t c_ConnectionHandle;
-    uint32_t c_ServiceHandle;
-    uint16_t c_CharacteristicHandle;
-    uint8_t c_CharacteristicProperties;
+    uint32_t c_TemperatureServiceHandle;
+    uint16_t c_TemperatureCharacteristicHandle;
+    uint8_t c_TemperatureCharacteristicProperties;
+    uint32_t c_ButtonServiceHandle;
+    uint16_t c_ButtonCharacteristicHandle;
+    uint8_t c_ButtonCharacteristicProperties;
     bool c_Connected;
-    bool c_Indicating;
+    bool c_TemperatureIndicating;
+    bool c_ButtonIndicating;
+    bool c_BondingPending;
+    bool c_Bonded;
+    uint8_t c_ButtonIndicationStatus;
 } ble_data_struct_t;
 
 
@@ -99,6 +121,8 @@ typedef enum {
     ev_I2C0_TRANSFER_DONE,
     ev_PB0_PRESSED,
     ev_PB0_RELEASED,
+    ev_PB1_PRESSED,
+    ev_PB1_RELEASED,
     ev_SHUTDOWN
 } ble_ext_signal_event_t;
 
@@ -136,6 +160,16 @@ indication_struct_t IndicationQ_Dequeue(void);
  * @return 1 if queue has indication, 0 if not
  */
 uint8_t IndicationQ_IsIndicationPending(void);
+
+
+/*
+ * Reset indication queue
+ *
+ * @param None
+ *
+ * @return None
+ */
+void IndicationQ_Reset(void);
 
 
 /************************************************/
@@ -343,6 +377,36 @@ void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event);
 
 
 /*
+ * Handles BLE Client connection closed event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void BleClient_HandleConnectionClosedEvent(void);
+
+
+/*
+ * Handles BLE Client connection parameters event
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event);
+
+
+/*
+ * Handles BLE Client gatt procedure completed event
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event);
+
+
+/*
  * Handles BLE Client gatt service event
  *
  * @param event - Pointer to Bluetooth event
@@ -373,13 +437,43 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event);
 
 
 /*
- * Handles BLE Client connection closed event
+ * Handles BLE Client external signal event
  *
- * @param None
+ * @param event - Pointer to Bluetooth event
  *
  * @return None
  */
-void BleClient_HandleConnectionClosedEvent(void);
+void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event);
+
+
+/*
+ * Handles BLE Client passkey confirm event
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void BleClient_HandlePasskeyConfirmEvent(sl_bt_msg_t* event);
+
+
+/*
+ * Handles BLE Client bonded event
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void BleClient_HandleBondedEvent(void);
+
+
+/*
+ * Handles BLE Client bonding failed event
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event);
 
 
 /*

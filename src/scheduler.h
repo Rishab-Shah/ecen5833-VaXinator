@@ -36,9 +36,12 @@ typedef enum {
  */
 typedef enum {
     SCANNING,
-    RECEIVING_SERVICE_INFO,
-    RECEIVING_CHARACTERISTIC_INFO,
-    ENABLING_INDICATIONS,
+    RECEIVING_TEMP_SERVICE_INFO,
+    RECEIVING_TEMP_CHARACTERISTIC_INFO,
+    RECEIVING_BUTTON_SERVICE_INFO,
+    RECEIVING_BUTTON_CHARACTERISTIC_INFO,
+    ENABLING_TEMP_INDICATIONS,
+    ENABLING_BUTTON_INDICATIONS,
     DISCOVERED
 } disc_fsm_state_t;
 
@@ -98,6 +101,26 @@ void Scheduler_SetEvent_PB0_PRESSED(void);
  * @return None
  */
 void Scheduler_SetEvent_PB0_RELEASED(void);
+
+
+/*
+ * Sets PB0_PRESSED event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void Scheduler_SetEvent_PB1_PRESSED(void);
+
+
+/*
+ * Sets PB0_RELEASED event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void Scheduler_SetEvent_PB1_RELEASED(void);
 
 
 /************************************************/
@@ -191,33 +214,63 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event);
 
 
 /*
- * Requests service info from the server
+ * Requests temperature service info from the server
  *
  * @param ble_data - BLE data struct with connection info
  *
  * @return None
  */
-void BleClient_RequestServiceInfo(ble_data_struct_t* ble_data);
+void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data);
 
 
 /*
- * Requests characteristic info from the server
+ * Requests temperature characteristic info from the server
  *
  * @param ble_data - BLE data struct with connection info
  *
  * @return None
  */
-void BleClient_RequestCharacteristicInfo(ble_data_struct_t* ble_data);
+void BleClient_RequestTemperatureCharacteristicInfo(ble_data_struct_t* ble_data);
 
 
 /*
- * Enables indications from the server
+ * Requests button service info from the server
  *
  * @param ble_data - BLE data struct with connection info
  *
  * @return None
  */
-void BleClient_EnableIndications(ble_data_struct_t* ble_data);
+void BleClient_RequestButtonServiceInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Requests button characteristic info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestButtonCharacteristicInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Enables temperature indications from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_EnableTemperatureIndications(ble_data_struct_t* ble_data);
+
+
+/*
+ * Enables button indications from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_EnableButtonIndications(ble_data_struct_t* ble_data);
 
 
 /*

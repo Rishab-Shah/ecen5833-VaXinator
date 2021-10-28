@@ -71,6 +71,13 @@ void PB0_Init(void) {
 }
 
 
+void PB1_Init(void) {
+    GPIO_PinModeSet(PB1_port, PB1_pin, gpioModeInputPullFilter, true);
+    GPIO_ExtIntConfig(PB1_port, PB1_pin, PB1_pin, true, true, true);
+    NVIC_EnableIRQ(GPIO_ODD_IRQn);
+}
+
+
 void gpioSensorEnSetOn(void) {
     GPIO_DriveStrengthSet(LCD_ENABLE_PORT, gpioDriveStrengthWeakAlternateWeak);
     GPIO_PinModeSet(LCD_ENABLE_PORT, LCD_ENABLE_PIN, gpioModePushPull, false);

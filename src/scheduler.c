@@ -66,7 +66,24 @@ void Scheduler_SetEvent_PB0_RELEASED(void) {
 }
 
 
+void Scheduler_SetEvent_PB1_PRESSED(void) {
+    CORE_DECLARE_IRQ_STATE;
 
+    CORE_ENTER_CRITICAL();
+    //EventQ_EnqueueEvent(ev_PB0_PRESSED);
+    sl_bt_external_signal(ev_PB1_PRESSED);
+    CORE_EXIT_CRITICAL();
+}
+
+
+void Scheduler_SetEvent_PB1_RELEASED(void) {
+    CORE_DECLARE_IRQ_STATE;
+
+    CORE_ENTER_CRITICAL();
+    //EventQ_EnqueueEvent(ev_PB0_RELEASED);
+    sl_bt_external_signal(ev_PB1_RELEASED);
+    CORE_EXIT_CRITICAL();
+}
 
 
 /************************************************/
@@ -203,7 +220,6 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
     temperature_code = (read_buff[0] << 8) | read_buff[1];
     temperature_C = (175.25 * temperature_code) / 65536.0 - 46.85; //calculation taken from data sheet
 
-    LOG_INFO("%d\r\n", temperature_C);
 
     temp_C_float = UINT32_TO_FLOAT(temperature_C * 1000, -3);
 
@@ -228,6 +244,7 @@ void ReadOutTempSensorReading(ble_data_struct_t* ble_data) {
         IndicationQ_Enqueue(indication);
     }
     displayPrintf(DISPLAY_ROW_TEMPVALUE, "Temp=%d", temperature_C);
+    LOG_INFO("%d\r\n", temperature_C);
 
     I2C0_Teardown();
 }
@@ -300,26 +317,47 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     switch (current_state) {
         case SCANNING:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_connection_opened_id) {
-                BleClient_RequestServiceInfo(ble_data);
-                next_state = RECEIVING_SERVICE_INFO;
+                BleClient_RequestTemperatureServiceInfo(ble_data);
+                next_state = RECEIVING_TEMP_SERVICE_INFO;
             }
             break;
 
-        case RECEIVING_SERVICE_INFO:
+        case RECEIVING_TEMP_SERVICE_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
-                BleClient_RequestCharacteristicInfo(ble_data);
-                next_state = RECEIVING_CHARACTERISTIC_INFO;
+                BleClient_RequestTemperatureCharacteristicInfo(ble_data);
+                next_state = RECEIVING_TEMP_CHARACTERISTIC_INFO;
             }
             break;
 
-        case RECEIVING_CHARACTERISTIC_INFO:
+        case RECEIVING_TEMP_CHARACTERISTIC_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
-                BleClient_EnableIndications(ble_data);
-                next_state = ENABLING_INDICATIONS;
+                BleClient_RequestButtonServiceInfo(ble_data);
+                next_state = RECEIVING_BUTTON_SERVICE_INFO;
             }
             break;
 
-        case ENABLING_INDICATIONS:
+        case RECEIVING_BUTTON_SERVICE_INFO:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                BleClient_RequestButtonCharacteristicInfo(ble_data);
+                next_state = RECEIVING_BUTTON_CHARACTERISTIC_INFO;
+            }
+            break;
+
+        case RECEIVING_BUTTON_CHARACTERISTIC_INFO:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                BleClient_EnableTemperatureIndications(ble_data);
+                next_state = ENABLING_TEMP_INDICATIONS;
+            }
+            break;
+
+        case ENABLING_TEMP_INDICATIONS:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                BleClient_EnableButtonIndications(ble_data);
+                next_state = ENABLING_BUTTON_INDICATIONS;
+            }
+            break;
+
+        case ENABLING_BUTTON_INDICATIONS:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
                 BleClient_SetDisplayingOfIndications(ble_data);
                 next_state = DISCOVERED;
@@ -333,7 +371,7 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 }
 
 
-void BleClient_RequestServiceInfo(ble_data_struct_t* ble_data) {
+void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
@@ -345,11 +383,11 @@ void BleClient_RequestServiceInfo(ble_data_struct_t* ble_data) {
 }
 
 
-void BleClient_RequestCharacteristicInfo(ble_data_struct_t* ble_data) {
+void BleClient_RequestTemperatureCharacteristicInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
-                                                             ble_data->c_ServiceHandle,
+                                                             ble_data->c_TemperatureServiceHandle,
                                                              sizeof(thermo_char),
                                                              thermo_char);
     if (ble_status != SL_STATUS_OK) {
@@ -358,11 +396,48 @@ void BleClient_RequestCharacteristicInfo(ble_data_struct_t* ble_data) {
 }
 
 
-void BleClient_EnableIndications(ble_data_struct_t* ble_data) {
+void BleClient_RequestButtonServiceInfo(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
+                                                                  sizeof(button_service),
+                                                                  button_service);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r\n", ble_status);
+    }
+}
+
+
+void BleClient_RequestButtonCharacteristicInfo(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
+                                                             ble_data->c_ButtonServiceHandle,
+                                                             sizeof(button_char),
+                                                             button_char);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r\n", ble_status);
+    }
+}
+
+
+void BleClient_EnableTemperatureIndications(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
-                                                            ble_data->c_CharacteristicHandle, 0x02);
+                                                            ble_data->c_TemperatureCharacteristicHandle, 0x02);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
+    }
+}
+
+
+void BleClient_EnableButtonIndications(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_data->c_TemperatureIndicating = true;
+    ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
+                                                            ble_data->c_ButtonCharacteristicHandle, 0x02);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
     }
@@ -370,8 +445,8 @@ void BleClient_EnableIndications(ble_data_struct_t* ble_data) {
 
 
 void BleClient_SetDisplayingOfIndications(ble_data_struct_t* ble_data) {
+    ble_data->c_ButtonIndicating = true;
     displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
-    ble_data->c_Indicating = true;
 }
 
 

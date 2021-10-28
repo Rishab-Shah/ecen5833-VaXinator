@@ -28,6 +28,8 @@
 
 #define PB0_port (gpioPortF)
 #define PB0_pin  (6)
+#define PB1_port (gpioPortF)
+#define PB1_pin  (7)
 
 #define LCD_ENABLE_PORT  (gpioPortD)
 #define LCD_ENABLE_PIN   (15)
@@ -49,6 +51,7 @@ void gpioLed1SetOn();
 void gpioLed1SetOff();
 
 void PB0_Init(void);
+void PB1_Init(void);
 
 void gpioSensorEnSetOn(void);
 void gpioSetDisplayExtcomin(int on);

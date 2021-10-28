@@ -49,3 +49,21 @@ void GPIO_EVEN_IRQHandler(void) {
         pressed ^= 1;
     }
 }
+
+
+void GPIO_ODD_IRQHandler(void) {
+    uint32_t interrupt_flags = GPIO_IntGet();
+    GPIO->IFC = 0xFFFF;
+    static uint8_t pressed = 1; // Button press is first time we enter ISR
+
+    if (interrupt_flags & (0x01 << PB1_pin)) {
+        if (!pressed) {
+            Scheduler_SetEvent_PB1_RELEASED();
+        }
+        else {
+            Scheduler_SetEvent_PB1_PRESSED();
+        }
+
+        pressed ^= 1;
+    }
+}
