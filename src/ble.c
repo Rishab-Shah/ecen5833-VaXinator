@@ -756,10 +756,12 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
     else if (ev == ev_PB1_PRESSED) {
         if (ble_data.c_ButtonIndicationStatus == IND_SEQ_PB0_PRESSED) {
             ble_data.c_ButtonIndicationStatus |= IND_SEQ_PB1_PRESSED;
+            return;
         }
         else {
             ble_data.c_ButtonIndicationStatus = 0;
         }
+
         ble_status = sl_bt_gatt_read_characteristic_value(ble_data.c_ConnectionHandle, ble_data.c_ButtonCharacteristicHandle);
         if ((ble_status != SL_STATUS_OK) && (ble_status != SL_STATUS_BT_ATT_INSUFFICIENT_ENCRYPTION)) {
             LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r\n", ble_status);
