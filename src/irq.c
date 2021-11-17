@@ -29,6 +29,7 @@ void I2C0_IRQHandler(void) {
 
     if (transfer_status == i2cTransferDone) {
         Scheduler_SetEvent_I2C0_TRANSFER_DONE();
+        NVIC_DisableIRQ(I2C0_IRQn);
     }
 }
 

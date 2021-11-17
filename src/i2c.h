@@ -39,44 +39,41 @@ void I2C0_Init(void);
 
 
 /*
- * Enables the I2C0 module
+ * Writes to I2C0 bus
  *
- * @param None
- *
- * @return None
- */
-void I2C0_Enable(bool enable);
-
-
-/*
- * Sends command to I2C0
- *
- * @param command - Command to send to temperature sensor
+ * @param addr - Slave address
+ * @param wr_buff - Buffer to write to slave
+ * @param wr_buff_len - Length of wr_buff
  *
  * @return status of write
  */
-I2C_TransferReturn_TypeDef I2C0_SendCommand(uint8_t command);
+I2C_TransferReturn_TypeDef I2C0_Write(uint8_t addr, uint8_t* wr_buff, uint8_t wr_buff_len);
 
 
 /*
- * Requests an I2C0 read into i2c_read_buffer
+ * Reads from I2C0 bus
  *
- * @param None
+ * @param addr - Slave address
+ * @param rd_buff - Buffer to fill with bytes read from slave
+ * @param rd_buff_len - Length of rd_buff
  *
  * @return status of read
  */
-I2C_TransferReturn_TypeDef I2C0_RequestRead(void);
+I2C_TransferReturn_TypeDef I2C0_Read(uint8_t addr, uint8_t* rd_buff, uint8_t rd_buff_len);
 
 
 /*
- * Copies data stored in i2c_read_buffer into read_buff
+ * Writes and reads (Start and restart I2C sequence) from I2C0 bus
  *
- * @param read_buff - Buffer to fill with read data
- * @param read_buff_len - Number of bytes to read
+ * @param addr - Slave address
+ * @param wr_buff - Buffer to write to slave
+ * @param wr_buff_len - Length of wr_buff
+ * @param rd_buff - Buffer to fill with bytes read from slave
+ * @param rd_buff_len - Length of rd_buff
  *
  * @return None
  */
-void I2C0_ReadBytes(uint8_t* read_buff, uint8_t read_buff_len);
+I2C_TransferReturn_TypeDef I2C0_WriteRead(uint8_t addr, uint8_t* wr_buff, uint8_t wr_buff_len, uint8_t* rd_buff, uint8_t rd_buff_len);
 
 
 /*
@@ -98,24 +95,5 @@ void I2C0_EnableIntForTransfer(void);
  */
 void I2C0_DisableIntForTransfer(void);
 
-
-/*
- * Tears down the I2C0 module
- *
- * @param None
- *
- * @return None
- */
-void I2C0_Teardown(void);
-
-
-/*
- * Gets temperature reading
- *
- * @param None
- *
- * @return temperature in Celsius
- */
-//int16_t I2C0_GetTempReading(void);
 
 #endif /* SRC_I2C_H_ */

@@ -98,6 +98,7 @@ SL_WEAK void app_init(void)
     gpioInit();
     PB0_Init();
     PB1_Init();
+    I2C0_Init();
 }
 
 /**************************************************************************//**
@@ -143,7 +144,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     // sequence through states driven by events
 #if DEVICE_IS_BLE_SERVER
-    BleServer_TemperatureStateMachine(evt);    // put this code in scheduler.c/.h
+    //BleServer_TemperatureStateMachine(evt);    // put this code in scheduler.c/.h
+    MMA8452Q_InitStateMachine(evt);
 #else
     BleClient_DiscoveryStateMachine(evt);
 #endif

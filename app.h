@@ -58,6 +58,7 @@
 #include "src/irq.h"
 #include "src/scheduler.h"
 #include "src/i2c.h"
+#include "src/MMA8452Q.h"
 #include "em_cmu.h"
 
 #define EM0 (0)

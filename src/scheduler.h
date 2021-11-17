@@ -128,74 +128,7 @@ void Scheduler_SetEvent_PB1_RELEASED(void);
 /************************************************/
 
 
-/*
- * Temperature state machine driven by BLE Server events
- *
- * @param event - BLE event to pass into state machine
- *
- * @return None
- */
-void BleServer_TemperatureStateMachine(sl_bt_msg_t* event);
 
-
-/*
- * Powers up I2C0 module and sets up wait time for power-up
- *
- * @param None
- *
- * @return None
- */
-void PowerUp(void);
-
-
-/*
- * Sends read temperature command to temperature sensor
- *
- * @param None
- *
- * @return None
- */
-void SendReadTempCommand(void);
-
-
-/*
- * Sets wait time for temperature reading to complete
- *
- * @param None
- *
- * @return None
- */
-void WaitForTempSensorReading(void);
-
-
-/*
- * Kicks off read from temperature sensor
- *
- * @param None
- *
- * @return None
- */
-void RequestTempSensorReading(void);
-
-
-/*
- * Reads out temperature sensor reading and completes teardown of I2C0
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void ReadOutTempSensorReading(ble_data_struct_t* ble_data);
-
-
-/*
- * State machine code
- *
- * @param event - Event to pass into state machine
- *
- * @return None
- */
-//void TemperatureStateMachine(event_t event);
 
 
 /************************************************/
