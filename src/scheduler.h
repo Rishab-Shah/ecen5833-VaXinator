@@ -14,6 +14,7 @@
 #include "i2c.h"
 #include "lcd.h"
 #include "timers.h"
+#include "irq.h"
 #include "app.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"

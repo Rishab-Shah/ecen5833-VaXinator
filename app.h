@@ -67,7 +67,7 @@
 #define EM3 (3)
 
 
-#define LOWEST_ENERGY_LEVEL  (EM2)
+#define LOWEST_ENERGY_LEVEL  (EM1)
 
 #define LFXO_FREQ   (32768)
 #define ULFRCO_FREQ (1000)
@@ -76,17 +76,17 @@
 #define US_PER_SEC  (1000000)
 
 #if (LOWEST_ENERGY_LEVEL == EMO)
- #define CLK_FREQ (LFXO_FREQ)
- #define CLK_DIV  (cmuClkDiv_4)
+ #define LFACLK_FREQ_HZ               (LFXO_FREQ)
+ #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
 #elif (LOWEST_ENERGY_LEVEL == EM1)
- #define CLK_FREQ (LFXO_FREQ)
- #define CLK_DIV  (cmuClkDiv_4)
+ #define LFACLK_FREQ_HZ               (LFXO_FREQ)
+ #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
 #elif (LOWEST_ENERGY_LEVEL == EM2)
- #define CLK_FREQ (LFXO_FREQ)
- #define CLK_DIV  (cmuClkDiv_4)
+ #define LFACLK_FREQ_HZ               (LFXO_FREQ)
+ #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
 #elif (LOWEST_ENERGY_LEVEL == EM3)
- #define CLK_FREQ (ULFRCO_FREQ)
- #define CLK_DIV  (cmuClkDiv_1)
+ #define LFACLK_FREQ_HZ               (ULFRCO_FREQ)
+ #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_1)
 #endif
 
 

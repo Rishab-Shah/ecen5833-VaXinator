@@ -21,6 +21,7 @@ void Scheduler_SetEvent_LETIMER0_UF(void) {
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_LETIMER0_UF);
+    SysTick_IncrementCounter();
     sl_bt_external_signal(ev_LETIMER0_UF);
     CORE_EXIT_CRITICAL();
 }

@@ -8,12 +8,14 @@
 #include "irq.h"
 
 
+uint32_t g_systickCounter = 0;
+
+
 void LETIMER0_IRQHandler(void) {
     uint32_t interrupt_flags = LETIMER0->IF;
     LETIMER0->IFC = 0x1F;
 
     if (interrupt_flags & _LETIMER_IF_UF_MASK) {
-        LETIMER0_IncrementTicker();
         Scheduler_SetEvent_LETIMER0_UF();
     }
     else if (interrupt_flags & _LETIMER_IF_COMP1_MASK) {
@@ -67,4 +69,21 @@ void GPIO_ODD_IRQHandler(void) {
 
         pressed ^= 1;
     }
+}
+
+
+uint32_t letimerMilliseconds()
+{
+    uint32_t value_return = 0;
+
+    value_return = (((g_systickCounter)*(LETIMER_PERIOD_MS))
+        + ((VALUE_TO_LOAD_FOR_PERIOD-LETIMER_CounterGet(LETIMER0))/CLK_FREQ_TO_PERIOD_MAPPING) );
+
+    return (value_return);
+}
+
+
+void SysTick_IncrementCounter()
+{
+    g_systickCounter++;
 }

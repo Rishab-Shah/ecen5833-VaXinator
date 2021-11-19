@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "i2c.h"
 #include "ble.h"
+#include "timers.h"
 
 
 #define MMA8452Q_ADDR (0x1D)
@@ -64,7 +65,16 @@
 
 typedef enum {
     VERIFY_IDENTITY,
-    ACCEL_INIT_COMPLETE
+    DELAY_1,
+    READ_CTRL_REG1,
+    DELAY_2,
+// Could be more init states for low power purposes
+    ACTIVATE_ACCEL,
+    DELAY_3,
+    ACCEL_INIT_COMPLETE,
+    READ_XYZ,
+    DELAY_4,
+    SEND_XYZ
 } mma8452q_init_state_t;
 
 
@@ -75,7 +85,7 @@ typedef enum {
  *
  * @return None
  */
-void MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
+void MMA8452Q_StateMachine(sl_bt_msg_t* event);
 
 
 #endif /* SRC_MMA8452Q_H_ */

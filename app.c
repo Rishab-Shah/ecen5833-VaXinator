@@ -145,7 +145,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // sequence through states driven by events
 #if DEVICE_IS_BLE_SERVER
     //BleServer_TemperatureStateMachine(evt);    // put this code in scheduler.c/.h
-    MMA8452Q_InitStateMachine(evt);
+    MMA8452Q_StateMachine(evt);
 #else
     BleClient_DiscoveryStateMachine(evt);
 #endif
