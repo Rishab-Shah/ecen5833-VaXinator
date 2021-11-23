@@ -39,6 +39,36 @@ void gpioInit()
 
 
 
+void gpioMAX30101_InitConfigurations()
+{
+  //PROJECT::MAX30101 - GPIO Configurations
+  GPIO_DriveStrengthSet(MAX30101_port, gpioDriveStrengthStrongAlternateStrong);
+  GPIO_PinModeSet(MAX30101_port, MAX30101_reset_pin, gpioModePushPull, true);
+  GPIO_PinModeSet(MAX30101_port, MAX30101_mfio_pin, gpioModePushPull, false);
+}
+
+void gpioPowerOn_reset_MAX30101()
+{
+  GPIO_PinOutSet(MAX30101_port,MAX30101_reset_pin);
+}
+
+void gpioPowerOff_reset_MAX30101()
+{
+  GPIO_PinOutClear(MAX30101_port,MAX30101_reset_pin);
+}
+
+void gpioPowerOn_mfio_MAX30101()
+{
+  GPIO_PinOutSet(MAX30101_port,MAX30101_mfio_pin);
+}
+
+void gpioPowerOff_mfio_MAX30101()
+{
+  GPIO_PinOutClear(MAX30101_port,MAX30101_mfio_pin);
+}
+
+
+
 
 void gpioLed0SetOn()
 {

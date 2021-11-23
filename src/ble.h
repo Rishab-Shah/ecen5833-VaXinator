@@ -115,15 +115,15 @@ typedef struct ble_data_struct_s {
  * Event enum
  */
 typedef enum {
-    ev_NONE,
-    ev_LETIMER0_COMP1,
-    ev_LETIMER0_UF,
-    ev_I2C0_TRANSFER_DONE,
-    ev_PB0_PRESSED,
-    ev_PB0_RELEASED,
-    ev_PB1_PRESSED,
-    ev_PB1_RELEASED,
-    ev_SHUTDOWN
+    ev_NONE = 0,
+    ev_LETIMER0_COMP1 =1,
+    ev_LETIMER0_UF = 2,
+    ev_I2C0_TRANSFER_DONE = 3,
+    ev_PB0_PRESSED = 4,
+    ev_PB0_RELEASED = 5,
+    ev_PB1_PRESSED = 6,
+    ev_PB1_RELEASED = 7,
+    ev_SHUTDOWN = 8
 } ble_ext_signal_event_t;
 
 

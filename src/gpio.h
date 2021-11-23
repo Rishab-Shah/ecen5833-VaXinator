@@ -38,7 +38,10 @@
 #define LCD_EXCOMIN_PIN  (13)
 
 
-
+//PROJECT::MAX30101 - GPIO Configurations
+#define MAX30101_port         (gpioPortD)
+#define MAX30101_reset_pin    (10)
+#define MAX30101_mfio_pin     (11)
 
 
 
@@ -56,5 +59,11 @@ void PB1_Init(void);
 void gpioSensorEnSetOn(void);
 void gpioSetDisplayExtcomin(int on);
 
+//PROJECT::MAX30101 - GPIO Configurations
+void gpioMAX30101_InitConfigurations();
+void gpioPowerOff_mfio_MAX30101();
+void gpioPowerOn_mfio_MAX30101();
+void gpioPowerOff_reset_MAX30101();
+void gpioPowerOn_reset_MAX30101();
 
 #endif /* SRC_GPIO_H_ */
