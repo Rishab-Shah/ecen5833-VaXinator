@@ -6,6 +6,8 @@
  */
 
 #include "irq.h"
+#define INCLUDE_LOG_DEBUG 1
+#include "src/log.h"
 
 
 uint32_t g_systickCounter = 0;
@@ -32,6 +34,9 @@ void I2C0_IRQHandler(void) {
     if (transfer_status == i2cTransferDone) {
         Scheduler_SetEvent_I2C0_TRANSFER_DONE();
         NVIC_DisableIRQ(I2C0_IRQn);
+    }
+    else if (transfer_status < i2cTransferDone) {
+        LOG_ERROR("I2C Error Code %d\r\n", transfer_status);
     }
 }
 

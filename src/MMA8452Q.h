@@ -66,14 +66,25 @@
 typedef enum {
     VERIFY_IDENTITY,
     DELAY_1,
-    READ_CTRL_REG1,
+    READ_CTRL_REG1_1,
     DELAY_2,
-// Could be more init states for low power purposes
-    ACTIVATE_ACCEL,
+    SET_STANDBY,
     DELAY_3,
+    READ_CTRL_REG1_2,
+    DELAY_4,
+    SET_SAMPLING_RATE,
+    DELAY_5,
+    READ_CTRL_REG2_1,
+    DELAY_6,
+    SET_LOW_POWER_MODE,
+    DELAY_7,
+    READ_CTRL_REG1_3,
+    DELAY_8,
+    SET_ACTIVE,
+    DELAY_9,
     ACCEL_INIT_COMPLETE,
     READ_XYZ,
-    DELAY_4,
+    DELAY_10,
     SEND_XYZ
 } mma8452q_init_state_t;
 

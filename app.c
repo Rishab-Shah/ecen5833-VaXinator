@@ -39,7 +39,7 @@
 #include "app.h"
 
 // Include logging for this file
-#define INCLUDE_LOG_DEBUG 0
+#define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
 
@@ -99,6 +99,7 @@ SL_WEAK void app_init(void)
     PB0_Init();
     PB1_Init();
     I2C0_Init();
+    LOG_INFO("%d\r\n", I2C_BusFreqGet(I2C0));
 }
 
 /**************************************************************************//**
