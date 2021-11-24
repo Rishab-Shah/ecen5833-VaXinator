@@ -1,5 +1,5 @@
 /*
- * MMA8452Q.h
+ * MMA8452Q.h - MMA8452Q Accelerometer functions
  *
  *  Created on: Nov 16, 2021
  *      Author: vishn
@@ -15,6 +15,7 @@
 #include "i2c.h"
 #include "ble.h"
 #include "timers.h"
+#include "scheduler.h"
 
 
 #define MMA8452Q_ADDR (0x1D)
@@ -81,12 +82,31 @@ typedef enum {
     READ_CTRL_REG1_3,
     DELAY_8,
     SET_ACTIVE,
-    DELAY_9,
-    ACCEL_INIT_COMPLETE,
+    DELAY_9
+} mma8452q_init_state_t;
+
+
+typedef enum {
     READ_XYZ,
     DELAY_10,
     SEND_XYZ
-} mma8452q_init_state_t;
+} mma8452q_read_state_t;
+
+
+typedef enum {
+    MMA8452Q_INIT,
+    MMA8452Q_READ
+} mma8452q_state_t;
+
+
+/*
+ * FSM for operating the MMA8452Q Accelerometer
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return None
+ */
+void MMA8452Q_StateMachine(sl_bt_msg_t* event);
 
 
 /*
@@ -94,9 +114,19 @@ typedef enum {
  *
  * @param event - Pointer to Bluetooth event
  *
- * @return None
+ * @return Next state of MMA8452Q state machine
  */
-void MMA8452Q_StateMachine(sl_bt_msg_t* event);
+mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
+
+
+/*
+ * FSM for reading measurements from the MMA8452Q Accelerometer
+ *
+ * @param event - Pointer to Bluetooth event
+ *
+ * @return Next state of MMA8452Q state machine
+ */
+mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event);
 
 
 #endif /* SRC_MMA8452Q_H_ */

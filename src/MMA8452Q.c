@@ -1,5 +1,5 @@
 /*
- * MMA8452Q.c
+ * MMA8452Q.c - MMA8452Q Accelerometer functions
  *
  *  Created on: Nov 16, 2021
  *      Author: vishn
@@ -38,20 +38,35 @@ void MMA8452Q_ReadXYZ(uint8_t* rd_buff);
 
 
 void MMA8452Q_StateMachine(sl_bt_msg_t* event) {
+    mma8452q_state_t current_state;
+    static mma8452q_state_t next_state = MMA8452Q_INIT;
 
-    mma8452q_init_state_t current_state;
-    static mma8452q_init_state_t next_state = VERIFY_IDENTITY;
-    ble_ext_signal_event_t ev;
-
-    if (SL_BT_MSG_ID(event->header) == sl_bt_evt_system_external_signal_id) {
-        ev = event->data.evt_system_external_signal.extsignals;
-    }
-    else {
+    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
         return;
     }
 
     current_state = next_state;
 
+    switch (current_state) {
+        case MMA8452Q_INIT:
+            next_state = MMA8452Q_InitStateMachine(event);
+            break;
+
+        case MMA8452Q_READ:
+            next_state = MMA8452Q_ReadStateMachine(event);
+            break;
+    }
+}
+
+
+mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
+    mma8452q_state_t return_state = MMA8452Q_INIT;
+    mma8452q_init_state_t current_state;
+    static mma8452q_init_state_t next_state = VERIFY_IDENTITY;
+
+    ble_ext_signal_event_t ev = event->data.evt_system_external_signal.extsignals;
+
+    current_state = next_state;
 
     switch (current_state) {
         case VERIFY_IDENTITY:
@@ -182,41 +197,54 @@ void MMA8452Q_StateMachine(sl_bt_msg_t* event) {
         case DELAY_9:
             if (ev == ev_I2C0_TRANSFER_DONE) {
                 timerWaitUs_irq(10000);
-                next_state = READ_XYZ;
+                return_state = MMA8452Q_READ;
             }
             break;
-
-        case ACCEL_INIT_COMPLETE:
-            if (ev == ev_LETIMER0_COMP1) {
-                next_state = READ_XYZ;
-            }
-            break;
-
-        case READ_XYZ:
-            if (ev == ev_LETIMER0_UF) {
-                MMA8452Q_ReadXYZ(&mma8452q_rd_buff[0]);
-                next_state = DELAY_10;
-            }
-            break;
-
-        case DELAY_10:
-            if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
-                next_state = SEND_XYZ;
-            }
-            break;
-
-        case SEND_XYZ:
-            if (ev == ev_LETIMER0_COMP1) {
-                LOG_INFO("%x\r\n", mma8452q_rd_buff[0]);
-                LOG_INFO("%x\r\n", mma8452q_rd_buff[1]);
-                LOG_INFO("%x\r\n", mma8452q_rd_buff[2]);
-                LOG_INFO("%x\r\n", mma8452q_rd_buff[3]);
-                LOG_INFO("%x\r\n", mma8452q_rd_buff[4]);
-                LOG_INFO("%x\r\n", mma8452q_rd_buff[5]);
-                next_state = READ_XYZ;
-            }
     }
+
+    return return_state;
+}
+
+
+mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
+    mma8452q_state_t return_state = MMA8452Q_READ;
+    mma8452q_read_state_t current_state;
+    static mma8452q_read_state_t next_state = READ_XYZ;
+
+    ble_ext_signal_event_t ev = event->data.evt_system_external_signal.extsignals;
+
+    current_state = next_state;
+
+    switch (current_state) {
+      case READ_XYZ:
+          if (ev == ev_LETIMER0_UF) {
+              MMA8452Q_ReadXYZ(&mma8452q_rd_buff[0]);
+              next_state = DELAY_10;
+          }
+          break;
+
+      case DELAY_10:
+          if (ev == ev_I2C0_TRANSFER_DONE) {
+              timerWaitUs_irq(10000);
+              next_state = SEND_XYZ;
+          }
+          break;
+
+      case SEND_XYZ:
+          if (ev == ev_LETIMER0_COMP1) {
+              LOG_INFO("%x\r\n", mma8452q_rd_buff[0]);
+              LOG_INFO("%x\r\n", mma8452q_rd_buff[1]);
+              LOG_INFO("%x\r\n", mma8452q_rd_buff[2]);
+              LOG_INFO("%x\r\n", mma8452q_rd_buff[3]);
+              LOG_INFO("%x\r\n", mma8452q_rd_buff[4]);
+              LOG_INFO("%x\r\n", mma8452q_rd_buff[5]);
+              next_state = READ_XYZ;
+              return_state = MMA8452Q_READ;
+          }
+          break;
+    }
+
+    return return_state;
 }
 
 

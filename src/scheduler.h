@@ -24,12 +24,13 @@
  * Server Temperature FSM states enum
  */
 typedef enum {
-    PERIOD_WAIT,
-    POWERING_UP,
-    REQUEST_TEMP,
-    READING_TEMP,
-    RECEIVED_TEMP
-} temp_fsm_state_t;
+    DEFAULT,
+    HEARTBEAT_INIT,
+    HEARTBEAT_CONFIGURE,
+    ACCEL_INIT,
+    HEARTBEAT_READ,
+    ACCEL_READ
+} activity_monitoring_state_t;
 
 
 /*
@@ -129,7 +130,14 @@ void Scheduler_SetEvent_PB1_RELEASED(void);
 /************************************************/
 
 
-
+/*
+ * Activity monitoring system state machine driven by BLE Client events
+ *
+ * @param event - BLE event to pass into state machine
+ *
+ * @return None
+ */
+//void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 
 
 /************************************************/
