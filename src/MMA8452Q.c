@@ -21,6 +21,8 @@
 #define CTRL_REG2_MODS0_VAL   (0x03) // Low Power Mode
 #define CTRL_REG2_MODS0_MASK  (0x03)
 
+#define MMA8452Q_DELAY_US     (10000)
+
 
 uint8_t mma8452q_wr_buff[8] = { 0 };
 uint8_t mma8452q_rd_buff[8] = { 0 };
@@ -71,7 +73,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
     switch (current_state) {
         case VERIFY_IDENTITY:
             if (ev == ev_LETIMER0_UF) {
-                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_VerifyIdentity(&mma8452q_rd_buff[0]);
                 next_state = DELAY_1;
             }
@@ -79,7 +84,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_1:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = READ_CTRL_REG1_1;
             }
             break;
@@ -88,6 +97,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 if (mma8452q_rd_buff[0] == 0x2A) {
+#if POWER_MANAGEMENT
+                    //Enter EM1 mode
+                    sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                     MMA8452Q_ReadCtrlReg1(&mma8452q_rd_buff[0]);
                     next_state = DELAY_2;
                 }
@@ -100,7 +113,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_2:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = SET_STANDBY;
             }
             break;
@@ -108,6 +125,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case SET_STANDBY:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_SetStandby(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_3;
             }
@@ -115,7 +136,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_3:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = READ_CTRL_REG1_2;
             }
             break;
@@ -123,6 +148,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case READ_CTRL_REG1_2:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_ReadCtrlReg1(&mma8452q_rd_buff[0]);
                 next_state = DELAY_4;
             }
@@ -130,7 +159,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_4:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = SET_SAMPLING_RATE;
             }
             break;
@@ -138,6 +171,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case SET_SAMPLING_RATE:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_SetSamplingRate(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_5;
             }
@@ -145,7 +182,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_5:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = READ_CTRL_REG2_1;
             }
             break;
@@ -153,6 +194,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case READ_CTRL_REG2_1:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_ReadCtrlReg2(&mma8452q_rd_buff[0]);
                 next_state = DELAY_6;
             }
@@ -160,7 +205,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_6:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = SET_LOW_POWER_MODE;
             }
             break;
@@ -168,6 +217,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case SET_LOW_POWER_MODE:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_SetLowPowerMode(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_7;
             }
@@ -175,7 +228,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_7:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = READ_CTRL_REG1_3;
             }
             break;
@@ -183,6 +240,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case READ_CTRL_REG1_3:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_ReadCtrlReg1(&mma8452q_rd_buff[0]);
                 next_state = DELAY_8;
             }
@@ -190,7 +251,11 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_8:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+                timerWaitUs_irq(MMA8452Q_DELAY_US);
                 next_state = SET_ACTIVE;
             }
             break;
@@ -198,6 +263,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case SET_ACTIVE:
             if (ev == ev_LETIMER0_COMP1) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+                //Enter EM1 mode
+                sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 MMA8452Q_SetActive(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_9;
             }
@@ -205,6 +274,10 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_9:
             if (ev == ev_I2C0_TRANSFER_DONE) {
+#if POWER_MANAGEMENT
+                //Enter EM2 mode
+                sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
                 timerWaitUs_irq(PSEUDO_TRIGGER);
                 return_state = HEARTBEAT_INIT;
             }
@@ -228,6 +301,10 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
       case READ_XYZ:
           if (ev == ev_LETIMER0_COMP1) {
               LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if POWER_MANAGEMENT
+              //Enter EM1 mode
+              sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
               MMA8452Q_ReadXYZ(&mma8452q_rd_buff[0]);
               next_state = DELAY_10;
           }
@@ -235,7 +312,11 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
 
       case DELAY_10:
           if (ev == ev_I2C0_TRANSFER_DONE) {
-              timerWaitUs_irq(10000);
+#if POWER_MANAGEMENT
+              //Enter EM2 mode
+              sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+              timerWaitUs_irq(MMA8452Q_DELAY_US);
               next_state = SEND_XYZ;
           }
           break;
