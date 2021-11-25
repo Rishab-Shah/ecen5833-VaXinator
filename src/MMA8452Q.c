@@ -70,7 +70,7 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
     switch (current_state) {
         case VERIFY_IDENTITY:
-            if (ev == ev_LETIMER0_COMP1) {
+            if (ev == ev_LETIMER0_UF) {
                 LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_VerifyIdentity(&mma8452q_rd_buff[0]);
                 next_state = DELAY_1;
@@ -92,7 +92,7 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
                     next_state = DELAY_2;
                 }
                 else {
-                    LOG_ERROR("Wrong device!\r\n");
+                    LOG_ERROR("Wrong device, getting %x!\r\n", mma8452q_rd_buff[0]);
                     next_state = VERIFY_IDENTITY;
                 }
             }
@@ -205,8 +205,8 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case DELAY_9:
             if (ev == ev_I2C0_TRANSFER_DONE) {
-                timerWaitUs_irq(10000);
-                return_state = HEARTBEAT_READ;
+                timerWaitUs_irq(PSEUDO_TRIGGER);
+                return_state = HEARTBEAT_INIT;
             }
             break;
     }
@@ -243,12 +243,7 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
       case SEND_XYZ:
           if (ev == ev_LETIMER0_COMP1) {
               LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
-              LOG_INFO("%x\r\n", mma8452q_rd_buff[0]);
-              LOG_INFO("%x\r\n", mma8452q_rd_buff[1]);
-              LOG_INFO("%x\r\n", mma8452q_rd_buff[2]);
-              LOG_INFO("%x\r\n", mma8452q_rd_buff[3]);
-              LOG_INFO("%x\r\n", mma8452q_rd_buff[4]);
-              LOG_INFO("%x\r\n", mma8452q_rd_buff[5]);
+              LOG_INFO("%x %x %x %x %x %x\r", mma8452q_rd_buff[0], mma8452q_rd_buff[1], mma8452q_rd_buff[2], mma8452q_rd_buff[3], mma8452q_rd_buff[4], mma8452q_rd_buff[5]);
               next_state = READ_XYZ;
               return_state = HEARTBEAT_READ;
           }
@@ -260,19 +255,19 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
 
 
 void MMA8452Q_VerifyIdentity(uint8_t* rd_buff) {
-    uint8_t reg = WHO_AM_I;
-    I2C0_WriteRead(MMA8452Q_ADDR, &reg, 1, &rd_buff[0], 1);
+    mma8452q_wr_buff[0] = WHO_AM_I;
+    I2C0_WriteRead(MMA8452Q_ADDR, &mma8452q_wr_buff[0], 1, &rd_buff[0], 1);
 }
 
 
 void MMA8452Q_ReadCtrlReg1(uint8_t* rd_buff) {
-    uint8_t reg = CTRL_REG1;
-    I2C0_WriteRead(MMA8452Q_ADDR, &reg, 1, &rd_buff[0], 1);
+    mma8452q_wr_buff[0] = CTRL_REG1;
+    I2C0_WriteRead(MMA8452Q_ADDR, &mma8452q_wr_buff[0], 1, &rd_buff[0], 1);
 }
 
 void MMA8452Q_ReadCtrlReg2(uint8_t* rd_buff) {
-    uint8_t reg = CTRL_REG2;
-    I2C0_WriteRead(MMA8452Q_ADDR, &reg, 1, &rd_buff[0], 1);
+    mma8452q_wr_buff[0] = CTRL_REG2;
+    I2C0_WriteRead(MMA8452Q_ADDR, &mma8452q_wr_buff[0], 1, &rd_buff[0], 1);
 }
 
 void MMA8452Q_SetStandby(uint8_t* wr_buff, uint8_t ctrl_reg1)  {
@@ -316,12 +311,12 @@ void MMA8452Q_SetActive(uint8_t* wr_buff, uint8_t ctrl_reg1) {
 
 
 void MMA8452Q_CheckDataAvailable(uint8_t* rd_buff) {
-    uint8_t reg = STATUS_MMA8452Q;
-    I2C0_WriteRead(MMA8452Q_ADDR, &reg, 1, &rd_buff[0], 1);
+    mma8452q_wr_buff[0] = STATUS_MMA8452Q;
+    I2C0_WriteRead(MMA8452Q_ADDR, &mma8452q_wr_buff[0], 1, &rd_buff[0], 1);
 }
 
 
 void MMA8452Q_ReadXYZ(uint8_t* rd_buff) {
-    uint8_t reg = OUT_X_MSB;
-    I2C0_WriteRead(MMA8452Q_ADDR, &reg, 1, &rd_buff[0], 6);
+    mma8452q_wr_buff[0] = OUT_X_MSB;
+    I2C0_WriteRead(MMA8452Q_ADDR, &mma8452q_wr_buff[0], 1, &rd_buff[0], 6);
 }

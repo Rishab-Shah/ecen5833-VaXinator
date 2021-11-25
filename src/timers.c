@@ -12,7 +12,7 @@ void LETIMER0_Init(void) {
     LETIMER_Init_TypeDef timer_settings;
     uint32_t timer_period_count;
 
-    timer_period_count = LETIMER_PERIOD_MS * LFACLK_FREQ_HZ / LFACLK_PRESCALER_DIV_RATIO / MS_PER_SEC;
+    timer_period_count = LETIMER_PERIOD_MS * LFACLK_FREQ_HZ / LFACLK_PRESCALER_DIV_RATIO / MSEC_TO_USEC;
     timer_settings = (LETIMER_Init_TypeDef){
         false, false, true, false, 0, 0, letimerUFOANone, letimerUFOANone, letimerRepeatFree, 0
     };
@@ -39,7 +39,7 @@ void timerWaitUs_polled(uint32_t us_wait) {
         us_wait = 131071;
     }
 
-    wait_ticks = us_wait * ACTUAL_CLK_FREQ / US_PER_SEC;
+    wait_ticks = us_wait * ACTUAL_CLK_FREQ / SEC_TO_USEC;
 
     current_ticks = LETIMER_CounterGet(LETIMER0);
 

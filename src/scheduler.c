@@ -93,8 +93,8 @@ void Scheduler_SetEvent_PB1_RELEASED(void) {
 
 void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
     activity_monitoring_state_t current_state;
-    static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
-
+    //static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
+    static activity_monitoring_state_t next_state = ACCEL_INIT;
     if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
         return;
     }
@@ -102,24 +102,29 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
     current_state = next_state;
 
     switch (current_state) {
+        case ACCEL_INIT:
+            next_state = MMA8452Q_InitStateMachine(event);
+            //LOG_INFO("ACCEL_INIT\r");
+            break;
+
         case HEARTBEAT_INIT:
             next_state = init_heartbeat_machine(event);
+            //LOG_INFO("HEARTBEAT_INIT\r");
             break;
 
         case HEARTBEAT_CONFIGURE:
             next_state = config_heartbeat_machine(event);
-            break;
-
-        case ACCEL_INIT:
-            next_state = MMA8452Q_InitStateMachine(event);
+            //LOG_INFO("HEARTBEAT_CONFIGURE\r");
             break;
 
         case HEARTBEAT_READ:
             next_state = heartbeat_machine_running(event);
+            //LOG_INFO("HEARTBEAT_READ\r");
             break;
 
         case ACCEL_READ:
             next_state = MMA8452Q_ReadStateMachine(event);
+            //LOG_INFO("ACCEL_READ\r");
             break;
     }
 }

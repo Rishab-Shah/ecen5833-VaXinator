@@ -7,17 +7,16 @@
 #define DEBUG_ANALYSIS                  (0)
 #define DEBUG_READBACK                  (0)
 
-#define SEC_TO_USEC                     (1000000)
-#define MSEC_TO_USEC                    (1000)
+
 
 //PROJECT::MAX30101 - Appl mode config
 #define APPLICATION_CONFIG_DELAY        ((10)*(MSEC_TO_USEC))
 #define APPLICATION_MODE                ((1000)*(MSEC_TO_USEC))
 #define CMD_DELAY                       ((6)*(MSEC_TO_USEC))
 #define ENABLE_CMD_DELAY                ((45)*(1000))
-#define PSEUDO_TRIGGER                  ((1)*(MSEC_TO_USEC))
+
 #define CONFIG_TO_RUN_STATE             ((1000)*(MSEC_TO_USEC))
-#define TEST_MODE                       ((500)*(MSEC_TO_USEC))
+#define TEST_MODE                       ((50)*(MSEC_TO_USEC))
 #define MAX30101_SLAVE_ADDRESS          (0x55)
 
 #define ENABLE                          (0x01)
@@ -175,9 +174,12 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_0\r");
 #endif
-      if(event == ev_LETIMER0_UF)
+      if(event == ev_LETIMER0_COMP1 || event == ev_LETIMER0_UF)
       {
-          //LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+          if(event == ev_LETIMER0_UF)
+          {
+              LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+          }
           readSensorHubStatus();
       }
 
@@ -921,7 +923,7 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
             }
             else
             {
-                return_state = ACCEL_INIT;
+                return_state = HEARTBEAT_READ;
                 nextState = HB_CONFIG_STATE_0;
             }
         }
@@ -1033,7 +1035,7 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
 
       //TODO:Power On
       //timer
-
+      LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
 
       gpioMAX30101_InitConfigurations();
       /* state - 0 logic  start*/
