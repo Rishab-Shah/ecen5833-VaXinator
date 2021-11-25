@@ -37,30 +37,30 @@ void MMA8452Q_CheckDataAvailable(uint8_t* rd_buff);
 void MMA8452Q_ReadXYZ(uint8_t* rd_buff);
 
 
-void MMA8452Q_StateMachine(sl_bt_msg_t* event) {
-    mma8452q_state_t current_state;
-    static mma8452q_state_t next_state = MMA8452Q_INIT;
+//void MMA8452Q_StateMachine(sl_bt_msg_t* event) {
+//    mma8452q_state_t current_state;
+//    static mma8452q_state_t next_state = MMA8452Q_INIT;
+//
+//    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
+//        return;
+//    }
+//
+//    current_state = next_state;
+//
+//    switch (current_state) {
+//        case MMA8452Q_INIT:
+//            next_state = MMA8452Q_InitStateMachine(event);
+//            break;
+//
+//        case MMA8452Q_READ:
+//            next_state = MMA8452Q_ReadStateMachine(event);
+//            break;
+//    }
+//}
 
-    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
-        return;
-    }
 
-    current_state = next_state;
-
-    switch (current_state) {
-        case MMA8452Q_INIT:
-            next_state = MMA8452Q_InitStateMachine(event);
-            break;
-
-        case MMA8452Q_READ:
-            next_state = MMA8452Q_ReadStateMachine(event);
-            break;
-    }
-}
-
-
-mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
-    mma8452q_state_t return_state = MMA8452Q_INIT;
+activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
+    activity_monitoring_state_t return_state = ACCEL_INIT;
     mma8452q_init_state_t current_state;
     static mma8452q_init_state_t next_state = VERIFY_IDENTITY;
 
@@ -70,7 +70,8 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
     switch (current_state) {
         case VERIFY_IDENTITY:
-            if (ev == ev_LETIMER0_UF) {
+            if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_VerifyIdentity(&mma8452q_rd_buff[0]);
                 next_state = DELAY_1;
             }
@@ -85,6 +86,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case READ_CTRL_REG1_1:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 if (mma8452q_rd_buff[0] == 0x2A) {
                     MMA8452Q_ReadCtrlReg1(&mma8452q_rd_buff[0]);
                     next_state = DELAY_2;
@@ -105,6 +107,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case SET_STANDBY:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_SetStandby(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_3;
             }
@@ -119,6 +122,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case READ_CTRL_REG1_2:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_ReadCtrlReg1(&mma8452q_rd_buff[0]);
                 next_state = DELAY_4;
             }
@@ -133,6 +137,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case SET_SAMPLING_RATE:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_SetSamplingRate(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_5;
             }
@@ -147,6 +152,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case READ_CTRL_REG2_1:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_ReadCtrlReg2(&mma8452q_rd_buff[0]);
                 next_state = DELAY_6;
             }
@@ -161,6 +167,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case SET_LOW_POWER_MODE:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_SetLowPowerMode(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_7;
             }
@@ -175,6 +182,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case READ_CTRL_REG1_3:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_ReadCtrlReg1(&mma8452q_rd_buff[0]);
                 next_state = DELAY_8;
             }
@@ -189,6 +197,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 
         case SET_ACTIVE:
             if (ev == ev_LETIMER0_COMP1) {
+                LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
                 MMA8452Q_SetActive(&mma8452q_wr_buff[0], mma8452q_rd_buff[0]);
                 next_state = DELAY_9;
             }
@@ -197,7 +206,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
         case DELAY_9:
             if (ev == ev_I2C0_TRANSFER_DONE) {
                 timerWaitUs_irq(10000);
-                return_state = MMA8452Q_READ;
+                return_state = HEARTBEAT_READ;
             }
             break;
     }
@@ -206,8 +215,8 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
 }
 
 
-mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
-    mma8452q_state_t return_state = MMA8452Q_READ;
+activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
+    activity_monitoring_state_t return_state = ACCEL_READ;
     mma8452q_read_state_t current_state;
     static mma8452q_read_state_t next_state = READ_XYZ;
 
@@ -217,7 +226,8 @@ mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
 
     switch (current_state) {
       case READ_XYZ:
-          if (ev == ev_LETIMER0_UF) {
+          if (ev == ev_LETIMER0_COMP1) {
+              LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
               MMA8452Q_ReadXYZ(&mma8452q_rd_buff[0]);
               next_state = DELAY_10;
           }
@@ -232,6 +242,7 @@ mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
 
       case SEND_XYZ:
           if (ev == ev_LETIMER0_COMP1) {
+              LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
               LOG_INFO("%x\r\n", mma8452q_rd_buff[0]);
               LOG_INFO("%x\r\n", mma8452q_rd_buff[1]);
               LOG_INFO("%x\r\n", mma8452q_rd_buff[2]);
@@ -239,7 +250,7 @@ mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
               LOG_INFO("%x\r\n", mma8452q_rd_buff[4]);
               LOG_INFO("%x\r\n", mma8452q_rd_buff[5]);
               next_state = READ_XYZ;
-              return_state = MMA8452Q_READ;
+              return_state = HEARTBEAT_READ;
           }
           break;
     }

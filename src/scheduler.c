@@ -7,7 +7,6 @@
 
 #include "scheduler.h"
 
-
 #define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
@@ -92,38 +91,38 @@ void Scheduler_SetEvent_PB1_RELEASED(void) {
 /***************Server Functions*****************/
 /************************************************/
 
-//void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
-//    activity_monitoring_state_t current_state;
-//    static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
-//
-//    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
-//        return;
-//    }
-//
-//    current_state = next_state;
-//
-//    switch (current_state) {
-//        case HEARTBEAT_INIT:
-//            next_state = init_heartbeat_machine(event);
-//            break;
-//
-//        case HEARTBEAT_CONFIGURE:
-//            next_state = config_heartbeat_machine(event);
-//            break;
-//
-//        case ACCEL_INIT:
-//            next_state = MMA8452Q_InitStateMachine(event);
-//            break;
-//
-//        case HEARTBEAT_READ:
-//            next_state = heartbeat_machine_running(event);
-//            break;
-//
-//        case ACCEL_READ:
-//            next_state = MMA8452Q_ReadStateMachine(event);
-//            break;
-//    }
-//}
+void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
+    activity_monitoring_state_t current_state;
+    static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
+
+    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
+        return;
+    }
+
+    current_state = next_state;
+
+    switch (current_state) {
+        case HEARTBEAT_INIT:
+            next_state = init_heartbeat_machine(event);
+            break;
+
+        case HEARTBEAT_CONFIGURE:
+            next_state = config_heartbeat_machine(event);
+            break;
+
+        case ACCEL_INIT:
+            next_state = MMA8452Q_InitStateMachine(event);
+            break;
+
+        case HEARTBEAT_READ:
+            next_state = heartbeat_machine_running(event);
+            break;
+
+        case ACCEL_READ:
+            next_state = MMA8452Q_ReadStateMachine(event);
+            break;
+    }
+}
 
 
 /************************************************/

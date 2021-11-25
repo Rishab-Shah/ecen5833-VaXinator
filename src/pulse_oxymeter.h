@@ -8,6 +8,7 @@
 #ifndef SRC_PULSE_OXYMETER_H_
 #define SRC_PULSE_OXYMETER_H_
 
+#include "activity_monitoring.h"
 #include "i2c.h"
 #include "timers.h"
 #include "em_letimer.h"
@@ -75,9 +76,9 @@ typedef enum uint32_t_heartbeat_run_states
 }heartbeat_running_states;
 
 //Handle MAX30101
-void pulse_oxymeter_machine(sl_bt_msg_t *evt);
-oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt);
-oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt);
-oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt);
+//void pulse_oxymeter_machine(sl_bt_msg_t *evt);
+activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt);
+activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt);
+activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt);
 
 #endif /* SRC_PULSE_OXYMETER_H_ */

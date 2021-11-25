@@ -147,11 +147,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #if DEVICE_IS_BLE_SERVER
     //BleServer_TemperatureStateMachine(evt);    // put this code in scheduler.c/.h
 
-    MMA8452Q_StateMachine(evt);
+    //MMA8452Q_StateMachine(evt);
 
     //pulse_oxymeter_machine(evt);
 
-    //ActivityMonitoringSystem_StateMachine(evt);
+    ActivityMonitoringSystem_StateMachine(evt);
 
 #else
     BleClient_DiscoveryStateMachine(evt);

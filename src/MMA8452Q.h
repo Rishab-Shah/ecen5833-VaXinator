@@ -12,10 +12,10 @@
 
 
 #include <stdlib.h>
+#include "activity_monitoring.h"
 #include "i2c.h"
 #include "ble.h"
 #include "timers.h"
-#include "scheduler.h"
 
 
 #define MMA8452Q_ADDR (0x1D)
@@ -106,7 +106,7 @@ typedef enum {
  *
  * @return None
  */
-void MMA8452Q_StateMachine(sl_bt_msg_t* event);
+//void MMA8452Q_StateMachine(sl_bt_msg_t* event);
 
 
 /*
@@ -116,7 +116,7 @@ void MMA8452Q_StateMachine(sl_bt_msg_t* event);
  *
  * @return Next state of MMA8452Q state machine
  */
-mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
+activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
 
 
 /*
@@ -126,7 +126,7 @@ mma8452q_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
  *
  * @return Next state of MMA8452Q state machine
  */
-mma8452q_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event);
+activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event);
 
 
 #endif /* SRC_MMA8452Q_H_ */

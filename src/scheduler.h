@@ -18,19 +18,9 @@
 #include "app.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
-
-
-/*
- * Server Temperature FSM states enum
- */
-typedef enum {
-    DEFAULT,
-    HEARTBEAT_INIT,
-    HEARTBEAT_CONFIGURE,
-    ACCEL_INIT,
-    HEARTBEAT_READ,
-    ACCEL_READ
-} activity_monitoring_state_t;
+#include "pulse_oxymeter.h"
+#include "MMA8452Q.h"
+#include "activity_monitoring.h"
 
 
 /*
@@ -137,7 +127,7 @@ void Scheduler_SetEvent_PB1_RELEASED(void);
  *
  * @return None
  */
-//void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
+void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 
 
 /************************************************/

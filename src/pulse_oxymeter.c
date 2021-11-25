@@ -83,76 +83,76 @@ void readFillArray(uint8_t firstbyte, uint8_t secondbyte);
 uint8_t event_requested;
 uint8_t write_i2c0_buffer[8] = {0};
 uint8_t read_i2c0_buffer[10] = {0};
-void pulse_oxymeter_machine(sl_bt_msg_t *evt)
-{
-    /* Switch based on the event detected */
-    oxymeter_states next_phase = DEFAULT_STATE;
+//void pulse_oxymeter_machine(sl_bt_msg_t *evt)
+//{
+//    /* Switch based on the event detected */
+//    oxymeter_states next_phase = DEFAULT_STATE;
+//
+//    //Current state machine switch
+//    oxymeter_states currentState;
+//    static oxymeter_states nextState = STATE_INIT;
+//    currentState = nextState;
+//
+//    switch(currentState)
+//    {
+//      case STATE_INIT:
+//      {
+//        nextState = STATE_INIT;
+//#if DEBUG_ANALYSIS
+//        LOG_INFO("STATE_INIT\r");
+//#endif
+//        next_phase = init_heartbeat_machine(evt);
+//        if(next_phase == STATE_CONFIGURATION)
+//        {
+//          nextState = STATE_CONFIGURATION;
+//          next_phase = DEFAULT_STATE;
+//        }
+//        break;
+//      }
+//
+//      case STATE_CONFIGURATION:
+//      {
+//        nextState = STATE_CONFIGURATION;
+//#if DEBUG_ANALYSIS
+//        LOG_INFO("STATE_CONFIGURATION\r");
+//#endif
+//        next_phase = config_heartbeat_machine(evt);
+//        if(next_phase == STATE_RUNNING)
+//        {
+//          nextState = STATE_RUNNING;
+//          next_phase = DEFAULT_STATE;
+//        }
+//        break;
+//      }
+//
+//      case STATE_RUNNING:
+//      {
+//        nextState = STATE_RUNNING;
+//#if DEBUG_ANALYSIS
+//        LOG_INFO("STATE_RUNNING\r");
+//#endif
+//        next_phase = heartbeat_machine_running(evt);
+//        if(next_phase == STATE_INIT)
+//        {
+//          nextState = STATE_INIT;
+//          next_phase = DEFAULT_STATE;
+//        }
+//        break;
+//      }
+//
+//      default:
+//        break;
+//
+//    }
+//
+//}
 
-    //Current state machine switch
-    oxymeter_states currentState;
-    static oxymeter_states nextState = STATE_INIT;
-    currentState = nextState;
 
-    switch(currentState)
-    {
-      case STATE_INIT:
-      {
-        nextState = STATE_INIT;
-#if DEBUG_ANALYSIS
-        LOG_INFO("STATE_INIT\r");
-#endif
-        next_phase = init_heartbeat_machine(evt);
-        if(next_phase == STATE_CONFIGURATION)
-        {
-          nextState = STATE_CONFIGURATION;
-          next_phase = DEFAULT_STATE;
-        }
-        break;
-      }
-
-      case STATE_CONFIGURATION:
-      {
-        nextState = STATE_CONFIGURATION;
-#if DEBUG_ANALYSIS
-        LOG_INFO("STATE_CONFIGURATION\r");
-#endif
-        next_phase = config_heartbeat_machine(evt);
-        if(next_phase == STATE_RUNNING)
-        {
-          nextState = STATE_RUNNING;
-          next_phase = DEFAULT_STATE;
-        }
-        break;
-      }
-
-      case STATE_RUNNING:
-      {
-        nextState = STATE_RUNNING;
-#if DEBUG_ANALYSIS
-        LOG_INFO("STATE_RUNNING\r");
-#endif
-        next_phase = heartbeat_machine_running(evt);
-        if(next_phase == STATE_INIT)
-        {
-          nextState = STATE_INIT;
-          next_phase = DEFAULT_STATE;
-        }
-        break;
-      }
-
-      default:
-        break;
-
-    }
-
-}
-
-
-oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
+activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 {
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
   /* return state logic */
-  oxymeter_states return_state = STATE_RUNNING;
+  activity_monitoring_state_t return_state = HEARTBEAT_READ;
   /* current machine logic */
   heartbeat_running_states currentState;
   static heartbeat_running_states nextState = HB_RUN_STATE_0;
@@ -162,22 +162,22 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
   uint8_t bpmArr[MAXFAST_ARRAY_SIZE] = {0};
   struct bioData sensorData = {0};
 
-  static int counter = 0;
-  static int counter2 = 0;
+//  static int counter = 0;
+//  static int counter2 = 0;
 
   switch(currentState)
   {
     case HB_RUN_STATE_0:
     {
       //Default states
-      return_state = STATE_RUNNING;
+      return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_0;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_0\r");
 #endif
-      if(event == ev_LETIMER0_COMP1)
+      if(event == ev_LETIMER0_UF)
       {
-          LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+          //LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
           readSensorHubStatus();
       }
 
@@ -203,7 +203,7 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
     case HB_RUN_STATE_1:
     {
       //Default states
-      return_state = STATE_RUNNING;
+      return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_1;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_1\r");
@@ -244,7 +244,7 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
     case HB_RUN_STATE_2:
     {
       //Default states
-      return_state = STATE_RUNNING;
+      return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_2;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_2\r");
@@ -277,7 +277,7 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
     case HB_RUN_STATE_3:
     {
       //Default states
-      return_state = STATE_RUNNING;
+      return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_3;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_3\r");
@@ -318,7 +318,7 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
     case HB_RUN_STATE_4:
     {
       //Default states
-      return_state = STATE_RUNNING;
+      return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_4;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_4\r");
@@ -351,7 +351,7 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
     case HB_RUN_STATE_5:
     {
       //Default states
-      return_state = STATE_RUNNING;
+      return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_5;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_5\r");
@@ -415,7 +415,8 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
           {
 
               //TODO: power off
-#if 1
+              return_state = ACCEL_READ;
+#if 0
               counter++;
               //LOG_ERROR("counter = %d\r",counter);
               if(counter == 180)
@@ -423,7 +424,7 @@ oxymeter_states heartbeat_machine_running(sl_bt_msg_t *evt)
                   counter = 0;
                   counter2++;
                   LOG_INFO("Transition = %d\r",counter2);
-                  return_state = STATE_INIT;
+                  return_state = HEARTBEAT_INIT;
               }
 #endif
               nextState = HB_RUN_STATE_0;
@@ -473,11 +474,11 @@ void readFillArray(uint8_t firstbyte, uint8_t secondbyte)
   I2C0_Write(MAX30101_SLAVE_ADDRESS,write_i2c0_buffer,2);
 }
 
-oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
+activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
 {
     ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
     /* return state logic */
-    oxymeter_states return_state = STATE_CONFIGURATION;
+    activity_monitoring_state_t return_state = HEARTBEAT_CONFIGURE;
     /* current machine logic */
     heartbeat_config_states currentState;
     static heartbeat_config_states nextState = HB_CONFIG_STATE_0;
@@ -490,7 +491,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_0:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_0;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_0\r");
@@ -522,7 +523,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_1:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_1;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_1\r");
@@ -563,7 +564,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_2:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_2;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_2\r");
@@ -597,7 +598,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_3:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_3;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_3\r");
@@ -637,7 +638,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_4:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_4;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_4\r");
@@ -670,7 +671,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_5:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_5;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_5\r");
@@ -710,7 +711,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_6:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_6;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_6\r");
@@ -743,7 +744,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_7:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_7;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_7\r");
@@ -783,7 +784,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_8:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_8;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_8\r");
@@ -816,7 +817,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_9:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_9;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_9\r");
@@ -856,7 +857,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_10:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_10;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_10\r");
@@ -889,7 +890,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
       case HB_CONFIG_STATE_11:
       {
         //Default states
-        return_state = STATE_CONFIGURATION;
+        return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_11;
 #if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_11\r");
@@ -920,7 +921,7 @@ oxymeter_states config_heartbeat_machine(sl_bt_msg_t *evt)
             }
             else
             {
-                return_state = STATE_RUNNING;
+                return_state = ACCEL_INIT;
                 nextState = HB_CONFIG_STATE_0;
             }
         }
@@ -1007,11 +1008,11 @@ void readAlgoSamples()
   I2C0_Write(MAX30101_SLAVE_ADDRESS,write_i2c0_buffer,3);
 }
 
-oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt)
+activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
 {
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
   /* return state logic */
-  oxymeter_states return_state = STATE_INIT;
+  activity_monitoring_state_t return_state = HEARTBEAT_INIT;
   /* current machine logic */
   heartbeat_init_states currentState;
   static heartbeat_init_states nextState = HB_INIT_STATE_0;
@@ -1024,7 +1025,7 @@ oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt)
     case HB_INIT_STATE_0:
     {
       //Default states
-      return_state = STATE_INIT;
+      return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_0;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_0\r");
@@ -1057,7 +1058,7 @@ oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt)
     case HB_INIT_STATE_1:
     {
       //Default states
-      return_state = STATE_INIT;
+      return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_1;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_1\r");
@@ -1083,7 +1084,7 @@ oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt)
     case HB_INIT_STATE_2:
     {
       //Default states
-      return_state = STATE_INIT;
+      return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_2;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_2\r");
@@ -1128,7 +1129,7 @@ oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt)
     case HB_INIT_STATE_3:
     {
       //Default states
-      return_state = STATE_INIT;
+      return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_3;
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_3\r");
@@ -1163,7 +1164,7 @@ oxymeter_states init_heartbeat_machine(sl_bt_msg_t *evt)
           }
           else
           {
-              return_state = STATE_CONFIGURATION;
+              return_state = HEARTBEAT_CONFIGURE;
               nextState = HB_INIT_STATE_0;
           }
       }
