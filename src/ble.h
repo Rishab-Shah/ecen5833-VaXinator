@@ -20,7 +20,7 @@
 #include "ble_device_type.h"
 
 
-#define BONDING_FLAGS (0x0F)
+
 
 
 #define INDICATION_QUEUE_SIZE  (16)

@@ -10,6 +10,20 @@
 #define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
+//macros for client and server
+#define CONNECTION_PARAMETER_DEBUG_PRINTS           (0)
+
+//macros for server
+#define ADVERTISE_VALUE                             (0x190)//400
+#define CONNECTION_TIME                             (0x3C) //60
+//Security related macros
+#define BONDING_FLAGS                               (0x0F)
+
+//Macros for client
+#define SCAN_PASSIVE                                (0)
+#define SCAN_INTERVAL                               (80)// value = 50 msec /0.625 msec
+#define SCAN_WINDOW                                 (40)// value = 25 msec /0.625 msec
+
 
 ble_data_struct_t ble_data = { 0 };
 
@@ -23,6 +37,7 @@ static indication_struct_t indication_q[INDICATION_QUEUE_SIZE];
 static uint8_t rd_ptr = 0;
 static uint8_t wr_ptr = 0;
 static uint8_t q_size = 0;
+
 
 
 /************************************************/
@@ -226,7 +241,8 @@ void BleServer_HandleBootEvent(void) {
         LOG_ERROR("sl_bt_advertiser_create_set: %x\r\n", ble_status);
     }
 
-    ble_status = sl_bt_advertiser_set_timing(ble_data.s_AdvertisingHandle, 400, 400, 0, 0);
+
+    ble_status = sl_bt_advertiser_set_timing(ble_data.s_AdvertisingHandle, ADVERTISE_VALUE, ADVERTISE_VALUE, 0, 0);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_advertiser_set_timing: %x\r\n", ble_status);
     }
@@ -270,7 +286,14 @@ void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     }
 
     // Set connection parameters
-    ble_status = sl_bt_connection_set_parameters(ble_data.s_ConnectionHandle, 120, 120, 4, 1500, 0, 0xFFFF);
+    ble_status = sl_bt_connection_set_parameters( ble_data.s_ConnectionHandle,
+                                                  CONNECTION_TIME,
+                                                  CONNECTION_TIME,
+                                                  0x03, //(75 * 3 =  At 4th, connection will happen)
+                                                  0x50, //80 - (1+3)*(75*2) = 600 -> 600/10 = 60 (took 80) -> 0x50
+                                                  0,
+                                                  0xffff);
+    //sl_bt_connection_set_parameters(ble_data.s_ConnectionHandle, 120, 120, 4, 1500, 0, 0xFFFF);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_connection_set_parameters: %x\r\n", ble_status);
     }
@@ -326,12 +349,12 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
     if (event->data.evt_system_external_signal.extsignals == ev_PB0_PRESSED) {
         displayPrintf(DISPLAY_ROW_9, "Button Pressed");
 
-        indication.characteristicHandle = gattdb_button_state;
+        indication.characteristicHandle = gattdb_heartbeat_state;
         indication.buff[0] = BUTTON_STATE_PRESSED;
         indication.buff[1] = 0;
         indication.bufferLen = BUTTON_BUFF_LEN;
 
-        ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_button_state,
+        ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_heartbeat_state,
                                                              0,
                                                              1,
                                                              &(indication.buff[0]));
@@ -364,12 +387,12 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
     }
     else if (event->data.evt_system_external_signal.extsignals == ev_PB0_RELEASED) {
         displayPrintf(DISPLAY_ROW_9, "Button Released");
-        indication.characteristicHandle = gattdb_button_state;
+        indication.characteristicHandle = gattdb_heartbeat_state;
         indication.buff[0] = BUTTON_STATE_RELEASED;
         indication.buff[1] = 0;
         indication.bufferLen = BUTTON_BUFF_LEN;
 
-        ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_button_state,
+        ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_heartbeat_state,
                                                              0,
                                                              1,
                                                              &(indication.buff[0]));
@@ -425,8 +448,8 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             ble_data.s_TemperatureIndicating = true;
         }
     }
-    else if (event->data.evt_gatt_server_characteristic_status.characteristic == gattdb_button_state) {
-        ble_data.s_ButtonCharacteristicHandle = gattdb_button_state;
+    else if (event->data.evt_gatt_server_characteristic_status.characteristic == gattdb_heartbeat_state) {
+        ble_data.s_ButtonCharacteristicHandle = gattdb_heartbeat_state;
 
         status_flags = event->data.evt_gatt_server_characteristic_status.status_flags;
         // Indication received successfully
@@ -532,19 +555,27 @@ void BleClient_HandleBootEvent(void) {
     }
 
     // Set passive scanning on 1Mb PHY
-    ble_status = sl_bt_scanner_set_mode(sl_bt_gap_1m_phy, 0);
+    ble_status = sl_bt_scanner_set_mode(sl_bt_gap_1m_phy,SCAN_PASSIVE);
+    //sl_bt_scanner_set_mode(sl_bt_gap_1m_phy, 0);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_scanner_set_mode: %x\r\n", ble_status);
     }
 
     // Set scan interval and scan window
-    ble_status = sl_bt_scanner_set_timing(sl_bt_gap_1m_phy, 80, 40);
+    ble_status = sl_bt_scanner_set_timing(sl_bt_gap_1m_phy,SCAN_INTERVAL,SCAN_WINDOW);
+    //sl_bt_scanner_set_timing(sl_bt_gap_1m_phy, 80, 40);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_scanner_set_timing: %x\r\n", ble_status);
     }
 
     // Set the default connection parameters for subsequent connections
-    ble_status = sl_bt_connection_set_default_parameters(120, 120, 4, 1500, 0, 0xFFFF);
+    ble_status = sl_bt_connection_set_default_parameters(  CONNECTION_TIME, //75
+                                                           CONNECTION_TIME,
+                                                           0x03, //(75 * 3 =  At 4th, connection will happen) //0
+                                                           0x50, //80 - (1+3)*(75*2) = 600 -> 675/10 = 60 (took 80) -> 0x50 //
+                                                           0,
+                                                           0xffff);
+        //sl_bt_connection_set_default_parameters(120, 120, 4, 1500, 0, 0xFFFF);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_connection_set_default_parameters: %x\r\n", ble_status);
     }
