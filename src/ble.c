@@ -222,52 +222,51 @@ void BleServer_HandleBootEvent(void) {
 
     ble_status = sl_bt_sm_delete_bondings();
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r", ble_status);
     }
 
     ble_status = sl_bt_sm_configure(BONDING_FLAGS, sl_bt_sm_io_capability_displayyesno);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_configure: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_configure: %x\r", ble_status);
     }
 
     ble_status = sl_bt_gatt_server_write_attribute_value(gattdb_system_id, 0, sizeof(ble_data.serverAddress.addr), ble_data.serverAddress.addr);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r", ble_status);
     }
 
     // Create advertising set
     ble_status = sl_bt_advertiser_create_set(&(ble_data.s_AdvertisingHandle));
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_advertiser_create_set: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_advertiser_create_set: %x\r", ble_status);
     }
-
 
     ble_status = sl_bt_advertiser_set_timing(ble_data.s_AdvertisingHandle, ADVERTISE_VALUE, ADVERTISE_VALUE, 0, 0);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_advertiser_set_timing: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_advertiser_set_timing: %x\r", ble_status);
     }
 
     // Start advertising
     ble_status = sl_bt_advertiser_start(ble_data.s_AdvertisingHandle, sl_bt_advertiser_general_discoverable,
         sl_bt_advertiser_connectable_scannable);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_advertiser_start: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_advertiser_start: %x\r", ble_status);
     }
 
     ble_status = sl_bt_system_set_soft_timer(INDICATION_QUEUE_TIMER_INTERVAL, INDICATION_QUEUE_TIMER_HANDLE, false);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_system_set_soft_timer: %x\r\n", ble_status);
+        LOG_ERROR("sl_system_set_soft_timer: %x\r", ble_status);
     }
 
     displayInit();
 
-    displayPrintf(DISPLAY_ROW_NAME, "Server");
-    displayPrintf(DISPLAY_ROW_BTADDR, "%x:%x:%x:%x:%x:%x",
+    displayPrintf(DISPLAY_ROW_NAME, BLE_DEVICE_TYPE_STRING);
+    displayPrintf(DISPLAY_ROW_BTADDR, "%02X:%02X:%02X:%02X:%02X:%02X",
                   ble_data.serverAddress.addr[0], ble_data.serverAddress.addr[1],
                   ble_data.serverAddress.addr[2], ble_data.serverAddress.addr[3],
                   ble_data.serverAddress.addr[4], ble_data.serverAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
-    displayPrintf(DISPLAY_ROW_ASSIGNMENT, "A9");
+    displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
 }
 
 
@@ -282,7 +281,7 @@ void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     // Stop advertising
     ble_status = sl_bt_advertiser_stop(ble_data.s_AdvertisingHandle);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_advertiser_stop: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_advertiser_stop: %x\r", ble_status);
     }
 
     // Set connection parameters
@@ -295,7 +294,7 @@ void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
                                                   0xffff);
     //sl_bt_connection_set_parameters(ble_data.s_ConnectionHandle, 120, 120, 4, 1500, 0, 0xFFFF);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_connection_set_parameters: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_connection_set_parameters: %x\r", ble_status);
     }
 
     displayPrintf(DISPLAY_ROW_CONNECTION, "Connected");
@@ -319,14 +318,14 @@ void BleServer_HandleConnectionClosedEvent(void) {
 
     ble_status = sl_bt_sm_delete_bondings();
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r", ble_status);
     }
 
 
     ble_status = sl_bt_advertiser_start(ble_data.s_AdvertisingHandle, sl_bt_advertiser_general_discoverable,
             sl_bt_advertiser_connectable_scannable);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_advertiser_start: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_advertiser_start: %x\r", ble_status);
     }
 
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
@@ -334,7 +333,7 @@ void BleServer_HandleConnectionClosedEvent(void) {
 
 
 void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
-    LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r\n",
+    LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r",
              event->data.evt_connection_parameters.connection,
              event->data.evt_connection_parameters.interval,
              event->data.evt_connection_parameters.latency,
@@ -359,7 +358,7 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                                                              1,
                                                              &(indication.buff[0]));
         if (ble_status != SL_STATUS_OK) {
-            LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r\n", ble_status);
+            LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r", ble_status);
         }
         if ((ble_data.s_IndicationInFlight) && (ble_data.s_ButtonIndicating) && (ble_data.s_Bonded)) {
             IndicationQ_Enqueue(indication);
@@ -368,7 +367,7 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
             if (ble_data.s_BondingPending) {
                 ble_status = sl_bt_sm_passkey_confirm(ble_data.s_ConnectionHandle, true);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_sm_passkey_confirm: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_sm_passkey_confirm: %x\r", ble_status);
                 }
                 ble_data.s_BondingPending = false;
             }
@@ -379,7 +378,7 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                     indication.bufferLen,
                     indication.buff);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r", ble_status);
                 }
                 ble_data.s_IndicationInFlight = true;
             }
@@ -397,7 +396,7 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                                                              1,
                                                              &(indication.buff[0]));
         if (ble_status != SL_STATUS_OK) {
-            LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r\n", ble_status);
+            LOG_ERROR("sl_bt_gatt_server_write_attribute_value: %x\r", ble_status);
         }
 
         if ((ble_data.s_IndicationInFlight) && (ble_data.s_ButtonIndicating) && (ble_data.s_Bonded)) {
@@ -411,7 +410,7 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                     indication.bufferLen,
                     indication.buff);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r", ble_status);
                 }
                 ble_data.s_IndicationInFlight = true;
             }
@@ -472,7 +471,7 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
 
 
 void BleServer_HandleIndicationTimeoutEvent(void) {
-    LOG_ERROR("Timeout occurred on indication\r\n");
+    LOG_ERROR("Timeout occurred on indication\r");
 }
 
 
@@ -481,7 +480,7 @@ void BleServer_HandleBondingConfirmEvent(void) {
 
     ble_status = sl_bt_sm_bonding_confirm(ble_data.s_ConnectionHandle, 1);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_bonding_confirm: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_bonding_confirm: %x\r", ble_status);
     }
 }
 
@@ -503,7 +502,7 @@ void BleServer_HandleBondedEvent(void) {
 
 void BleServer_HandleBondingFailedEvent(sl_bt_msg_t* event) {
     ble_data.s_Bonded = false;
-    LOG_ERROR("Bonding failed: %x\r\n", event->data.evt_sm_bonding_failed.reason);
+    LOG_ERROR("Bonding failed: %x\r", event->data.evt_sm_bonding_failed.reason);
 }
 
 
@@ -523,7 +522,7 @@ void BleServer_HandleSoftTimerEvent(sl_bt_msg_t* event) {
                 indication.bufferLen,
                 indication.buff);
             if (ble_status != SL_STATUS_OK) {
-                LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r\n", ble_status);
+                LOG_ERROR("sl_bt_gatt_server_send_indication: %x\r", ble_status);
             }
             ble_data.s_IndicationInFlight = true;
         }
@@ -541,31 +540,31 @@ void BleClient_HandleBootEvent(void) {
 
     ble_status = sl_bt_sm_delete_bondings();
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r", ble_status);
     }
 
     ble_status = sl_bt_sm_configure(BONDING_FLAGS, sl_bt_sm_io_capability_displayyesno);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_configure: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_configure: %x\r", ble_status);
     }
 
     ble_status = sl_bt_system_get_identity_address(&(ble_data.c_DeviceAddress), &(ble_data.c_DeviceAddressType));
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_system_get_identity_address: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_system_get_identity_address: %x\r", ble_status);
     }
 
     // Set passive scanning on 1Mb PHY
     ble_status = sl_bt_scanner_set_mode(sl_bt_gap_1m_phy,SCAN_PASSIVE);
     //sl_bt_scanner_set_mode(sl_bt_gap_1m_phy, 0);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_scanner_set_mode: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_scanner_set_mode: %x\r", ble_status);
     }
 
     // Set scan interval and scan window
     ble_status = sl_bt_scanner_set_timing(sl_bt_gap_1m_phy,SCAN_INTERVAL,SCAN_WINDOW);
     //sl_bt_scanner_set_timing(sl_bt_gap_1m_phy, 80, 40);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_scanner_set_timing: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_scanner_set_timing: %x\r", ble_status);
     }
 
     // Set the default connection parameters for subsequent connections
@@ -577,23 +576,23 @@ void BleClient_HandleBootEvent(void) {
                                                            0xffff);
         //sl_bt_connection_set_default_parameters(120, 120, 4, 1500, 0, 0xFFFF);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_connection_set_default_parameters: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_connection_set_default_parameters: %x\r", ble_status);
     }
 
     ble_status = sl_bt_scanner_start(sl_bt_gap_1m_phy, sl_bt_scanner_discover_generic);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_scanner_start: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_scanner_start: %x\r", ble_status);
     }
 
     displayInit();
 
-    displayPrintf(DISPLAY_ROW_NAME, "Client");
-    displayPrintf(DISPLAY_ROW_BTADDR, "%x:%x:%x:%x:%x:%x",
+    displayPrintf(DISPLAY_ROW_NAME, BLE_DEVICE_TYPE_STRING);
+    displayPrintf(DISPLAY_ROW_BTADDR, "%02X:%02X:%02X:%02X:%02X:%02X",
                   ble_data.c_DeviceAddress.addr[0], ble_data.c_DeviceAddress.addr[1],
                   ble_data.c_DeviceAddress.addr[2], ble_data.c_DeviceAddress.addr[3],
                   ble_data.c_DeviceAddress.addr[4], ble_data.c_DeviceAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
-    displayPrintf(DISPLAY_ROW_ASSIGNMENT, "A9");
+    displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
 }
 
 
@@ -608,14 +607,14 @@ void BleClient_HandleScanReportEvent(sl_bt_msg_t* event) {
             if (!memcmp(&(ble_data.serverAddress.addr[0]), &(event->data.evt_scanner_scan_report.address.addr[0]), sizeof(bd_addr))) {
                 ble_status = sl_bt_scanner_stop();
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_scanner_stop: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_scanner_stop: %x\r", ble_status);
                 }
 
                 ble_status = sl_bt_connection_open(ble_data.serverAddress,
                                                    ble_data.serverAddressType,
                                                    sl_bt_gap_1m_phy, NULL);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_connection_open: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_connection_open: %x\r", ble_status);
                 }
             }
         }
@@ -627,7 +626,7 @@ void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     ble_data.c_ConnectionHandle = event->data.evt_connection_opened.connection;
     ble_data.c_Connected = true;
 
-    displayPrintf(DISPLAY_ROW_BTADDR2, "%x:%x:%x:%x:%x:%x",
+    displayPrintf(DISPLAY_ROW_BTADDR2, "%02X:%02X:%02X:%02X:%02X:%02X",
                   ble_data.serverAddress.addr[0], ble_data.serverAddress.addr[1],
                   ble_data.serverAddress.addr[2], ble_data.serverAddress.addr[3],
                   ble_data.serverAddress.addr[4], ble_data.serverAddress.addr[5]);
@@ -644,7 +643,7 @@ void BleClient_HandleConnectionClosedEvent(void) {
 
     ble_status = sl_bt_sm_delete_bondings();
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_sm_delete_bondings: %x\r", ble_status);
     }
 
     displayPrintf(DISPLAY_ROW_BTADDR2, "");
@@ -654,7 +653,7 @@ void BleClient_HandleConnectionClosedEvent(void) {
 
 
 void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
-    LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r\n",
+    LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r",
              event->data.evt_connection_parameters.connection,
              event->data.evt_connection_parameters.interval,
              event->data.evt_connection_parameters.latency,
@@ -667,7 +666,7 @@ void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event) {
     if (event->data.evt_gatt_procedure_completed.result == SL_STATUS_BT_ATT_INSUFFICIENT_ENCRYPTION) {
         ble_status = sl_bt_sm_increase_security(ble_data.c_ConnectionHandle);
         if (ble_status != SL_STATUS_OK) {
-            LOG_ERROR("sl_bt_sm_increase_security: %x\r\n", ble_status);
+            LOG_ERROR("sl_bt_sm_increase_security: %x\r", ble_status);
         }
         ble_data.c_BondingPending = true;
     }
@@ -712,7 +711,7 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
 
             ble_status = sl_bt_gatt_send_characteristic_confirmation(ble_data.c_ConnectionHandle);
             if (ble_status != SL_STATUS_OK) {
-                LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r\n", ble_status);
+                LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r", ble_status);
             }
         }
     }
@@ -730,7 +729,7 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
 
                 ble_status = sl_bt_gatt_send_characteristic_confirmation(ble_data.c_ConnectionHandle);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r", ble_status);
                 }
             }
         }
@@ -767,7 +766,7 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                 ble_status = sl_bt_gatt_set_characteristic_notification(ble_data.c_ConnectionHandle,
                                                                         ble_data.c_ButtonCharacteristicHandle, 0x00);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
                 }
                 ble_data.c_ButtonIndicating = false;
             }
@@ -775,7 +774,7 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                 ble_status = sl_bt_gatt_set_characteristic_notification(ble_data.c_ConnectionHandle,
                                                                         ble_data.c_ButtonCharacteristicHandle, 0x02);
                 if (ble_status != SL_STATUS_OK) {
-                    LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
+                    LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
                 }
                 ble_data.c_ButtonIndicating = true;
             }
@@ -795,7 +794,7 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
 
         ble_status = sl_bt_gatt_read_characteristic_value(ble_data.c_ConnectionHandle, ble_data.c_ButtonCharacteristicHandle);
         if ((ble_status != SL_STATUS_OK) && (ble_status != SL_STATUS_BT_ATT_INSUFFICIENT_ENCRYPTION)) {
-            LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r\n", ble_status);
+            LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation: %x\r", ble_status);
         }
     }
     else if (ev == ev_PB1_RELEASED) {
@@ -826,7 +825,7 @@ void BleClient_HandleBondedEvent(void) {
 
 void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event) {
     ble_data.c_Bonded = false;
-    LOG_ERROR("Bonding failed: %x\r\n", event->data.evt_sm_bonding_failed.reason);
+    LOG_ERROR("Bonding failed: %x\r", event->data.evt_sm_bonding_failed.reason);
 }
 
 

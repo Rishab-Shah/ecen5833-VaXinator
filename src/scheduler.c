@@ -212,7 +212,7 @@ void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data) {
                                                                   sizeof(thermo_service),
                                                                   thermo_service);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
     }
 }
 
@@ -225,7 +225,7 @@ void BleClient_RequestTemperatureCharacteristicInfo(ble_data_struct_t* ble_data)
                                                              sizeof(thermo_char),
                                                              thermo_char);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
     }
 }
 
@@ -237,7 +237,7 @@ void BleClient_RequestButtonServiceInfo(ble_data_struct_t* ble_data) {
                                                                   sizeof(button_service),
                                                                   button_service);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
     }
 }
 
@@ -250,7 +250,7 @@ void BleClient_RequestButtonCharacteristicInfo(ble_data_struct_t* ble_data) {
                                                              sizeof(button_char),
                                                              button_char);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
     }
 }
 
@@ -261,7 +261,7 @@ void BleClient_EnableTemperatureIndications(ble_data_struct_t* ble_data) {
     ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
                                                             ble_data->c_TemperatureCharacteristicHandle, 0x02);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
     }
 }
 
@@ -273,7 +273,7 @@ void BleClient_EnableButtonIndications(ble_data_struct_t* ble_data) {
     ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
                                                             ble_data->c_ButtonCharacteristicHandle, 0x02);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
     }
 }
 
@@ -289,6 +289,6 @@ void BleClient_RestartScanning(void) {
 
     ble_status = sl_bt_scanner_start(sl_bt_gap_1m_phy, sl_bt_scanner_discover_generic);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_scanner_start: %x\r\n", ble_status);
+        LOG_ERROR("sl_bt_scanner_start: %x\r", ble_status);
     }
 }

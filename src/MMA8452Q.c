@@ -105,7 +105,7 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
                     next_state = DELAY_2;
                 }
                 else {
-                    LOG_ERROR("Wrong device, getting %x!\r\n", mma8452q_rd_buff[0]);
+                    LOG_ERROR("Wrong device, getting %x!\r", mma8452q_rd_buff[0]);
                     next_state = VERIFY_IDENTITY;
                 }
             }
