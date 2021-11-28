@@ -121,17 +121,13 @@ typedef struct ble_data_struct_s {
     //Server
     bool s_health_indications_client;
 
-    uint8_t health_service[HEALTH_SIZE];
-    uint8_t health_char[HEALTH_SIZE];
+    uint8_t s_health_service[HEALTH_SIZE];
+    uint8_t s_health_char[HEALTH_SIZE];
 
     //Client
-    bool health_service_status;
     uint32_t c_health_service_handle;
-
-    bool health_characteristic_status;
     uint16_t c_health_characteristic_handle;
-
-    uint8_t * health_char_value;
+    uint8_t *health_char_value;
 
 } ble_data_struct_t;
 

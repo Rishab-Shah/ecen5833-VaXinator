@@ -240,10 +240,10 @@ void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
-                                                                  sizeof(ble_data->health_service),
-                                                                  ble_data->health_service);
+                                                                  sizeof(ble_data->s_health_service),
+                                                                  ble_data->s_health_service);
     if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
+        LOG_ERROR("s_health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
     }
 }
 
@@ -252,8 +252,8 @@ void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data) {
 
     ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
                                                              ble_data->c_health_service_handle,
-                                                             sizeof(ble_data->health_char),
-                                                             ble_data->health_char);
+                                                             sizeof(ble_data->s_health_char),
+                                                             ble_data->s_health_char);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("health_char:: sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
     }
@@ -262,7 +262,6 @@ void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data) {
 void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
-
     ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
                                                             ble_data->c_health_characteristic_handle,
                                                             sl_bt_gatt_indication);
@@ -270,6 +269,8 @@ void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
         LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
     }
 }
+
+
 
 void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;

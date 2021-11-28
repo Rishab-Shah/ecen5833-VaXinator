@@ -619,8 +619,8 @@ void BleClient_HandleBootEvent(void) {
 
     //Rishab
     //health service
-    memcpy(ble_data.health_service,health_service,HEALTH_SIZE*sizeof(ble_data.health_service[0]));
-    memcpy(ble_data.health_char,health_char,HEALTH_SIZE*sizeof(ble_data.health_char[0]));
+    memcpy(ble_data.s_health_service,health_service,HEALTH_SIZE*sizeof(ble_data.s_health_service[0]));
+    memcpy(ble_data.s_health_char,health_char,HEALTH_SIZE*sizeof(ble_data.s_health_char[0]));
 
 }
 
@@ -719,9 +719,8 @@ void BleClient_HandleGattServiceEvent(sl_bt_msg_t* event) {
     }
 #endif
 
-    if(0 == (memcmp(event->data.evt_gatt_service.uuid.data,ble_data.health_service,sizeof(ble_data.health_service))))
+    if(0 == (memcmp(event->data.evt_gatt_service.uuid.data,ble_data.s_health_service,sizeof(ble_data.s_health_service))))
     {
-        ble_data.health_service_status = true;
         ble_data.c_health_service_handle = event->data.evt_gatt_service.service;
     }
 }
@@ -740,9 +739,8 @@ void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
 #endif
 
     // Identify the correct characteristic //multiple firing
-    if(0 == (memcmp(event->data.evt_gatt_characteristic.uuid.data,ble_data.health_char,sizeof(ble_data.health_char))))
+    if(0 == (memcmp(event->data.evt_gatt_characteristic.uuid.data,ble_data.s_health_char,sizeof(ble_data.s_health_char))))
     {
-        ble_data.health_characteristic_status = true;
         ble_data.c_health_characteristic_handle = event->data.evt_gatt_characteristic.characteristic;
     }
 }

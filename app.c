@@ -99,7 +99,7 @@ SL_WEAK void app_init(void)
     PB0_Init();
     PB1_Init();
     I2C0_Init();
-    LOG_INFO("%d\r", I2C_BusFreqGet(I2C0));
+    //LOG_INFO("%d\r", I2C_BusFreqGet(I2C0));
 }
 
 /**************************************************************************//**
