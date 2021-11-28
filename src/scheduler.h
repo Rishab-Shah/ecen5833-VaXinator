@@ -28,10 +28,18 @@
  */
 typedef enum {
     SCANNING,
+
+    RECEIVING_HEALTH_SERVICE_INFO,
+    RECEIVING_HEALTH_CHARACTERISTIC_INFO,
+    ENABLING_HEALTH_INDICATIONS,
+
+
     RECEIVING_TEMP_SERVICE_INFO,
     RECEIVING_TEMP_CHARACTERISTIC_INFO,
+
     RECEIVING_BUTTON_SERVICE_INFO,
     RECEIVING_BUTTON_CHARACTERISTIC_INFO,
+
     ENABLING_TEMP_INDICATIONS,
     ENABLING_BUTTON_INDICATIONS,
     DISCOVERED
@@ -134,6 +142,9 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 /***************Client Functions*****************/
 /************************************************/
 
+void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data);
+void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data);
+void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data);
 
 /*
  * Discovery state machine driven by BLE Client events

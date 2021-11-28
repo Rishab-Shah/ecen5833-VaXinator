@@ -134,7 +134,6 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
 /***************Client Functions*****************/
 /************************************************/
 
-
 void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     disc_fsm_state_t current_state;
     static disc_fsm_state_t next_state = SCANNING;
@@ -151,17 +150,49 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     switch (current_state) {
         case SCANNING:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_connection_opened_id) {
-                BleClient_RequestTemperatureServiceInfo(ble_data);
-                next_state = RECEIVING_TEMP_SERVICE_INFO;
+                LOG_INFO("SCANNING\r");
+                BleClient_RequestHealthServiceInfo(ble_data);
+                next_state = RECEIVING_HEALTH_SERVICE_INFO;
             }
             break;
 
+        case RECEIVING_HEALTH_SERVICE_INFO:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                LOG_INFO("RECEIVING_HEALTH_SERVICE_INFO\r");
+                BleClient_RequestHealthCharacteristicInfo(ble_data);
+                next_state = RECEIVING_HEALTH_CHARACTERISTIC_INFO;
+            }
+            break;
+
+        case RECEIVING_HEALTH_CHARACTERISTIC_INFO:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                LOG_INFO("RECEIVING_HEALTH_CHARACTERISTIC_INFO\r");
+                BleClient_EnableHealthIndications(ble_data);
+                next_state = ENABLING_HEALTH_INDICATIONS;
+            }
+            break;
+
+        case ENABLING_HEALTH_INDICATIONS:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                LOG_INFO("ENABLING_HEALTH_INDICATIONS\r");
+                //BleClient_EnableButtonIndications(ble_data);
+                next_state = DISCOVERED;
+            }
+            break;
+
+        case DISCOVERED:
+            LOG_INFO("DISCOVERED\r");
+            break;
+
+#if 0
         case RECEIVING_TEMP_SERVICE_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
-                BleClient_RequestTemperatureCharacteristicInfo(ble_data);
+                //BleClient_RequestTemperatureCharacteristicInfo(ble_data);
+                BleClient_RequestHealthCharacteristicInfo(ble_data);
                 next_state = RECEIVING_TEMP_CHARACTERISTIC_INFO;
             }
             break;
+
 
         case RECEIVING_TEMP_CHARACTERISTIC_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
@@ -197,13 +228,48 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
                 next_state = DISCOVERED;
             }
             break;
+#endif
 
-        case DISCOVERED:
-            break;
-
+        default:
+          break;
     }
 }
 
+
+void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
+                                                                  sizeof(ble_data->health_service),
+                                                                  ble_data->health_service);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
+    }
+}
+
+void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
+                                                             ble_data->c_health_service_handle,
+                                                             sizeof(ble_data->health_char),
+                                                             ble_data->health_char);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("health_char:: sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
+    }
+}
+
+void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+
+    ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
+                                                            ble_data->c_health_characteristic_handle,
+                                                            sl_bt_gatt_indication);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
+    }
+}
 
 void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;

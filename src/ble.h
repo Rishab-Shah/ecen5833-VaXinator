@@ -66,6 +66,13 @@ static const uint8_t button_char[16] = {
     0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
 };
 
+
+
+//Rishab
+#define HEALTH_SIZE                        (16)
+
+
+
 typedef struct indiaction_struct_s {
     uint16_t characteristicHandle;
     uint8_t buff[5];
@@ -108,6 +115,24 @@ typedef struct ble_data_struct_s {
     bool c_BondingPending;
     bool c_Bonded;
     uint8_t c_ButtonIndicationStatus;
+
+
+    //Rishab
+    //Server
+    bool s_health_indications_client;
+
+    uint8_t health_service[HEALTH_SIZE];
+    uint8_t health_char[HEALTH_SIZE];
+
+    //Client
+    bool health_service_status;
+    uint32_t c_health_service_handle;
+
+    bool health_characteristic_status;
+    uint16_t c_health_characteristic_handle;
+
+    uint8_t * health_char_value;
+
 } ble_data_struct_t;
 
 
@@ -131,6 +156,7 @@ typedef enum {
 /****************Queue Functions*****************/
 /************************************************/
 
+void send_health_data_over_bluetooth(uint8_t heartbeat_value);
 
 /*
  * Enqueues indication

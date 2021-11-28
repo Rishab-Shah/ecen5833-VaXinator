@@ -24,6 +24,15 @@
 #define SCAN_INTERVAL                               (80)// value = 50 msec /0.625 msec
 #define SCAN_WINDOW                                 (40)// value = 25 msec /0.625 msec
 
+uint8_t health_service[HEALTH_SIZE] = {
+    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
+    0x3e, 0x43, 0xc8,0x38, 0x03, 0x00, 0x00, 0x00
+};
+
+uint8_t health_char[HEALTH_SIZE] = {
+    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
+    0x3e, 0x43, 0xc8,0x38, 0x04, 0x00, 0x00, 0x00
+};
 
 ble_data_struct_t ble_data = { 0 };
 
@@ -92,6 +101,9 @@ void BLE_Init(void) {
     bd_addr server_addr    = SERVER_BT_ADDRESS;
     ble_data.serverAddress = server_addr;
     ble_data.serverAddressType = 0;
+
+    //Rishab
+    ble_data.s_IndicationInFlight = false;
 }
 
 
@@ -426,7 +438,9 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
 void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
     uint8_t status_flags;
     uint16_t client_flags;
+    uint16_t characteristic_flags;
 
+#if 0
     if (event->data.evt_gatt_server_characteristic_status.characteristic == gattdb_temperature_measurement) {
         ble_data.s_TemperatureCharacteristicHandle = gattdb_temperature_measurement;
 
@@ -447,6 +461,8 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             ble_data.s_TemperatureIndicating = true;
         }
     }
+#endif
+#if 0
     else if (event->data.evt_gatt_server_characteristic_status.characteristic == gattdb_heartbeat_state) {
         ble_data.s_ButtonCharacteristicHandle = gattdb_heartbeat_state;
 
@@ -465,6 +481,36 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
         else if ((client_flags == 0x2)) {
             gpioLed1SetOn();
             ble_data.s_ButtonIndicating = true;
+        }
+    }
+#endif
+
+    characteristic_flags = event->data.evt_gatt_server_characteristic_status.characteristic;
+    status_flags = event->data.evt_gatt_server_characteristic_status.status_flags;
+    client_flags = event->data.evt_gatt_server_characteristic_status.client_config_flags;
+
+    if(characteristic_flags == gattdb_heartbeat_state)
+    {
+        if(status_flags == sl_bt_gatt_server_client_config)
+        {
+            if(client_flags == gatt_disable)
+            {
+                /* app gave disable indication */
+                ble_data.s_health_indications_client = false;
+                LOG_INFO("health::GATT disable\r");
+                gpioLed1SetOff();
+            }
+            if(client_flags == gatt_indication)
+            {
+                /* app gave enable indication */
+                ble_data.s_health_indications_client = true;
+                LOG_INFO("health::GATT Enable\r");
+                gpioLed1SetOn();
+            }
+        }
+        if(status_flags == sl_bt_gatt_server_confirmation)
+        {
+            ble_data.s_IndicationInFlight = false;
         }
     }
 }
@@ -568,12 +614,12 @@ void BleClient_HandleBootEvent(void) {
     }
 
     // Set the default connection parameters for subsequent connections
-    ble_status = sl_bt_connection_set_default_parameters(  CONNECTION_TIME, //75
-                                                           CONNECTION_TIME,
-                                                           0x03, //(75 * 3 =  At 4th, connection will happen) //0
-                                                           0x50, //80 - (1+3)*(75*2) = 600 -> 675/10 = 60 (took 80) -> 0x50 //
-                                                           0,
-                                                           0xffff);
+    ble_status = sl_bt_connection_set_default_parameters(CONNECTION_TIME, //75
+                                                         CONNECTION_TIME,
+                                                         0x03, //(75 * 3 =  At 4th, connection will happen) //0
+                                                         0x50, //80 - (1+3)*(75*2) = 600 -> 675/10 = 60 (took 80) -> 0x50 //
+                                                         0,
+                                                         0xffff);
         //sl_bt_connection_set_default_parameters(120, 120, 4, 1500, 0, 0xFFFF);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_connection_set_default_parameters: %x\r", ble_status);
@@ -593,6 +639,12 @@ void BleClient_HandleBootEvent(void) {
                   ble_data.c_DeviceAddress.addr[4], ble_data.c_DeviceAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
     displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
+
+    //Rishab
+    //health service
+    memcpy(ble_data.health_service,health_service,HEALTH_SIZE*sizeof(ble_data.health_service[0]));
+    memcpy(ble_data.health_char,health_char,HEALTH_SIZE*sizeof(ble_data.health_char[0]));
+
 }
 
 
@@ -649,6 +701,9 @@ void BleClient_HandleConnectionClosedEvent(void) {
     displayPrintf(DISPLAY_ROW_BTADDR2, "");
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
     displayPrintf(DISPLAY_ROW_TEMPVALUE, "");
+
+    //Rishab
+
 }
 
 
@@ -670,6 +725,10 @@ void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event) {
         }
         ble_data.c_BondingPending = true;
     }
+    else if (event->data.evt_gatt_procedure_completed.result == 0)
+    {
+
+    }
 }
 
 
@@ -677,8 +736,16 @@ void BleClient_HandleGattServiceEvent(sl_bt_msg_t* event) {
     if (event->data.evt_gatt_service.uuid.len == sizeof(thermo_service)) {
         ble_data.c_TemperatureServiceHandle = event->data.evt_gatt_service.service;
     }
+#if 0
     else if (event->data.evt_gatt_service.uuid.len == sizeof(button_service)) {
         ble_data.c_ButtonServiceHandle = event->data.evt_gatt_service.service;
+    }
+#endif
+
+    if(0 == (memcmp(event->data.evt_gatt_service.uuid.data,ble_data.health_service,sizeof(ble_data.health_service))))
+    {
+        ble_data.health_service_status = true;
+        ble_data.c_health_service_handle = event->data.evt_gatt_service.service;
     }
 }
 
@@ -688,9 +755,18 @@ void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
         ble_data.c_TemperatureCharacteristicHandle = event->data.evt_gatt_characteristic.characteristic;
         ble_data.c_TemperatureCharacteristicProperties = event->data.evt_gatt_characteristic.properties;
     }
+#if 0
     else if (event->data.evt_gatt_characteristic.uuid.len == sizeof(button_char)) {
         ble_data.c_ButtonCharacteristicHandle = event->data.evt_gatt_characteristic.characteristic;
         ble_data.c_ButtonCharacteristicProperties = event->data.evt_gatt_characteristic.properties;
+    }
+#endif
+
+    // Identify the correct characteristic //multiple firing
+    if(0 == (memcmp(event->data.evt_gatt_characteristic.uuid.data,ble_data.health_char,sizeof(ble_data.health_char))))
+    {
+        ble_data.health_characteristic_status = true;
+        ble_data.c_health_characteristic_handle = event->data.evt_gatt_characteristic.characteristic;
     }
 }
 
@@ -699,7 +775,7 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
     sl_status_t ble_status;
     uint8_t* value_array;
     int32_t temp_value;
-    uint8_t button_state;
+    //uint8_t button_state;
 
     if (event->data.evt_gatt_characteristic_value.characteristic == ble_data.c_TemperatureCharacteristicHandle) {
         if (ble_data.c_Connected && ble_data.c_TemperatureIndicating) {
@@ -715,6 +791,7 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
             }
         }
     }
+#if 0
     else if (event->data.evt_gatt_characteristic_value.characteristic == ble_data.c_ButtonCharacteristicHandle) {
         if (event->data.evt_gatt_characteristic_value.att_opcode == sl_bt_gatt_handle_value_indication) {
             if (ble_data.c_Connected && ble_data.c_Bonded && ble_data.c_ButtonIndicating) {
@@ -744,6 +821,24 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
                     displayPrintf(DISPLAY_ROW_9, "Button Released");
                 }
             }
+        }
+    }
+#endif
+
+    //Rishab
+    sl_status_t sc = 0;
+    if( (event->data.evt_gatt_characteristic_value.att_opcode == sl_bt_gatt_handle_value_indication)
+      && (event->data.evt_gatt_characteristic_value.characteristic == ble_data.c_health_characteristic_handle) )
+    {
+        ble_data.health_char_value = &(event->data.evt_gatt_characteristic_value.value.data[0]);
+        uint8_t heartbeat_value = ble_data.health_char_value[0];
+        LOG_INFO("heartbeat_value = %d\r",heartbeat_value);
+        displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d\r",heartbeat_value);
+
+        sc = sl_bt_gatt_send_characteristic_confirmation(event->data.evt_gatt_characteristic_value.connection);
+        if(sc != SL_STATUS_OK)
+        {
+            LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation:: status=0x%04x\r",(unsigned int)sc);
         }
     }
 }
@@ -858,3 +953,33 @@ int32_t gattFloat32ToInt(const uint8_t *value_start_little_endian)
     // value = 10^exponent * mantissa, pow() returns a double type
     return (int32_t) (pow(10, exponent) * mantissa);
 } // gattFloat32ToInt
+
+void send_health_data_over_bluetooth(uint8_t heartbeat_value)
+{
+    sl_status_t sc = 0;
+    uint8_t heartbeat_buffer[2] = {0};
+    uint8_t *p = &heartbeat_buffer[0];
+
+    //read is again to set only the current status of the button in the local database
+    UINT8_TO_BITSTREAM(p, heartbeat_value);
+
+    if((ble_data.s_IndicationInFlight == false))
+    {
+      sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_heartbeat_state,
+                                             1,&heartbeat_buffer[0]); //slcp
+
+      if(sc != SL_STATUS_OK)
+      {
+          LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int) sc);
+      }
+      else
+      {
+          ble_data.s_IndicationInFlight = true;
+      }
+    }
+    else
+    {
+        LOG_INFO("button:In flight\r");
+        //write_to_buffer(gattdb_button_state, 2, button_buffer); //slcp
+    }
+}

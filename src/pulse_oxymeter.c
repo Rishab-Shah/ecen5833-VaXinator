@@ -161,6 +161,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
   uint8_t bpmArr[MAXFAST_ARRAY_SIZE] = {0};
   struct bioData sensorData = {0};
 
+  ble_data_struct_t* bleDataPtr = BLE_GetDataStruct();
+
 //  static int counter = 0;
 //  static int counter2 = 0;
 
@@ -402,11 +404,16 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
           //"Machine State" - has a finger been detected?
           sensorData.status = bpmArr[5];
 
-          //if(sensorData.status == 3)
-         // {
-              LOG_INFO("HB = %d,confidence = %d,oxygen = %d,status = %d\r",sensorData.heartRate,sensorData.confidence,
-                       sensorData.oxygen,sensorData.status);
-          //}
+          LOG_INFO("HB = %d,confidence = %d,oxygen = %d,status = %d\r",sensorData.heartRate,sensorData.confidence,
+                   sensorData.oxygen,sensorData.status);
+
+          displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",sensorData.heartRate);
+
+          if(bleDataPtr->s_health_indications_client == true
+              && (bleDataPtr->s_ClientConnected) == true) //also, add > 0 condition later
+          {
+              send_health_data_over_bluetooth(sensorData.heartRate);
+          }
 
           ret_status = timerWaitUs_irq(TEST_MODE);
           if(ret_status == -1)
@@ -415,7 +422,6 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
           }
           else
           {
-
               //TODO: power off
               return_state = ACCEL_READ;
 #if 0
