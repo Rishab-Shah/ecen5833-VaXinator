@@ -181,7 +181,7 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
             break;
 
         case DISCOVERED:
-            LOG_INFO("DISCOVERED\r");
+            //LOG_INFO("DISCOVERED\r");
             break;
 
 #if 0

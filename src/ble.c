@@ -462,29 +462,6 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
         }
     }
 #endif
-#if 0
-    else if (event->data.evt_gatt_server_characteristic_status.characteristic == gattdb_heartbeat_state) {
-        ble_data.s_ButtonCharacteristicHandle = gattdb_heartbeat_state;
-
-        status_flags = event->data.evt_gatt_server_characteristic_status.status_flags;
-        // Indication received successfully
-        if (status_flags == 0x2) {
-            ble_data.s_IndicationInFlight = false;
-            return;
-        }
-
-        client_flags = event->data.evt_gatt_server_characteristic_status.client_config_flags;
-        if (client_flags == 0x0) {
-            gpioLed1SetOff();
-            ble_data.s_ButtonIndicating = false;
-        }
-        else if ((client_flags == 0x2)) {
-            gpioLed1SetOn();
-            ble_data.s_ButtonIndicating = true;
-        }
-    }
-#endif
-
     characteristic_flags = event->data.evt_gatt_server_characteristic_status.characteristic;
     status_flags = event->data.evt_gatt_server_characteristic_status.status_flags;
     client_flags = event->data.evt_gatt_server_characteristic_status.client_config_flags;
@@ -833,7 +810,7 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
         ble_data.health_char_value = &(event->data.evt_gatt_characteristic_value.value.data[0]);
         uint8_t heartbeat_value = ble_data.health_char_value[0];
         LOG_INFO("heartbeat_value = %d\r",heartbeat_value);
-        displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d\r",heartbeat_value);
+        displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",heartbeat_value);
 
         sc = sl_bt_gatt_send_characteristic_confirmation(event->data.evt_gatt_characteristic_value.connection);
         if(sc != SL_STATUS_OK)

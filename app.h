@@ -62,19 +62,16 @@
 #include "src/scheduler.h"
 #include "em_cmu.h"
 
-#define EM0 (0)
-#define EM1 (1)
-#define EM2 (2)
-#define EM3 (3)
+#define EM0                           (0)
+#define EM1                           (1)
+#define EM2                           (2)
+#define EM3                           (3)
 
 
-#define LOWEST_ENERGY_LEVEL  (EM2)
+#define LOWEST_ENERGY_LEVEL           (EM2)
 
-#define LFXO_FREQ   (32768)
-#define ULFRCO_FREQ (1000)
-
-//#define MS_PER_SEC  (1000)
-//#define US_PER_SEC  (1000000)
+#define LFXO_FREQ                     (32768)
+#define ULFRCO_FREQ                   (1000)
 
 #define SEC_TO_USEC                   (1000000)
 #define MSEC_TO_USEC                  (1000)
