@@ -312,6 +312,15 @@ void BleServer_HandleIndicationTimeoutEvent(void);
 
 
 /*
+ * Handles BLE Client bonding confirm event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void BleClient_HandleBondingConfirmEvent(void);
+
+/*
  * Handles BLE Server bonding confirm event
  *
  * @param None
