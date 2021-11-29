@@ -11,7 +11,7 @@
       <informativeText/>
       <value length="6" type="hex" variable_length="false">000000000000</value>
       <properties>
-        <indicate authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="true" encrypted="false"/>
       </properties>
       
       <!--Client Characteristic Configuration-->
@@ -35,7 +35,8 @@
       <informativeText/>
       <value length="1" type="hex" variable_length="false">00</value>
       <properties>
-        <indicate authenticated="false" bonded="false" encrypted="false"/>
+        <read authenticated="false" bonded="true" encrypted="false"/>
+        <indicate authenticated="false" bonded="true" encrypted="false"/>
       </properties>
       
       <!--Client Characteristic Configuration-->
@@ -44,7 +45,7 @@
           <read authenticated="false" bonded="false" encrypted="false"/>
           <write authenticated="false" bonded="false" encrypted="false"/>
         </properties>
-        <value length="2" type="hex" variable_length="false">00</value>
+        <value length="1" type="hex" variable_length="false">00</value>
         <informativeText/>
       </descriptor>
     </characteristic>

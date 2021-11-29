@@ -127,6 +127,7 @@ typedef struct ble_data_struct_s {
     //Client
     uint32_t c_health_service_handle;
     uint16_t c_health_characteristic_handle;
+
     uint8_t *health_char_value;
 
 } ble_data_struct_t;

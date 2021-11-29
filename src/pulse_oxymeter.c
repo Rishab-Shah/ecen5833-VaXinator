@@ -411,7 +411,7 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 
           if(bleDataPtr->s_health_indications_client == true
               && bleDataPtr->s_ClientConnected == true
-                /*&& bleDataPtr->s_ClientConnected == true*/) //also, add > 0 condition later
+                && bleDataPtr->s_Bonded == true) //also, add > 0 condition later
           {
               send_health_data_over_bluetooth(sensorData.heartRate);
           }

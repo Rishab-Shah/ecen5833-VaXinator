@@ -43,7 +43,8 @@
 #define MAX30101_reset_pin    (10)
 #define MAX30101_mfio_pin     (11)
 
-
+#define BUTTON_PRESSED        (0)
+#define BUTTON_RELEASE        (1)
 
 
 // Function prototypes

@@ -93,7 +93,7 @@ GATT_DATA(const sli_bt_gattdb_value_t gattdb_attribute_field_16) = {
   .data = { 0x0a, 0x18, }
 };
 GATT_DATA(sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_14) = {
-  .properties = 0x20,
+  .properties = 0x22,
   .max_len = 1,
   .data = { 0x00, },
 };
@@ -141,11 +141,11 @@ GATT_DATA(const sli_bt_gattdb_attribute_t gattdb_attributes_map[]) = {
   { .handle = 0x08, .uuid = 0x000f, .permissions = 0x803, .caps = 0xffff, .state = 0x00, .datatype = 0x01, .dynamicdata = &gattdb_attribute_field_7 },
   { .handle = 0x09, .uuid = 0x0000, .permissions = 0x8801, .caps = 0xffff, .state = 0x00, .datatype = 0x00, .constdata = &gattdb_attribute_field_8 },
   { .handle = 0x0a, .uuid = 0x0002, .permissions = 0x801, .caps = 0xffff, .state = 0x00, .datatype = 0x05, .characteristic = { .properties = 0x20, .char_uuid = 0x8000 } },
-  { .handle = 0x0b, .uuid = 0x8000, .permissions = 0x800, .caps = 0xffff, .state = 0x00, .datatype = 0x01, .dynamicdata = &gattdb_attribute_field_10 },
+  { .handle = 0x0b, .uuid = 0x8000, .permissions = 0x4800, .caps = 0xffff, .state = 0x00, .datatype = 0x01, .dynamicdata = &gattdb_attribute_field_10 },
   { .handle = 0x0c, .uuid = 0x0003, .permissions = 0x803, .caps = 0xffff, .state = 0x00, .datatype = 0x03, .configdata = { .flags = 0x02, .clientconfig_index = 0x01 } },
   { .handle = 0x0d, .uuid = 0x0000, .permissions = 0x8801, .caps = 0xffff, .state = 0x00, .datatype = 0x00, .constdata = &gattdb_attribute_field_12 },
-  { .handle = 0x0e, .uuid = 0x0002, .permissions = 0x801, .caps = 0xffff, .state = 0x00, .datatype = 0x05, .characteristic = { .properties = 0x20, .char_uuid = 0x8001 } },
-  { .handle = 0x0f, .uuid = 0x8001, .permissions = 0x800, .caps = 0xffff, .state = 0x00, .datatype = 0x01, .dynamicdata = &gattdb_attribute_field_14 },
+  { .handle = 0x0e, .uuid = 0x0002, .permissions = 0x801, .caps = 0xffff, .state = 0x00, .datatype = 0x05, .characteristic = { .properties = 0x22, .char_uuid = 0x8001 } },
+  { .handle = 0x0f, .uuid = 0x8001, .permissions = 0x4841, .caps = 0xffff, .state = 0x00, .datatype = 0x01, .dynamicdata = &gattdb_attribute_field_14 },
   { .handle = 0x10, .uuid = 0x0003, .permissions = 0x803, .caps = 0xffff, .state = 0x00, .datatype = 0x03, .configdata = { .flags = 0x02, .clientconfig_index = 0x02 } },
   { .handle = 0x11, .uuid = 0x0000, .permissions = 0x801, .caps = 0xffff, .state = 0x00, .datatype = 0x00, .constdata = &gattdb_attribute_field_16 },
   { .handle = 0x12, .uuid = 0x0002, .permissions = 0x801, .caps = 0xffff, .state = 0x00, .datatype = 0x05, .characteristic = { .properties = 0x02, .char_uuid = 0x0004 } },

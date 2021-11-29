@@ -175,7 +175,7 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
         case ENABLING_HEALTH_INDICATIONS:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
                 LOG_INFO("ENABLING_HEALTH_INDICATIONS\r");
-                //BleClient_EnableButtonIndications(ble_data);
+                displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
                 next_state = DISCOVERED;
             }
             break;
