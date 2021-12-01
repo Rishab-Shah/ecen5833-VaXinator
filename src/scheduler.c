@@ -175,6 +175,31 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
         case ENABLING_HEALTH_INDICATIONS:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
                 LOG_INFO("ENABLING_HEALTH_INDICATIONS\r");
+                BleClient_RequestAccelServiceInfo(ble_data);
+                displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
+                next_state = RECEIVING_ACCEL_SERVICE_INFO;
+            }
+            break;
+
+        case RECEIVING_ACCEL_SERVICE_INFO:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                LOG_INFO("RECEIVING_HEALTH_SERVICE_INFO\r");
+                BleClient_RequestAccelCharacteristicInfo(ble_data);
+                next_state = RECEIVING_ACCEL_CHARACTERISTIC_INFO;
+            }
+            break;
+
+        case RECEIVING_ACCEL_CHARACTERISTIC_INFO:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                LOG_INFO("RECEIVING_HEALTH_CHARACTERISTIC_INFO\r");
+                BleClient_EnableAccelIndications(ble_data);
+                next_state = ENABLING_ACCEL_INDICATIONS;
+            }
+            break;
+
+        case ENABLING_ACCEL_INDICATIONS:
+            if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+                LOG_INFO("ENABLING_HEALTH_INDICATIONS\r");
                 displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
                 next_state = DISCOVERED;
             }
@@ -240,36 +265,74 @@ void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
-                                                                  sizeof(ble_data->s_health_service),
-                                                                  ble_data->s_health_service);
+                                                                  sizeof(ble_data->s_HealthService),
+                                                                  ble_data->s_HealthService);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("s_health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
     }
 }
 
+
 void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
-                                                             ble_data->c_health_service_handle,
-                                                             sizeof(ble_data->s_health_char),
-                                                             ble_data->s_health_char);
+                                                             ble_data->c_HealthServiceHandle,
+                                                             sizeof(ble_data->s_HealthChar),
+                                                             ble_data->s_HealthChar);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("health_char:: sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
     }
 }
 
+
 void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
     ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
-                                                            ble_data->c_health_characteristic_handle,
+                                                            ble_data->c_HealthCharacteristicHandle,
                                                             sl_bt_gatt_indication);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
     }
 }
 
+
+void BleClient_RequestAccelServiceInfo(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
+                                                                  sizeof(ble_data->s_AccelService),
+                                                                  ble_data->s_AccelService);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("s_health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
+    }
+}
+
+
+void BleClient_RequestAccelCharacteristicInfo(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
+                                                             ble_data->c_AccelServiceHandle,
+                                                             sizeof(ble_data->s_AccelChar),
+                                                             ble_data->s_AccelChar);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("health_char:: sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
+    }
+}
+
+
+void BleClient_EnableAccelIndications(ble_data_struct_t* ble_data) {
+    sl_status_t ble_status;
+
+    ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
+                                                            ble_data->c_AccelCharacteristicHandle,
+                                                            sl_bt_gatt_indication);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
+    }
+}
 
 
 void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data) {

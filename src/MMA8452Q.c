@@ -292,6 +292,7 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
     activity_monitoring_state_t return_state = ACCEL_READ;
     mma8452q_read_state_t current_state;
     static mma8452q_read_state_t next_state = READ_XYZ;
+    ble_data_struct_t* ble_data = BLE_GetDataStruct();
 
     ble_ext_signal_event_t ev = event->data.evt_system_external_signal.extsignals;
 
@@ -325,6 +326,9 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
           if (ev == ev_LETIMER0_COMP1) {
               LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
               LOG_INFO("%x %x %x %x %x %x\r", mma8452q_rd_buff[0], mma8452q_rd_buff[1], mma8452q_rd_buff[2], mma8452q_rd_buff[3], mma8452q_rd_buff[4], mma8452q_rd_buff[5]);
+              if (ble_data->s_AccelIndication && ble_data->s_ClientConnected) {
+                  BleServer_SendAccelDataToClient(&mma8452q_rd_buff[0]);
+              }
               next_state = READ_XYZ;
               return_state = HEARTBEAT_READ;
           }

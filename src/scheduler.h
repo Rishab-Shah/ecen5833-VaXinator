@@ -28,12 +28,14 @@
  */
 typedef enum {
     SCANNING,
-
     RECEIVING_HEALTH_SERVICE_INFO,
     RECEIVING_HEALTH_CHARACTERISTIC_INFO,
     ENABLING_HEALTH_INDICATIONS,
+    RECEIVING_ACCEL_SERVICE_INFO,
+    RECEIVING_ACCEL_CHARACTERISTIC_INFO,
+    ENABLING_ACCEL_INDICATIONS,
 
-
+#if 0
     RECEIVING_TEMP_SERVICE_INFO,
     RECEIVING_TEMP_CHARACTERISTIC_INFO,
 
@@ -42,6 +44,7 @@ typedef enum {
 
     ENABLING_TEMP_INDICATIONS,
     ENABLING_BUTTON_INDICATIONS,
+#endif
     DISCOVERED
 } disc_fsm_state_t;
 
@@ -142,9 +145,6 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 /***************Client Functions*****************/
 /************************************************/
 
-void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data);
-void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data);
-void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data);
 
 /*
  * Discovery state machine driven by BLE Client events
@@ -154,6 +154,66 @@ void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data);
  * @return None
  */
 void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event);
+
+
+/*
+ * Requests health service info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Requests health characteristic info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Enables health indications from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data);
+
+
+/*
+ * Requests accel service info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestAccelServiceInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Requests accel characteristic info from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_RequestAccelCharacteristicInfo(ble_data_struct_t* ble_data);
+
+
+/*
+ * Enables accel indications from the server
+ *
+ * @param ble_data - BLE data struct with connection info
+ *
+ * @return None
+ */
+void BleClient_EnableAccelIndications(ble_data_struct_t* ble_data);
 
 
 /*

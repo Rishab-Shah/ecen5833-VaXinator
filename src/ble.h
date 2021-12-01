@@ -20,9 +20,6 @@
 #include "ble_device_type.h"
 
 
-
-
-
 #define INDICATION_QUEUE_SIZE  (16)
 #define INDICATION_QUEUE_SIZE_MASK  (15)
 
@@ -70,12 +67,13 @@ static const uint8_t button_char[16] = {
 
 //Rishab
 #define HEALTH_SIZE                        (16)
+#define ACCEL_SIZE                         (16)
 
 
 
-typedef struct indiaction_struct_s {
+typedef struct indication_struct_s {
     uint16_t characteristicHandle;
-    uint8_t buff[5];
+    uint8_t buff[6];
     uint8_t bufferLen;
 } indication_struct_t;
 
@@ -119,16 +117,22 @@ typedef struct ble_data_struct_s {
 
     //Rishab
     //Server
-    bool s_health_indications_client;
+    bool s_HealthIndicating;
+    bool s_AccelIndication;
 
-    uint8_t s_health_service[HEALTH_SIZE];
-    uint8_t s_health_char[HEALTH_SIZE];
+    uint8_t s_HealthService[HEALTH_SIZE];
+    uint8_t s_HealthChar[HEALTH_SIZE];
+    uint8_t s_AccelService[ACCEL_SIZE];
+    uint8_t s_AccelChar[ACCEL_SIZE];
 
     //Client
-    uint32_t c_health_service_handle;
-    uint16_t c_health_characteristic_handle;
+    uint32_t c_HealthServiceHandle;
+    uint16_t c_HealthCharacteristicHandle;
+    uint8_t* c_HealthCharValue;
 
-    uint8_t *health_char_value;
+    uint32_t c_AccelServiceHandle;
+    uint16_t c_AccelCharacteristicHandle;
+    uint8_t c_AccelBuffer[6];
 
 } ble_data_struct_t;
 
@@ -153,7 +157,6 @@ typedef enum {
 /****************Queue Functions*****************/
 /************************************************/
 
-void send_health_data_over_bluetooth(uint8_t heartbeat_value);
 
 /*
  * Enqueues indication
@@ -237,284 +240,10 @@ ble_data_struct_t* BLE_GetDataStruct(void);
 /***************Server Functions*****************/
 /************************************************/
 
-
-/*
- * Handles BLE Server boot event
- *
- * @param None
- *
- * @return None
- *
- * Attribution: The sl_bt_evt_system_boot_id code was sourced
- *    from the soc_thermometer example project.
- */
-void BleServer_HandleBootEvent(void);
+void BleServer_SendHearbeatDataToClient(uint8_t heartbeat_value);
 
 
-/*
- * Handles BLE Server connection opened event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event);
+void BleServer_SendAccelDataToClient(uint8_t* accel_buff);
 
-
-/*
- * Handles BLE Server connection closed event
- *
- * @param None
- *
- * @return None
- */
-void BleServer_HandleConnectionClosedEvent(void);
-
-
-/*
- * Handles BLE Server connection parameters event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Server external signal event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Server characteristic status event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Server indication timeout event
- *
- * @param None
- *
- * @return None
- */
-void BleServer_HandleIndicationTimeoutEvent(void);
-
-
-/*
- * Handles BLE Client bonding confirm event
- *
- * @param None
- *
- * @return None
- */
-void BleClient_HandleBondingConfirmEvent(void);
-
-/*
- * Handles BLE Server bonding confirm event
- *
- * @param None
- *
- * @return None
- */
-void BleServer_HandleBondingConfirmEvent(void);
-
-
-/*
- * Handles BLE Server passkey confirm event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandlePasskeyConfirmEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Server bonded event
- *
- * @param None
- *
- * @return None
- */
-void BleServer_HandleBondedEvent(void);
-
-
-/*
- * Handles BLE Server bonding failed event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandleBondingFailedEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Server soft timer event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleServer_HandleSoftTimerEvent(sl_bt_msg_t* event);
-
-
-/************************************************/
-/***************Client Functions*****************/
-/************************************************/
-
-
-/*
- * Handles BLE Client boot event
- *
- * @param None
- *
- * @return None
- *
- * Attribution: The sl_bt_evt_system_boot_id code was sourced
- *    from the soc_thermometer_client example project.
- */
-void BleClient_HandleBootEvent(void);
-
-
-/*
- * Handles BLE Client scan report event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleScanReportEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client connection opened event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client connection closed event
- *
- * @param None
- *
- * @return None
- */
-void BleClient_HandleConnectionClosedEvent(void);
-
-
-/*
- * Handles BLE Client connection parameters event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client gatt procedure completed event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client gatt service event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleGattServiceEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client gatt characteristic event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client gatt characteristic value event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client external signal event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client passkey confirm event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandlePasskeyConfirmEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client bonded event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleBondedEvent(void);
-
-
-/*
- * Handles BLE Client bonding failed event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event);
-
-
-/*
- * Handles BLE Client soft timer event
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event);
 
 #endif /* SRC_BLE_H_ */

@@ -1,3 +1,10 @@
+/*
+ * pulse_oxymeter.c
+ *
+ *  Created on: Nov 23, 2021
+ *      Author: risha
+ */
+
 #include "pulse_oxymeter.h"
 // Include logging for this file
 #define INCLUDE_LOG_DEBUG       (1)
@@ -409,11 +416,11 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 
           displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",sensorData.heartRate);
 
-          if(bleDataPtr->s_health_indications_client == true
+          if(bleDataPtr->s_HealthIndicating == true
               && bleDataPtr->s_ClientConnected == true
                 && bleDataPtr->s_Bonded == true) //also, add > 0 condition later
           {
-              send_health_data_over_bluetooth(sensorData.heartRate);
+              BleServer_SendHearbeatDataToClient(sensorData.heartRate);
           }
 
           ret_status = timerWaitUs_irq(TEST_MODE);

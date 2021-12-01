@@ -11,7 +11,7 @@
       <informativeText/>
       <value length="6" type="hex" variable_length="false">000000000000</value>
       <properties>
-        <indicate authenticated="false" bonded="true" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>
       
       <!--Client Characteristic Configuration-->
