@@ -129,11 +129,14 @@ typedef struct ble_data_struct_s {
     uint32_t c_HealthServiceHandle;
     uint16_t c_HealthCharacteristicHandle;
     uint8_t* c_HealthCharValue;
+    uint8_t c_HealthValue;
 
     uint32_t c_AccelServiceHandle;
     uint16_t c_AccelCharacteristicHandle;
     uint8_t c_AccelBuffer[6];
-
+    int16_t c_AccelX;
+    int16_t c_AccelY;
+    int16_t c_AccelZ;
 } ble_data_struct_t;
 
 

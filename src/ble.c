@@ -665,7 +665,6 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
 
     if(event->data.evt_system_external_signal.extsignals == ev_PB0_PRESSED)
     {
-        displayPrintf(DISPLAY_ROW_9, "");
         if((ble_data.s_Bonded == false) && (ble_data.s_ClientConnected == true))
         {
             sc = sl_bt_sm_passkey_confirm(ble_data.s_ConnectionHandle,1);
@@ -674,10 +673,6 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
                 LOG_ERROR("sl_bt_sm_passkey_confirm:: status=0x%04x\r",(unsigned int)sc);
             }
         }
-    }
-    else if(event->data.evt_system_external_signal.extsignals == ev_PB0_RELEASED)
-    {
-        displayPrintf(DISPLAY_ROW_9, "");
     }
 }
 
@@ -932,10 +927,11 @@ void BleClient_HandleConnectionClosedEvent(void) {
 
     displayPrintf(DISPLAY_ROW_BTADDR2, "");
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
-    displayPrintf(DISPLAY_ROW_TEMPVALUE, "");
+    displayPrintf(DISPLAY_ROW_X, "");
+    displayPrintf(DISPLAY_ROW_Y, "");
+    displayPrintf(DISPLAY_ROW_Z, "");
     displayPrintf(DISPLAY_ROW_HEARTBEAT, "");
-
-
+    displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "");
 }
 
 
@@ -987,13 +983,14 @@ void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
 
 void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
     sl_status_t sc = 0;
+    int16_t x, y, z;
     if((event->data.evt_gatt_characteristic_value.att_opcode == sl_bt_gatt_handle_value_indication)
       && (event->data.evt_gatt_characteristic_value.characteristic == ble_data.c_HealthCharacteristicHandle) )
     {
         ble_data.c_HealthCharValue = &(event->data.evt_gatt_characteristic_value.value.data[0]);
-        uint8_t heartbeat_value = ble_data.c_HealthCharValue[0];
-        LOG_INFO("heartbeat_value = %d\r",heartbeat_value);
-        displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",heartbeat_value);
+        ble_data.c_HealthValue = ble_data.c_HealthCharValue[0];
+        LOG_INFO("heartbeat_value = %d\r",ble_data.c_HealthValue);
+        displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",ble_data.c_HealthValue);
 
         sc = sl_bt_gatt_send_characteristic_confirmation(event->data.evt_gatt_characteristic_value.connection);
         if(sc != SL_STATUS_OK)
@@ -1005,20 +1002,72 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
       && (event->data.evt_gatt_characteristic_value.characteristic == ble_data.c_AccelCharacteristicHandle)) {
         memcpy(&(ble_data.c_AccelBuffer[0]), &(event->data.evt_gatt_characteristic_value.value.data[0]), 6);
 
-        displayPrintf(DISPLAY_ROW_TEMPVALUE, "%x%x%x%x%x%x\r", ble_data.c_AccelBuffer[0], ble_data.c_AccelBuffer[1], ble_data.c_AccelBuffer[2], ble_data.c_AccelBuffer[3], ble_data.c_AccelBuffer[4], ble_data.c_AccelBuffer[5]);
-
         sc = sl_bt_gatt_send_characteristic_confirmation(event->data.evt_gatt_characteristic_value.connection);
         if(sc != SL_STATUS_OK)
         {
             LOG_ERROR("sl_bt_gatt_send_characteristic_confirmation:: status=0x%04x\r",(unsigned int)sc);
         }
+
+        x = (ble_data.c_AccelBuffer[0] << 8) | ble_data.c_AccelBuffer[1];
+        y = (ble_data.c_AccelBuffer[2] << 8) | ble_data.c_AccelBuffer[3];
+        z = (ble_data.c_AccelBuffer[4] << 8) | ble_data.c_AccelBuffer[5];
+
+        x = x >> 4;
+        y = y >> 4;
+        z = z >> 4;
+
+        displayPrintf(DISPLAY_ROW_X, "X = %d mg", x);
+        displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
+        displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
+
+        if (ble_data.c_HealthValue == 0) {
+            displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Reading Heartbeat...");
+        }
+        else if (ble_data.c_HealthValue < 80) {
+            if ((ble_data.c_AccelX == 0) && (ble_data.c_AccelY == 0) && (ble_data.c_AccelZ == 0)) {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Relaxed State");
+            }
+            else if (((x > ble_data.c_AccelX - 10) && (x < ble_data.c_AccelX + 10)) && ((y > ble_data.c_AccelY - 10) && (y < ble_data.c_AccelY + 10)) && ((z > ble_data.c_AccelZ - 10) && (z < ble_data.c_AccelZ + 10))) {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Relaxed State");
+            }
+            else {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
+            }
+        }
+        else if (ble_data.c_HealthValue >= 80 && ble_data.c_HealthValue < 90) {
+            if ((ble_data.c_AccelX == 0) && (ble_data.c_AccelY == 0) && (ble_data.c_AccelZ == 0)) {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
+            }
+            else if (((x > ble_data.c_AccelX - 10) && (x < ble_data.c_AccelX + 10)) && ((y > ble_data.c_AccelY - 10) && (y < ble_data.c_AccelY + 10)) && ((z > ble_data.c_AccelZ - 10) && (z < ble_data.c_AccelZ + 10))) {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
+            }
+            else {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
+            }
+        }
+        else if (ble_data.c_HealthValue >= 90 && ble_data.c_HealthValue < 100) {
+            if ((ble_data.c_AccelX == 0) && (ble_data.c_AccelY == 0) && (ble_data.c_AccelZ == 0)) {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
+            }
+            else if (((x > ble_data.c_AccelX - 10) && (x < ble_data.c_AccelX + 10)) && ((y > ble_data.c_AccelY - 10) && (y < ble_data.c_AccelY + 10)) && ((z > ble_data.c_AccelZ - 10) && (z < ble_data.c_AccelZ + 10))) {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
+            }
+            else {
+                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "High Activity State");
+            }
+        }
+        else if (ble_data.c_HealthValue >= 100) {
+            displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "High Activity State");
+        }
+
+        ble_data.c_AccelX = x;
+        ble_data.c_AccelY = y;
+        ble_data.c_AccelZ = z;
     }
 }
 
 
 void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
-    //sl_status_t ble_status;
-    //ble_ext_signal_event_t ev = event->data.evt_system_external_signal.extsignals;
     sl_status_t sc;
     if(event->data.evt_system_external_signal.extsignals == ev_PB0_PRESSED)
     {

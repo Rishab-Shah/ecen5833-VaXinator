@@ -49,11 +49,11 @@ enum display_row {
 	DISPLAY_ROW_CONNECTION,    // 4
 	DISPLAY_ROW_PASSKEY,       // 5
 	DISPLAY_ROW_ACTION,        // 6
-	DISPLAY_ROW_TEMPVALUE,     // 7
-	DISPLAY_ROW_8,             // 8
-	DISPLAY_ROW_9,             // 9
+	DISPLAY_ROW_X,             // 7
+	DISPLAY_ROW_Y,             // 8
+	DISPLAY_ROW_Z,             // 9
 	DISPLAY_ROW_HEARTBEAT,     // 10
-	DISPLAY_ROW_11,            // 11
+	DISPLAY_ROW_ACTIVITY_STATE,// 11
 	DISPLAY_ROW_ASSIGNMENT,    // 12
 	DISPLAY_NUMBER_OF_ROWS     // 13
 };
