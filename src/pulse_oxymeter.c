@@ -418,7 +418,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 
           if(bleDataPtr->s_HealthIndicating == true
               && bleDataPtr->s_ClientConnected == true
-                && bleDataPtr->s_Bonded == true) //also, add > 0 condition later
+                && bleDataPtr->s_Bonded == true
+                  && sensorData.status == 3) //also, add > 0 condition later
           {
               BleServer_SendHearbeatDataToClient(sensorData.heartRate);
           }

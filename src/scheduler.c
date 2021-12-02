@@ -9,7 +9,7 @@
 
 #define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
-
+#define DEBUG_1         (0)
 
 /************************************************/
 /****************Event Handlers******************/
@@ -104,27 +104,37 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
     switch (current_state) {
         case ACCEL_INIT:
             next_state = MMA8452Q_InitStateMachine(event);
-            //LOG_INFO("ACCEL_INIT\r");
+#if DEBUG_1
+            LOG_INFO("ACCEL_INIT\r");
+#endif
             break;
 
         case HEARTBEAT_INIT:
             next_state = init_heartbeat_machine(event);
-            //LOG_INFO("HEARTBEAT_INIT\r");
+#if DEBUG_1
+            LOG_INFO("HEARTBEAT_INIT\r");
+#endif
             break;
 
         case HEARTBEAT_CONFIGURE:
             next_state = config_heartbeat_machine(event);
-            //LOG_INFO("HEARTBEAT_CONFIGURE\r");
+#if DEBUG_1
+            LOG_INFO("HEARTBEAT_CONFIGURE\r");
+#endif
             break;
 
         case HEARTBEAT_READ:
             next_state = heartbeat_machine_running(event);
-            //LOG_INFO("HEARTBEAT_READ\r");
+#if DEBUG_1
+            LOG_INFO("HEARTBEAT_READ\r");
+#endif
             break;
 
         case ACCEL_READ:
             next_state = MMA8452Q_ReadStateMachine(event);
-            //LOG_INFO("ACCEL_READ\r");
+#if DEBUG_1
+            LOG_INFO("ACCEL_READ\r");
+#endif
             break;
     }
 }
@@ -150,7 +160,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     switch (current_state) {
         case SCANNING:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_connection_opened_id) {
+#if DEBUG_1
                 LOG_INFO("SCANNING\r");
+#endif
                 BleClient_RequestHealthServiceInfo(ble_data);
                 next_state = RECEIVING_HEALTH_SERVICE_INFO;
             }
@@ -158,7 +170,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 
         case RECEIVING_HEALTH_SERVICE_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+#if DEBUG_1
                 LOG_INFO("RECEIVING_HEALTH_SERVICE_INFO\r");
+#endif
                 BleClient_RequestHealthCharacteristicInfo(ble_data);
                 next_state = RECEIVING_HEALTH_CHARACTERISTIC_INFO;
             }
@@ -166,7 +180,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 
         case RECEIVING_HEALTH_CHARACTERISTIC_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+#if DEBUG_1
                 LOG_INFO("RECEIVING_HEALTH_CHARACTERISTIC_INFO\r");
+#endif
                 BleClient_EnableHealthIndications(ble_data);
                 next_state = ENABLING_HEALTH_INDICATIONS;
             }
@@ -174,7 +190,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 
         case ENABLING_HEALTH_INDICATIONS:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+#if DEBUG_1
                 LOG_INFO("ENABLING_HEALTH_INDICATIONS\r");
+#endif
                 BleClient_RequestAccelServiceInfo(ble_data);
                 displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
                 next_state = RECEIVING_ACCEL_SERVICE_INFO;
@@ -183,7 +201,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 
         case RECEIVING_ACCEL_SERVICE_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+#if DEBUG_1
                 LOG_INFO("RECEIVING_HEALTH_SERVICE_INFO\r");
+#endif
                 BleClient_RequestAccelCharacteristicInfo(ble_data);
                 next_state = RECEIVING_ACCEL_CHARACTERISTIC_INFO;
             }
@@ -191,7 +211,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 
         case RECEIVING_ACCEL_CHARACTERISTIC_INFO:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+#if DEBUG_1
                 LOG_INFO("RECEIVING_HEALTH_CHARACTERISTIC_INFO\r");
+#endif
                 BleClient_EnableAccelIndications(ble_data);
                 next_state = ENABLING_ACCEL_INDICATIONS;
             }
@@ -199,7 +221,9 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
 
         case ENABLING_ACCEL_INDICATIONS:
             if (SL_BT_MSG_ID(event->header) == sl_bt_evt_gatt_procedure_completed_id) {
+#if DEBUG_1
                 LOG_INFO("ENABLING_HEALTH_INDICATIONS\r");
+#endif
                 displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
                 next_state = DISCOVERED;
             }
