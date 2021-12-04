@@ -38,29 +38,6 @@ void MMA8452Q_SetActive(uint8_t* wr_buff, uint8_t ctrl_reg1);
 void MMA8452Q_CheckDataAvailable(uint8_t* rd_buff);
 void MMA8452Q_ReadXYZ(uint8_t* rd_buff);
 
-
-//void MMA8452Q_StateMachine(sl_bt_msg_t* event) {
-//    mma8452q_state_t current_state;
-//    static mma8452q_state_t next_state = MMA8452Q_INIT;
-//
-//    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
-//        return;
-//    }
-//
-//    current_state = next_state;
-//
-//    switch (current_state) {
-//        case MMA8452Q_INIT:
-//            next_state = MMA8452Q_InitStateMachine(event);
-//            break;
-//
-//        case MMA8452Q_READ:
-//            next_state = MMA8452Q_ReadStateMachine(event);
-//            break;
-//    }
-//}
-
-
 activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
     activity_monitoring_state_t return_state = ACCEL_INIT;
     mma8452q_init_state_t current_state;
@@ -300,7 +277,7 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
 
     switch (current_state) {
       case READ_XYZ:
-          if (ev == ev_LETIMER0_COMP1) {
+          if ((ev == ev_LETIMER0_COMP1) && (ble_data->s_AccelIndication == true)) {
               LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
 #if POWER_MANAGEMENT
               //Enter EM1 mode
@@ -308,6 +285,10 @@ activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event) {
 #endif
               MMA8452Q_ReadXYZ(&mma8452q_rd_buff[0]);
               next_state = DELAY_10;
+          }
+          else{
+              next_state = READ_XYZ;
+              return_state = HEARTBEAT_READ;
           }
           break;
 

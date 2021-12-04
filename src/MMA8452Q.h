@@ -100,16 +100,6 @@ typedef enum {
 
 
 /*
- * FSM for operating the MMA8452Q Accelerometer
- *
- * @param event - Pointer to Bluetooth event
- *
- * @return None
- */
-//void MMA8452Q_StateMachine(sl_bt_msg_t* event);
-
-
-/*
  * FSM for initializing the MMA8452Q Accelerometer
  *
  * @param event - Pointer to Bluetooth event

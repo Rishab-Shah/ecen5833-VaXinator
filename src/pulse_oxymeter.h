@@ -2,7 +2,7 @@
  * pulse_oxymeter.h
  *
  *  Created on: Nov 23, 2021
- *      Author: risha
+ *      Author: rishab
  */
 
 #ifndef SRC_PULSE_OXYMETER_H_
@@ -32,6 +32,7 @@ typedef enum uint32_t_heartbeat_init_states
   HB_INIT_STATE_2 = 3,
   HB_INIT_STATE_3 = 4,
   HB_INIT_STATE_4 = 5,
+
   NUM_HB_INIT_STATES
 }heartbeat_init_states;
 
@@ -76,7 +77,6 @@ typedef enum uint32_t_heartbeat_run_states
 }heartbeat_running_states;
 
 //Handle MAX30101
-//void pulse_oxymeter_machine(sl_bt_msg_t *evt);
 activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt);
 activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt);
 activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt);

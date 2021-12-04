@@ -21,30 +21,29 @@
 // and GPIO documentation at https://siliconlabs.github.io/Gecko_SDK_Doc/efm32g/html/group__GPIO.html
 // to determine the correct values for these.
 
-#define	LED0_port  gpioPortF // change to correct ports and pins
-#define LED0_pin   4
-#define LED1_port  gpioPortF
-#define LED1_pin   5
+#define	LED0_port           (gpioPortF) // change to correct ports and pins
+#define LED0_pin            (4)
+#define LED1_port           (gpioPortF)
+#define LED1_pin            (5)
 
-#define PB0_port (gpioPortF)
-#define PB0_pin  (6)
-#define PB1_port (gpioPortF)
-#define PB1_pin  (7)
+#define PB0_port            (gpioPortF)
+#define PB0_pin             (6)
+#define PB1_port            (gpioPortF)
+#define PB1_pin             (7)
 
-#define LCD_ENABLE_PORT  (gpioPortD)
-#define LCD_ENABLE_PIN   (15)
+#define LCD_ENABLE_PORT     (gpioPortD)
+#define LCD_ENABLE_PIN      (15)
 
-#define LCD_EXCOMIN_PORT (gpioPortD)
-#define LCD_EXCOMIN_PIN  (13)
-
+#define LCD_EXCOMIN_PORT    (gpioPortD)
+#define LCD_EXCOMIN_PIN     (13)
 
 //PROJECT::MAX30101 - GPIO Configurations
-#define MAX30101_port         (gpioPortD)
-#define MAX30101_reset_pin    (10)
-#define MAX30101_mfio_pin     (11)
+#define MAX30101_port        (gpioPortD)
+#define MAX30101_reset_pin   (10)
+#define MAX30101_mfio_pin    (11)
 
-#define BUTTON_PRESSED        (0)
-#define BUTTON_RELEASE        (1)
+#define BUTTON_PRESSED       (0)
+#define BUTTON_RELEASE       (1)
 
 
 // Function prototypes

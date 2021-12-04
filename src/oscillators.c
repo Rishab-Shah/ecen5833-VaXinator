@@ -29,6 +29,4 @@ void Osc_InitI2C0(void) {
     CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);
     CMU_ClockDivSet(cmuClock_HFPER, cmuClkDiv_4);
     CMU_OscillatorEnable(cmuOsc_HFRCO, true, true);
-    //CMU_ClockEnable(cmuClock_HFPER, true);
-    //CMU_ClockEnable(cmuClock_I2C0, true);
 }

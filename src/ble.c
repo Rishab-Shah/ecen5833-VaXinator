@@ -398,11 +398,9 @@ void IndicationQ_Reset(void) {
 
 
 void BLE_Init(void) {
-    bd_addr server_addr    = SERVER_BT_ADDRESS;
-    ble_data.serverAddress = server_addr;
-    ble_data.serverAddressType = 0;
-
-    //Rishab
+    bd_addr server_addr           = SERVER_BT_ADDRESS;
+    ble_data.serverAddress        = server_addr;
+    ble_data.serverAddressType    = 0;
     ble_data.s_IndicationInFlight = false;
 }
 
@@ -629,8 +627,6 @@ void BleServer_HandleConnectionClosedEvent(void) {
     ble_data.s_Bonded = false;
     ble_data.s_HealthIndicating = false;
     ble_data.s_AccelIndication = false;
-    gpioLed0SetOff();
-    gpioLed1SetOff();
 
     IndicationQ_Reset();
 
@@ -646,6 +642,10 @@ void BleServer_HandleConnectionClosedEvent(void) {
     }
 
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
+
+    gpioLed0SetOff();
+    gpioLed1SetOff();
+
 }
 
 
@@ -768,6 +768,8 @@ void BleServer_HandleBondedEvent(void) {
     displayPrintf(DISPLAY_ROW_PASSKEY, "");
     displayPrintf(DISPLAY_ROW_ACTION, "");
     ble_data.s_Bonded = true;
+    gpioLed0SetOff();
+    gpioLed1SetOff();
 }
 
 
@@ -932,6 +934,9 @@ void BleClient_HandleConnectionClosedEvent(void) {
     displayPrintf(DISPLAY_ROW_Z, "");
     displayPrintf(DISPLAY_ROW_HEARTBEAT, "");
     displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "");
+
+    gpioLed0SetOff();
+    gpioLed1SetOff();
 }
 
 
@@ -1104,6 +1109,8 @@ void BleClient_HandleBondedEvent(void) {
     displayPrintf(DISPLAY_ROW_PASSKEY, "");
     displayPrintf(DISPLAY_ROW_ACTION, "");
     ble_data.c_Bonded = true;
+    gpioLed0SetOff();
+    gpioLed1SetOff();
 }
 
 
@@ -1170,7 +1177,6 @@ void BleServer_SendHearbeatDataToClient(uint8_t heartbeat_value)
     else
     {
         LOG_INFO("button:In flight\r");
-        //write_to_buffer(gattdb_button_state, 2, button_buffer); //slcp
     }
 }
 

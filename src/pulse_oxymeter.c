@@ -2,19 +2,17 @@
  * pulse_oxymeter.c
  *
  *  Created on: Nov 23, 2021
- *      Author: risha
+ *      Author: rishab
  */
 
 #include "pulse_oxymeter.h"
 // Include logging for this file
-#define INCLUDE_LOG_DEBUG       (1)
+#define INCLUDE_LOG_DEBUG       (0)
 #include "src/log.h"
 #include "ble.h"
 
 #define DEBUG_ANALYSIS                  (0)
 #define DEBUG_READBACK                  (0)
-
-
 
 //PROJECT::MAX30101 - Appl mode config
 #define APPLICATION_CONFIG_DELAY        ((10)*(MSEC_TO_USEC))
@@ -64,12 +62,8 @@
 struct bioData
 {
   uint16_t heartRate; // LSB = 0.1bpm
-  uint8_t  confidence; // 0-100% LSB = 1%
-  uint16_t oxygen; // 0-100% LSB = 1%
   uint8_t  status; // 0: Success, 1: Not Ready, 2: Object Detectected, 3: Finger Detected
 };
-
-
 
 //configuration machine functions
 void setOutputMode(uint8_t output_type);
@@ -89,70 +83,6 @@ void readFillArray(uint8_t firstbyte, uint8_t secondbyte);
 uint8_t event_requested;
 uint8_t write_i2c0_buffer[8] = {0};
 uint8_t read_i2c0_buffer[10] = {0};
-//void pulse_oxymeter_machine(sl_bt_msg_t *evt)
-//{
-//    /* Switch based on the event detected */
-//    oxymeter_states next_phase = DEFAULT_STATE;
-//
-//    //Current state machine switch
-//    oxymeter_states currentState;
-//    static oxymeter_states nextState = STATE_INIT;
-//    currentState = nextState;
-//
-//    switch(currentState)
-//    {
-//      case STATE_INIT:
-//      {
-//        nextState = STATE_INIT;
-//#if DEBUG_ANALYSIS
-//        LOG_INFO("STATE_INIT\r");
-//#endif
-//        next_phase = init_heartbeat_machine(evt);
-//        if(next_phase == STATE_CONFIGURATION)
-//        {
-//          nextState = STATE_CONFIGURATION;
-//          next_phase = DEFAULT_STATE;
-//        }
-//        break;
-//      }
-//
-//      case STATE_CONFIGURATION:
-//      {
-//        nextState = STATE_CONFIGURATION;
-//#if DEBUG_ANALYSIS
-//        LOG_INFO("STATE_CONFIGURATION\r");
-//#endif
-//        next_phase = config_heartbeat_machine(evt);
-//        if(next_phase == STATE_RUNNING)
-//        {
-//          nextState = STATE_RUNNING;
-//          next_phase = DEFAULT_STATE;
-//        }
-//        break;
-//      }
-//
-//      case STATE_RUNNING:
-//      {
-//        nextState = STATE_RUNNING;
-//#if DEBUG_ANALYSIS
-//        LOG_INFO("STATE_RUNNING\r");
-//#endif
-//        next_phase = heartbeat_machine_running(evt);
-//        if(next_phase == STATE_INIT)
-//        {
-//          nextState = STATE_INIT;
-//          next_phase = DEFAULT_STATE;
-//        }
-//        break;
-//      }
-//
-//      default:
-//        break;
-//
-//    }
-//
-//}
-
 
 activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 {
@@ -170,9 +100,6 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 
   ble_data_struct_t* bleDataPtr = BLE_GetDataStruct();
 
-//  static int counter = 0;
-//  static int counter2 = 0;
-
   switch(currentState)
   {
     case HB_RUN_STATE_0:
@@ -183,16 +110,16 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
 #if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_0\r");
 #endif
-      if(event == ev_LETIMER0_COMP1 || event == ev_LETIMER0_UF)
+      if((event == ev_LETIMER0_COMP1 || event == ev_LETIMER0_UF)
+            && (bleDataPtr->s_Bonded == true))
       {
-          if(event == ev_LETIMER0_UF)
+          if(event == ev_LETIMER0_COMP1)
           {
               LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
           }
           readSensorHubStatus();
       }
-
-      if(event == ev_I2C0_TRANSFER_DONE)
+      else if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
           //Enter EM2 mode
@@ -206,6 +133,23 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
           else
           {
             nextState = HB_RUN_STATE_1;
+          }
+      }
+      else
+      {
+          if(event == ev_LETIMER0_COMP1)
+          {
+              LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+          }
+          ret_status = timerWaitUs_irq(TEST_MODE);
+          if(ret_status == -1)
+          {
+              LOG_ERROR("The value is more than the routine can provide \r");
+          }
+          else
+          {
+              return_state = ACCEL_READ;
+              nextState = HB_RUN_STATE_0;
           }
       }
       break;
@@ -394,32 +338,22 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
               bpmArr[i-1] = read_i2c0_buffer[i];
           }
 
-          //sensorData.heartRate = (uint16_t(bpmArr[0]) << 8);
           // Heart Rate formatting
           sensorData.heartRate = (uint16_t)(bpmArr[0] << 8);
           sensorData.heartRate |= (bpmArr[1]);
           sensorData.heartRate /= 10;
 
-          // Confidence formatting
-          sensorData.confidence = bpmArr[2];
-
-          //Blood oxygen level formatting
-          sensorData.oxygen = (uint16_t)(bpmArr[3]) << 8;
-          sensorData.oxygen |= bpmArr[4];
-          sensorData.oxygen /= 10;
-
           //"Machine State" - has a finger been detected?
           sensorData.status = bpmArr[5];
 
-          LOG_INFO("HB = %d,confidence = %d,oxygen = %d,status = %d\r",sensorData.heartRate,sensorData.confidence,
-                   sensorData.oxygen,sensorData.status);
+          LOG_INFO("HB = %d status = %d\r",sensorData.heartRate,sensorData.status);
 
           displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",sensorData.heartRate);
 
           if(bleDataPtr->s_HealthIndicating == true
               && bleDataPtr->s_ClientConnected == true
                 && bleDataPtr->s_Bonded == true
-                  && sensorData.status == 3) //also, add > 0 condition later
+                  && sensorData.status == 3)
           {
               BleServer_SendHearbeatDataToClient(sensorData.heartRate);
           }
@@ -431,19 +365,7 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
           }
           else
           {
-              //TODO: power off
               return_state = ACCEL_READ;
-#if 0
-              counter++;
-              //LOG_ERROR("counter = %d\r",counter);
-              if(counter == 180)
-              {
-                  counter = 0;
-                  counter2++;
-                  LOG_INFO("Transition = %d\r",counter2);
-                  return_state = HEARTBEAT_INIT;
-              }
-#endif
               nextState = HB_RUN_STATE_0;
           }
       }
@@ -1055,7 +977,7 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
       gpioMAX30101_InitConfigurations();
       /* state - 0 logic  start*/
       gpioPowerOff_reset_MAX30101();
-      //timerWaitUs_polled((0.25)*(1000));
+
       gpioPowerOn_mfio_MAX30101();
       //Wait for 10 msec
       ret_status = timerWaitUs_irq(APPLICATION_CONFIG_DELAY);
@@ -1171,7 +1093,6 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
 #if DEBUG_READBACK
           LOG_INFO("HB_INIT_STATE_3:: Data is data1 = %d, data2 = %d\r",read_i2c0_buffer[0], read_i2c0_buffer[1]);
 #endif
-          //read_i2c0_buffer[0];extract_data(&temp1,&temp2);
           //Reset the sequence for next time
           //execute pseudo timer to trigger machine
           ret_status = timerWaitUs_irq(PSEUDO_TRIGGER);
