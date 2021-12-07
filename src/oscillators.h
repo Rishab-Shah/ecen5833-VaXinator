@@ -2,7 +2,7 @@
  * oscillators.h - Oscillator functions
  *
  *  Created on: Sep 5, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #ifndef SRC_OSCILLATORS_H_
@@ -10,7 +10,6 @@
 
 #include "em_cmu.h"
 #include "app.h"
-
 
 /*
  * Initializes clocks for LETIMER0
@@ -20,7 +19,6 @@
  * @return None
  */
 void Osc_InitLETIMER0(void);
-
 
 /*
  * Initializes clocks for I2C0

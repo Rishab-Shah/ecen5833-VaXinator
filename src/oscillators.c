@@ -2,7 +2,7 @@
  * oscillators.c - Oscillator functions
  *
  *  Created on: Sep 5, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #include "oscillators.h"
@@ -23,7 +23,6 @@ void Osc_InitLETIMER0(void) {
         CMU_ClockEnable(cmuClock_LETIMER0, true);
     }
 }
-
 
 void Osc_InitI2C0(void) {
     CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);

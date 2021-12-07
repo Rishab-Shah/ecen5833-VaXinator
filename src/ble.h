@@ -2,7 +2,7 @@
  * ble.h - BLE functions
  *
  *  Created on: Sep 27, 2021
- *      Author: vishn
+ *      Author: vishnu
  *  Attribution: The sl_bt_evt_system_boot_id code was sourced
  *      from the soc_thermometer and soc_thermometer_client example project.
  */
@@ -63,9 +63,6 @@ static const uint8_t button_char[16] = {
     0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
 };
 
-
-
-//Rishab
 #define HEALTH_SIZE                        (16)
 #define ACCEL_SIZE                         (16)
 
@@ -114,8 +111,6 @@ typedef struct ble_data_struct_s {
     bool c_Bonded;
     uint8_t c_ButtonIndicationStatus;
 
-
-    //Rishab
     //Server
     bool s_HealthIndicating;
     bool s_AccelIndication;

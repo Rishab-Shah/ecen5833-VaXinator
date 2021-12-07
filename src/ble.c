@@ -2,28 +2,24 @@
  * ble.c
  *
  *  Created on: Sep 27, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #include "ble.h"
 
 #define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
-
 //macros for client and server
 #define CONNECTION_PARAMETER_DEBUG_PRINTS           (0)
-
 //macros for server
 #define ADVERTISE_VALUE                             (0x190)//400
 #define CONNECTION_TIME                             (0x3C) //60
 //Security related macros
 #define BONDING_FLAGS                               (0x0F)
-
 //Macros for client
 #define SCAN_PASSIVE                                (0)
 #define SCAN_INTERVAL                               (80)// value = 50 msec /0.625 msec
 #define SCAN_WINDOW                                 (40)// value = 25 msec /0.625 msec
-
 
 // Health service UUID defined by Bluetooth SIG
 static const uint8_t health_service[HEALTH_SIZE] = {
@@ -49,9 +45,7 @@ static const uint8_t accel_char[16] = {
     0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
 };
 
-
 ble_data_struct_t ble_data = { 0 };
-
 
 static indication_struct_t indication_q[INDICATION_QUEUE_SIZE];
 static uint8_t rd_ptr = 0;
@@ -62,7 +56,6 @@ static uint8_t q_size = 0;
 /************************************************/
 /***************Server Functions*****************/
 /************************************************/
-
 
 /*
  * Handles BLE Server boot event
@@ -343,16 +336,9 @@ void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event);
  */
 void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event);
 
-
-// Original code from Dan Walkes. I (Sluiter) fixed a sign extension bug with the mantissa.
-// convert IEEE-11073 32-bit float to integer
-int32_t gattFloat32ToInt(const uint8_t *value_start_little_endian);
-
-
 /************************************************/
 /****************Queue Functions*****************/
 /************************************************/
-
 
 void IndicationQ_Enqueue(indication_struct_t indication) {
     if (q_size == INDICATION_QUEUE_SIZE) {
@@ -361,7 +347,6 @@ void IndicationQ_Enqueue(indication_struct_t indication) {
     indication_q[(wr_ptr++) & INDICATION_QUEUE_SIZE_MASK] = indication;
     q_size++;
 }
-
 
 indication_struct_t IndicationQ_Dequeue(void) {
     indication_struct_t current_indication;
@@ -375,7 +360,6 @@ indication_struct_t IndicationQ_Dequeue(void) {
     return current_indication;
 }
 
-
 uint8_t IndicationQ_IsIndicationPending(void) {
     if (q_size == 0) {
         return 0;
@@ -384,18 +368,15 @@ uint8_t IndicationQ_IsIndicationPending(void) {
     return 1;
 }
 
-
 void IndicationQ_Reset(void) {
     q_size = 0;
     rd_ptr = 0;
     wr_ptr = 0;
 }
 
-
 /************************************************/
 /*************Common BLE Functions***************/
 /************************************************/
-
 
 void BLE_Init(void) {
     bd_addr server_addr           = SERVER_BT_ADDRESS;
@@ -403,7 +384,6 @@ void BLE_Init(void) {
     ble_data.serverAddressType    = 0;
     ble_data.s_IndicationInFlight = false;
 }
-
 
 void handle_ble_event(sl_bt_msg_t* event) {
     switch(SL_BT_MSG_ID(event->header)) {
@@ -520,7 +500,6 @@ void handle_ble_event(sl_bt_msg_t* event) {
     }
 }
 
-
 ble_data_struct_t* BLE_GetDataStruct(void) {
     return (&ble_data);
 }
@@ -529,7 +508,6 @@ ble_data_struct_t* BLE_GetDataStruct(void) {
 /************************************************/
 /***************Server Functions*****************/
 /************************************************/
-
 
 void BleServer_HandleBootEvent(void) {
     sl_status_t ble_status;
@@ -583,7 +561,6 @@ void BleServer_HandleBootEvent(void) {
     displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
 }
 
-
 void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     sl_status_t ble_status;
 
@@ -613,7 +590,6 @@ void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
 
     displayPrintf(DISPLAY_ROW_CONNECTION, "Connected");
 }
-
 
 void BleServer_HandleConnectionClosedEvent(void) {
     sl_status_t ble_status;
@@ -648,7 +624,6 @@ void BleServer_HandleConnectionClosedEvent(void) {
 
 }
 
-
 void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
     LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r",
              event->data.evt_connection_parameters.connection,
@@ -656,7 +631,6 @@ void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
              event->data.evt_connection_parameters.latency,
              event->data.evt_connection_parameters.timeout);
 }
-
 
 void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
     //sl_status_t ble_status;
@@ -675,7 +649,6 @@ void BleServer_HandleExternalSignalEvent(sl_bt_msg_t* event) {
         }
     }
 }
-
 
 void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
     uint8_t status_flags;
@@ -731,11 +704,9 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
     }
 }
 
-
 void BleServer_HandleIndicationTimeoutEvent(void) {
     LOG_ERROR("Timeout occurred on indication\r");
 }
-
 
 void BleServer_HandleBondingConfirmEvent(void) {
     sl_status_t ble_status;
@@ -755,13 +726,11 @@ void BleClient_HandleBondingConfirmEvent(void) {
     }
 }
 
-
 void BleServer_HandlePasskeyConfirmEvent(sl_bt_msg_t* event) {
     displayPrintf(DISPLAY_ROW_PASSKEY, "%d", event->data.evt_sm_confirm_passkey.passkey);
     displayPrintf(DISPLAY_ROW_ACTION, "Confirm with PB0");
     ble_data.s_BondingPending = true;
 }
-
 
 void BleServer_HandleBondedEvent(void) {
     displayPrintf(DISPLAY_ROW_CONNECTION, "Bonded");
@@ -772,12 +741,10 @@ void BleServer_HandleBondedEvent(void) {
     gpioLed1SetOff();
 }
 
-
 void BleServer_HandleBondingFailedEvent(sl_bt_msg_t* event) {
     ble_data.s_Bonded = false;
     LOG_ERROR("Bonding failed: %x\r", event->data.evt_sm_bonding_failed.reason);
 }
-
 
 void BleServer_HandleSoftTimerEvent(sl_bt_msg_t* event) {
     indication_struct_t indication;
@@ -806,7 +773,6 @@ void BleServer_HandleSoftTimerEvent(sl_bt_msg_t* event) {
 /************************************************/
 /***************Client Functions*****************/
 /************************************************/
-
 
 void BleClient_HandleBootEvent(void) {
     sl_status_t ble_status;
@@ -867,7 +833,6 @@ void BleClient_HandleBootEvent(void) {
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
     displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
 
-    //Rishab
     //health service
     memcpy(ble_data.s_HealthService,health_service,HEALTH_SIZE*sizeof(ble_data.s_HealthService[0]));
     memcpy(ble_data.s_HealthChar,health_char,HEALTH_SIZE*sizeof(ble_data.s_HealthChar[0]));
@@ -875,7 +840,6 @@ void BleClient_HandleBootEvent(void) {
     memcpy(ble_data.s_AccelService, accel_service, ACCEL_SIZE);
     memcpy(ble_data.s_AccelChar, accel_char, ACCEL_SIZE);
 }
-
 
 void BleClient_HandleScanReportEvent(sl_bt_msg_t* event) {
     sl_status_t ble_status;
@@ -902,7 +866,6 @@ void BleClient_HandleScanReportEvent(sl_bt_msg_t* event) {
     }
 }
 
-
 void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     ble_data.c_ConnectionHandle = event->data.evt_connection_opened.connection;
     ble_data.c_Connected = true;
@@ -913,7 +876,6 @@ void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
                   ble_data.serverAddress.addr[4], ble_data.serverAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Connected");
 }
-
 
 void BleClient_HandleConnectionClosedEvent(void) {
     sl_status_t ble_status;
@@ -939,7 +901,6 @@ void BleClient_HandleConnectionClosedEvent(void) {
     gpioLed1SetOff();
 }
 
-
 void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
     LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r",
              event->data.evt_connection_parameters.connection,
@@ -947,7 +908,6 @@ void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
              event->data.evt_connection_parameters.latency,
              event->data.evt_connection_parameters.timeout);
 }
-
 
 void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event) {
     sl_status_t ble_status;
@@ -960,7 +920,6 @@ void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event) {
     }
 }
 
-
 void BleClient_HandleGattServiceEvent(sl_bt_msg_t* event) {
     if(0 == (memcmp(event->data.evt_gatt_service.uuid.data,ble_data.s_HealthService,sizeof(ble_data.s_HealthService))))
     {
@@ -971,7 +930,6 @@ void BleClient_HandleGattServiceEvent(sl_bt_msg_t* event) {
         ble_data.c_AccelServiceHandle = event->data.evt_gatt_service.service;
     }
 }
-
 
 void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
     // Identify the correct characteristic //multiple firing
@@ -984,7 +942,6 @@ void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
         ble_data.c_AccelCharacteristicHandle = event->data.evt_gatt_characteristic.characteristic;
     }
 }
-
 
 void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
     sl_status_t sc = 0;
@@ -1071,7 +1028,6 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
     }
 }
 
-
 void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
     sl_status_t sc;
     if(event->data.evt_system_external_signal.extsignals == ev_PB0_PRESSED)
@@ -1096,7 +1052,6 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
     }
 }
 
-
 void BleClient_HandlePasskeyConfirmEvent(sl_bt_msg_t* event) {
     displayPrintf(DISPLAY_ROW_PASSKEY, "%d", event->data.evt_sm_confirm_passkey.passkey);
     displayPrintf(DISPLAY_ROW_ACTION, "Confirm with PB0");
@@ -1113,12 +1068,10 @@ void BleClient_HandleBondedEvent(void) {
     gpioLed1SetOff();
 }
 
-
 void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event) {
     ble_data.c_Bonded = false;
     LOG_ERROR("Bonding failed: %x\r", event->data.evt_sm_bonding_failed.reason);
 }
-
 
 void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event) {
     if (event->data.evt_system_soft_timer.handle == LCD_TIMER_HANDLE) {
@@ -1126,36 +1079,13 @@ void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event) {
     }
 }
 
-
-// Original code from Dan Walkes. I (Sluiter) fixed a sign extension bug with the mantissa.
-// convert IEEE-11073 32-bit float to integer
-int32_t gattFloat32ToInt(const uint8_t *value_start_little_endian)
-{
-    uint8_t signByte = 0;
-    int32_t mantissa;
-    // data format pointed at by value_start_little_endian is:
-    // [0] = contains the flags byte
-    // [3][2][1] = mantissa (24-bit 2’s complement)
-    // [4] = exponent (8-bit 2’s complement)
-    int8_t exponent = (int8_t)value_start_little_endian[4];
-    // sign extend the mantissa value if the mantissa is negative
-    if (value_start_little_endian[3] & 0x80) { // msb of [3] is the sign of the mantissa
-        signByte = 0xFF;
-    }
-    mantissa = (int32_t) (value_start_little_endian[1] << 0) |
-               (value_start_little_endian[2] << 8) |
-               (value_start_little_endian[3] << 16) |
-               (signByte << 24);
-    // value = 10^exponent * mantissa, pow() returns a double type
-    return (int32_t) (pow(10, exponent) * mantissa);
-} // gattFloat32ToInt
-
-
 void BleServer_SendHearbeatDataToClient(uint8_t heartbeat_value)
 {
     sl_status_t sc = 0;
     uint8_t heartbeat_buffer[2] = {0};
     uint8_t *p = &heartbeat_buffer[0];
+
+    indication_struct_t indication;
 
     //read is again to set only the current status of the button in the local database
     UINT8_TO_BITSTREAM(p, heartbeat_value);
@@ -1176,10 +1106,12 @@ void BleServer_SendHearbeatDataToClient(uint8_t heartbeat_value)
     }
     else
     {
-        LOG_INFO("button:In flight\r");
+        indication.characteristicHandle = gattdb_heartbeat_state;
+        memcpy(&indication.buff[0], &heartbeat_buffer[0], 1);
+        indication.bufferLen = 1;
+        IndicationQ_Enqueue(indication);
     }
 }
-
 
 void BleServer_SendAccelDataToClient(uint8_t* accel_buff) {
     sl_status_t ble_status;

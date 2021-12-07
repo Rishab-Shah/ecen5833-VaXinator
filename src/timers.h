@@ -2,7 +2,7 @@
  * timers.h - Timer functions
  *
  *  Created on: Sep 5, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #ifndef SRC_TIMERS_H_

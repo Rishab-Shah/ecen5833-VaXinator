@@ -2,7 +2,7 @@
  * scheduler.c - Scheduler functions
  *
  *  Created on: Sep 12, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #include "scheduler.h"
@@ -13,8 +13,6 @@
 /************************************************/
 /****************Event Handlers******************/
 /************************************************/
-
-
 void Scheduler_SetEvent_LETIMER0_UF(void) {
     CORE_DECLARE_IRQ_STATE;
 
@@ -85,11 +83,9 @@ void Scheduler_SetEvent_PB1_RELEASED(void) {
     CORE_EXIT_CRITICAL();
 }
 
-
 /************************************************/
-/***************Server Functions*****************/
+/***************Client Functions*****************/
 /************************************************/
-
 void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
     activity_monitoring_state_t current_state;
     //static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
@@ -127,11 +123,6 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
             break;
     }
 }
-
-
-/************************************************/
-/***************Client Functions*****************/
-/************************************************/
 
 void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     disc_fsm_state_t current_state;
@@ -213,7 +204,6 @@ void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     }
 }
 
-
 void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
@@ -224,7 +214,6 @@ void BleClient_RequestHealthServiceInfo(ble_data_struct_t* ble_data) {
         LOG_ERROR("s_health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
     }
 }
-
 
 void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
@@ -238,7 +227,6 @@ void BleClient_RequestHealthCharacteristicInfo(ble_data_struct_t* ble_data) {
     }
 }
 
-
 void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
@@ -251,7 +239,6 @@ void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
     gpioLed1SetOn();
 }
 
-
 void BleClient_RequestAccelServiceInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
@@ -262,7 +249,6 @@ void BleClient_RequestAccelServiceInfo(ble_data_struct_t* ble_data) {
         LOG_ERROR("s_health_service:: sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
     }
 }
-
 
 void BleClient_RequestAccelCharacteristicInfo(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
@@ -276,7 +262,6 @@ void BleClient_RequestAccelCharacteristicInfo(ble_data_struct_t* ble_data) {
     }
 }
 
-
 void BleClient_EnableAccelIndications(ble_data_struct_t* ble_data) {
     sl_status_t ble_status;
 
@@ -289,86 +274,6 @@ void BleClient_EnableAccelIndications(ble_data_struct_t* ble_data) {
     gpioLed0SetOn();
 }
 
-
-void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data) {
-    sl_status_t ble_status;
-
-    ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
-                                                                  sizeof(thermo_service),
-                                                                  thermo_service);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
-    }
-}
-
-
-void BleClient_RequestTemperatureCharacteristicInfo(ble_data_struct_t* ble_data) {
-    sl_status_t ble_status;
-
-    ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
-                                                             ble_data->c_TemperatureServiceHandle,
-                                                             sizeof(thermo_char),
-                                                             thermo_char);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
-    }
-}
-
-
-void BleClient_RequestButtonServiceInfo(ble_data_struct_t* ble_data) {
-    sl_status_t ble_status;
-
-    ble_status = sl_bt_gatt_discover_primary_services_by_uuid(ble_data->c_ConnectionHandle,
-                                                                  sizeof(button_service),
-                                                                  button_service);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_primary_services_by_uuid: %x\r", ble_status);
-    }
-}
-
-
-void BleClient_RequestButtonCharacteristicInfo(ble_data_struct_t* ble_data) {
-    sl_status_t ble_status;
-
-    ble_status = sl_bt_gatt_discover_characteristics_by_uuid(ble_data->c_ConnectionHandle,
-                                                             ble_data->c_ButtonServiceHandle,
-                                                             sizeof(button_char),
-                                                             button_char);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_discover_characteristics_by_uuid: %x\r", ble_status);
-    }
-}
-
-
-void BleClient_EnableTemperatureIndications(ble_data_struct_t* ble_data) {
-    sl_status_t ble_status;
-
-    ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
-                                                            ble_data->c_TemperatureCharacteristicHandle, 0x02);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
-    }
-}
-
-
-void BleClient_EnableButtonIndications(ble_data_struct_t* ble_data) {
-    sl_status_t ble_status;
-
-    ble_data->c_TemperatureIndicating = true;
-    ble_status = sl_bt_gatt_set_characteristic_notification(ble_data->c_ConnectionHandle,
-                                                            ble_data->c_ButtonCharacteristicHandle, 0x02);
-    if (ble_status != SL_STATUS_OK) {
-        LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
-    }
-}
-
-
-void BleClient_SetDisplayingOfIndications(ble_data_struct_t* ble_data) {
-    ble_data->c_ButtonIndicating = true;
-    displayPrintf(DISPLAY_ROW_CONNECTION, "Handling Indications");
-}
-
-
 void BleClient_RestartScanning(void) {
     sl_status_t ble_status;
 
@@ -377,3 +282,5 @@ void BleClient_RestartScanning(void) {
         LOG_ERROR("sl_bt_scanner_start: %x\r", ble_status);
     }
 }
+
+

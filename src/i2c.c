@@ -2,7 +2,7 @@
  * i2c.c - I2C functions
  *
  *  Created on: Sep 13, 2021
- *      Author: vishn
+ *      Author: vishnu
  * Attribution: The temp_sensor_init values were sourced
  *              from sl_i2csmp_init.c.
  */

@@ -2,7 +2,7 @@
  * i2c.h - I2C functions
  *
  *  Created on: Sep 13, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #ifndef SRC_I2C_H_

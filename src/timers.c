@@ -2,11 +2,10 @@
  * timer.c - Timer functions
  *
  *  Created on: Sep 5, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #include "timers.h"
-
 
 void LETIMER0_Init(void) {
     LETIMER_Init_TypeDef timer_settings;
@@ -26,28 +25,9 @@ void LETIMER0_Init(void) {
     NVIC_EnableIRQ(LETIMER0_IRQn);
 }
 
-
 void LETIMER0_Start(void) {
     LETIMER_Enable(LETIMER0, true);
 }
-
-
-void timerWaitUs_polled(uint32_t us_wait) {
-    uint32_t wait_ticks, current_ticks;
-
-    if (us_wait > 131071) { // max value * 32768 that can be stored in uint32_t
-        us_wait = 131071;
-    }
-
-    wait_ticks = us_wait * ACTUAL_CLK_FREQ / SEC_TO_USEC;
-
-    current_ticks = LETIMER_CounterGet(LETIMER0);
-
-    while(LETIMER_CounterGet(LETIMER0) > (current_ticks - wait_ticks));
-
-    current_ticks = LETIMER_CounterGet(LETIMER0);
-}
-
 
 int timerWaitUs_irq(uint32_t us_wait) {
     uint32_t ref_tick_value = 0;

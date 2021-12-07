@@ -2,7 +2,7 @@
  * scheduler.h - Scheduler functions
  *
  *  Created on: Sep 12, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #ifndef SRC_SCHEDULER_H_
@@ -203,76 +203,6 @@ void BleClient_RequestAccelCharacteristicInfo(ble_data_struct_t* ble_data);
  * @return None
  */
 void BleClient_EnableAccelIndications(ble_data_struct_t* ble_data);
-
-
-/*
- * Requests temperature service info from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_RequestTemperatureServiceInfo(ble_data_struct_t* ble_data);
-
-
-/*
- * Requests temperature characteristic info from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_RequestTemperatureCharacteristicInfo(ble_data_struct_t* ble_data);
-
-
-/*
- * Requests button service info from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_RequestButtonServiceInfo(ble_data_struct_t* ble_data);
-
-
-/*
- * Requests button characteristic info from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_RequestButtonCharacteristicInfo(ble_data_struct_t* ble_data);
-
-
-/*
- * Enables temperature indications from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_EnableTemperatureIndications(ble_data_struct_t* ble_data);
-
-
-/*
- * Enables button indications from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_EnableButtonIndications(ble_data_struct_t* ble_data);
-
-
-/*
- * Displays indications being handled from the server
- *
- * @param ble_data - BLE data struct with connection info
- *
- * @return None
- */
-void BleClient_SetDisplayingOfIndications(ble_data_struct_t* ble_data);
 
 
 /*

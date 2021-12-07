@@ -2,7 +2,7 @@
  * MMA8452Q.h - MMA8452Q Accelerometer functions
  *
  *  Created on: Nov 16, 2021
- *      Author: vishn
+ *      Author: vishnu
  *
  * Reference: https://github.com/sparkfun/MMA8452_Accelerometer
  */

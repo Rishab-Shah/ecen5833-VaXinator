@@ -2,13 +2,13 @@
  * MMA8452Q.c - MMA8452Q Accelerometer functions
  *
  *  Created on: Nov 16, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 
 #include "MMA8452Q.h"
 
-#define INCLUDE_LOG_DEBUG 1
+#define INCLUDE_LOG_DEBUG 0
 #include "src/log.h"
 
 #define CTRL_REG1_STANDBY     (0x00)

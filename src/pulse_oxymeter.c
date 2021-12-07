@@ -3,6 +3,7 @@
  *
  *  Created on: Nov 23, 2021
  *      Author: rishab
+ *  References: https://github.com/sparkfun/SparkFun_Bio_Sensor_Hub_Library
  */
 
 #include "pulse_oxymeter.h"
@@ -11,7 +12,6 @@
 #include "src/log.h"
 #include "ble.h"
 
-#define DEBUG_ANALYSIS                  (0)
 #define DEBUG_READBACK                  (0)
 
 //PROJECT::MAX30101 - Appl mode config
@@ -21,7 +21,7 @@
 #define ENABLE_CMD_DELAY                ((45)*(1000))
 
 #define CONFIG_TO_RUN_STATE             ((1000)*(MSEC_TO_USEC))
-#define TEST_MODE                       ((50)*(MSEC_TO_USEC))
+#define SWITCH_I2C_DEVICE               ((50)*(MSEC_TO_USEC))
 #define MAX30101_SLAVE_ADDRESS          (0x55)
 
 #define ENABLE                          (0x01)
@@ -61,8 +61,10 @@
 
 struct bioData
 {
-  uint16_t heartRate; // LSB = 0.1bpm
-  uint8_t  status; // 0: Success, 1: Not Ready, 2: Object Detectected, 3: Finger Detected
+  // LSB = 0.1bpm
+  uint16_t heartRate;
+  // 0: Success, 1: Not Ready, 2: Object Detectected, 3: Finger Detected
+  uint8_t  status;
 };
 
 //configuration machine functions
@@ -107,9 +109,7 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_0;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_0\r");
-#endif
       if((event == ev_LETIMER0_COMP1 || event == ev_LETIMER0_UF)
             && (bleDataPtr->s_Bonded == true))
       {
@@ -141,7 +141,7 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
           {
               LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
           }
-          ret_status = timerWaitUs_irq(TEST_MODE);
+          ret_status = timerWaitUs_irq(SWITCH_I2C_DEVICE);
           if(ret_status == -1)
           {
               LOG_ERROR("The value is more than the routine can provide \r");
@@ -160,9 +160,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_1;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_1\r");
-#endif
+
       if(event == ev_LETIMER0_COMP1)
       {
           LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -201,9 +200,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_2;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_2\r");
-#endif
+
       if(event == ev_LETIMER0_COMP1)
       {
           LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -234,9 +232,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_3;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_3\r");
-#endif
+
       if(event == ev_LETIMER0_COMP1)
       {
           LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -275,9 +272,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_4;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_4\r");
-#endif
+
       if(event == ev_LETIMER0_COMP1)
       {
           LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -308,9 +304,8 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_READ;
       nextState = HB_RUN_STATE_5;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_RUN_STATE_5\r");
-#endif
+
       if(event == ev_LETIMER0_COMP1)
       {
           LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -358,7 +353,7 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
               BleServer_SendHearbeatDataToClient(sensorData.heartRate);
           }
 
-          ret_status = timerWaitUs_irq(TEST_MODE);
+          ret_status = timerWaitUs_irq(SWITCH_I2C_DEVICE);
           if(ret_status == -1)
           {
               LOG_ERROR("The value is more than the routine can provide \r");
@@ -432,9 +427,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_0;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_0\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -464,9 +458,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_1;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_1\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -505,9 +498,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_2;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_2\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             //ENABLE
@@ -539,9 +531,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_3;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_3\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -579,9 +570,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_4;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_4\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -612,9 +602,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_5;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_5\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -652,9 +641,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_6;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_6\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -685,9 +673,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_7;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_7\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -725,9 +712,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_8;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_8\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -758,9 +744,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_9;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_9\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -798,9 +783,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_10;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_10\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -831,9 +815,8 @@ activity_monitoring_state_t config_heartbeat_machine(sl_bt_msg_t *evt)
         //Default states
         return_state = HEARTBEAT_CONFIGURE;
         nextState = HB_CONFIG_STATE_11;
-#if DEBUG_ANALYSIS
         LOG_INFO("HB_CONFIG_STATE_11\r");
-#endif
+
         if(event == ev_LETIMER0_COMP1)
         {
             LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -966,18 +949,12 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_0;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_0\r");
-#endif
 
-      //TODO:Power On
-      //timer
       LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
-
       gpioMAX30101_InitConfigurations();
       /* state - 0 logic  start*/
       gpioPowerOff_reset_MAX30101();
-
       gpioPowerOn_mfio_MAX30101();
       //Wait for 10 msec
       ret_status = timerWaitUs_irq(APPLICATION_CONFIG_DELAY);
@@ -999,9 +976,8 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_1;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_1\r");
-#endif
+
        /* state - 1 logic  start*/
        if(event == ev_LETIMER0_COMP1)
        {
@@ -1025,9 +1001,8 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_2;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_2\r");
-#endif
+
       /* state - 2 logic  start*/
       if(event == ev_LETIMER0_COMP1)
       {
@@ -1070,9 +1045,8 @@ activity_monitoring_state_t init_heartbeat_machine(sl_bt_msg_t *evt)
       //Default states
       return_state = HEARTBEAT_INIT;
       nextState = HB_INIT_STATE_3;
-#if DEBUG_ANALYSIS
       LOG_INFO("HB_INIT_STATE_3\r");
-#endif
+
       /* state - 3 logic  start*/
       if(event == ev_LETIMER0_COMP1)
       {

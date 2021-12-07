@@ -2,7 +2,7 @@
  * irq.c - Interrupt service routines
  *
  *  Created on: Sep 5, 2021
- *      Author: vishn
+ *      Author: vishnu
  */
 
 #include "irq.h"
