@@ -17,12 +17,7 @@ extern const sli_bt_gattdb_t gattdb;
 #define gattdb_manufacturer_name_string       19
 #define gattdb_system_id                      21
 #define gattdb_device_name                    24
-#define gattdb_temperature_measurement        29
-#define gattdb_temperature_type               32
-#define gattdb_intermediate_temperature       34
-#define gattdb_measurement_interval           37
-#define gattdb_valid_range                    39
-#define gattdb_ota_control                    42
+#define gattdb_ota_control                    29
 
 
 #endif // __GATT_DB_H

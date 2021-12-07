@@ -7,7 +7,7 @@
 
 #include "ble.h"
 
-#define INCLUDE_LOG_DEBUG 1
+#define INCLUDE_LOG_DEBUG 0
 #include "src/log.h"
 //macros for client and server
 #define CONNECTION_PARAMETER_DEBUG_PRINTS           (0)
@@ -597,8 +597,6 @@ void BleServer_HandleConnectionClosedEvent(void) {
     // Modify ble_data variables
     ble_data.s_ClientConnected = false;
     ble_data.s_ConnectionHandle = 0;
-    ble_data.s_TemperatureIndicating = false;
-    ble_data.s_ButtonIndicating = false;
     ble_data.s_IndicationInFlight = false;
     ble_data.s_Bonded = false;
     ble_data.s_HealthIndicating = false;
@@ -625,6 +623,11 @@ void BleServer_HandleConnectionClosedEvent(void) {
 }
 
 void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
+    if(event)
+    {
+        /* Do nothing*/
+    }
+
     LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r",
              event->data.evt_connection_parameters.connection,
              event->data.evt_connection_parameters.interval,
@@ -729,7 +732,6 @@ void BleClient_HandleBondingConfirmEvent(void) {
 void BleServer_HandlePasskeyConfirmEvent(sl_bt_msg_t* event) {
     displayPrintf(DISPLAY_ROW_PASSKEY, "%d", event->data.evt_sm_confirm_passkey.passkey);
     displayPrintf(DISPLAY_ROW_ACTION, "Confirm with PB0");
-    ble_data.s_BondingPending = true;
 }
 
 void BleServer_HandleBondedEvent(void) {
@@ -742,6 +744,11 @@ void BleServer_HandleBondedEvent(void) {
 }
 
 void BleServer_HandleBondingFailedEvent(sl_bt_msg_t* event) {
+    if(event)
+    {
+        /* Do nothing */
+    }
+
     ble_data.s_Bonded = false;
     LOG_ERROR("Bonding failed: %x\r", event->data.evt_sm_bonding_failed.reason);
 }
@@ -880,8 +887,6 @@ void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
 void BleClient_HandleConnectionClosedEvent(void) {
     sl_status_t ble_status;
     ble_data.c_Connected = false;
-    ble_data.c_TemperatureIndicating = false;
-    ble_data.c_ButtonIndicating = false;
     ble_data.c_Bonded = false;
 
     ble_status = sl_bt_sm_delete_bondings();
@@ -902,6 +907,11 @@ void BleClient_HandleConnectionClosedEvent(void) {
 }
 
 void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
+    if(event)
+    {
+        /* Do nothing*/
+    }
+
     LOG_INFO("handle: %d, interval, %d, latency: %d, timeout: %x\r",
              event->data.evt_connection_parameters.connection,
              event->data.evt_connection_parameters.interval,
@@ -916,7 +926,6 @@ void BleClient_HandleGattProcedureCompleted(sl_bt_msg_t* event) {
         if (ble_status != SL_STATUS_OK) {
             LOG_ERROR("sl_bt_sm_increase_security: %x\r", ble_status);
         }
-        ble_data.c_BondingPending = true;
     }
 }
 
@@ -1055,7 +1064,6 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
 void BleClient_HandlePasskeyConfirmEvent(sl_bt_msg_t* event) {
     displayPrintf(DISPLAY_ROW_PASSKEY, "%d", event->data.evt_sm_confirm_passkey.passkey);
     displayPrintf(DISPLAY_ROW_ACTION, "Confirm with PB0");
-    ble_data.c_BondingPending = true;
 }
 
 
@@ -1069,6 +1077,10 @@ void BleClient_HandleBondedEvent(void) {
 }
 
 void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event) {
+    if(event)
+    {
+        /* Do nothing */
+    }
     ble_data.c_Bonded = false;
     LOG_ERROR("Bonding failed: %x\r", event->data.evt_sm_bonding_failed.reason);
 }

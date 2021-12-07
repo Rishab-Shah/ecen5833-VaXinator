@@ -39,34 +39,9 @@
 #define IND_SEQ_PB1_RELEASED (0x04)
 #define IND_SEQ_PB0_RELEASED (0x08)
 
-
 #define UINT8_TO_BITSTREAM(p, n) { *(p)++ = (uint8_t)(n); }
-
-#define UINT32_TO_BITSTREAM(p, n) { *(p)++ = (uint8_t)(n); *(p)++ = (uint8_t)((n) >> 8); \
- *(p)++ = (uint8_t)((n) >> 16); *(p)++ = (uint8_t)((n) >> 24); }
-
-#define UINT32_TO_FLOAT(m, e) (((uint32_t)(m) & 0x00FFFFFFU) | (uint32_t)((int32_t)(e) << 24))
-
-// Health Thermometer service UUID defined by Bluetooth SIG
-static const uint8_t thermo_service[2] = { 0x09, 0x18 };
-// Temperature Measurement characteristic UUID defined by Bluetooth SIG
-static const uint8_t thermo_char[2] = { 0x1c, 0x2a };
-
-// Button service UUID defined by Bluetooth SIG
-static const uint8_t button_service[16] = {
-    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
-    0x3e, 0x43, 0xc8, 0x38, 0x01, 0x00, 0x00, 0x00
-};
-// Button characteristic UUID defined by Bluetooth SIG
-static const uint8_t button_char[16] = {
-    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
-    0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
-};
-
 #define HEALTH_SIZE                        (16)
 #define ACCEL_SIZE                         (16)
-
-
 
 typedef struct indication_struct_s {
     uint16_t characteristicHandle;
@@ -74,64 +49,48 @@ typedef struct indication_struct_s {
     uint8_t bufferLen;
 } indication_struct_t;
 
-
 // BLE Data Structure, save all of our private BT data in here.
 // Modern C (circa 2021 does it this way)
 // typedef ble_data_struct_t is referred to as an anonymous struct definition
 typedef struct ble_data_struct_s {
+
     // values that are common to servers and clients, no prefixes
     bd_addr serverAddress;
     uint8_t serverAddressType;
+
     // Values unique for server, prefixed with "s_"
     uint8_t s_AdvertisingHandle;
     uint8_t s_ConnectionHandle;
-    uint16_t s_TemperatureCharacteristicHandle;
-    uint16_t s_ButtonCharacteristicHandle;
     bool s_ClientConnected;
-    bool s_TemperatureIndicating;
-    bool s_ButtonIndicating;
-    bool s_ReadingTemp;
     bool s_IndicationInFlight;
-    bool s_BondingPending;
     bool s_Bonded;
+    //Server - Services
+    bool s_HealthIndicating;
+    uint8_t s_HealthService[HEALTH_SIZE];
+    uint8_t s_HealthChar[HEALTH_SIZE];
+    bool s_AccelIndication;
+    uint8_t s_AccelService[ACCEL_SIZE];
+    uint8_t s_AccelChar[ACCEL_SIZE];
+
     // Values unique for client, prefixed with "c_"
     bd_addr c_DeviceAddress;
     uint8_t c_DeviceAddressType;
     uint8_t c_ConnectionHandle;
-    uint32_t c_TemperatureServiceHandle;
-    uint16_t c_TemperatureCharacteristicHandle;
-    uint8_t c_TemperatureCharacteristicProperties;
-    uint32_t c_ButtonServiceHandle;
-    uint16_t c_ButtonCharacteristicHandle;
-    uint8_t c_ButtonCharacteristicProperties;
     bool c_Connected;
-    bool c_TemperatureIndicating;
-    bool c_ButtonIndicating;
-    bool c_BondingPending;
     bool c_Bonded;
-    uint8_t c_ButtonIndicationStatus;
 
-    //Server
-    bool s_HealthIndicating;
-    bool s_AccelIndication;
-
-    uint8_t s_HealthService[HEALTH_SIZE];
-    uint8_t s_HealthChar[HEALTH_SIZE];
-    uint8_t s_AccelService[ACCEL_SIZE];
-    uint8_t s_AccelChar[ACCEL_SIZE];
-
-    //Client
+    //Client - Services
     uint32_t c_HealthServiceHandle;
     uint16_t c_HealthCharacteristicHandle;
     uint8_t* c_HealthCharValue;
     uint8_t c_HealthValue;
-
     uint32_t c_AccelServiceHandle;
     uint16_t c_AccelCharacteristicHandle;
     uint8_t c_AccelBuffer[6];
     int16_t c_AccelX;
     int16_t c_AccelY;
     int16_t c_AccelZ;
+
 } ble_data_struct_t;
 
 
