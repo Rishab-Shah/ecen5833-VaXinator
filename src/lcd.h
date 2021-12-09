@@ -6,6 +6,10 @@
  *
  * @author    Dave Sluiter, David.Sluiter@colorado.edu
  * @date      March 15, 2021
+ *
+ * @editor    Vishnu Dodballapur
+ * @date      Sep 27, 2021
+ * @change    Initialized LCD, filled in refresh function
  *
  * @institution University of Colorado Boulder (UCB)
  * @course      ECEN 5823: IoT Embedded Firmware

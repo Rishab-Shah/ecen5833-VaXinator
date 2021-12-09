@@ -6,6 +6,7 @@
 
     Updated by Dave Sluiter Sept 7, 2020. moved #defines from .c to .h file.
     Updated by Dave Sluiter Dec 31, 2020. Minor edits with #defines.
+    Updated by Rishab Shah Nov 12, 2021. Configured GPIO for project.
 
  */
 

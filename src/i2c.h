@@ -2,7 +2,7 @@
  * i2c.h - I2C functions
  *
  *  Created on: Sep 13, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  */
 
 #ifndef SRC_I2C_H_
@@ -15,17 +15,6 @@
 #include "sl_i2cspm.h"
 #include "sl_i2cspm_sensor_config.h"
 #include "src/timers.h"
-
-#define TEMP_SENSOR_POWER_PORT  (gpioPortD)
-#define TEMP_SENSOR_POWER_PIN   (15)
-
-#define TEMP_SENSOR_ADDR        (0x40)
-
-#define CMD_READ_TEMP           (0xF3)
-
-
-#define TEMP_SENSOR_READ_TEMP_WAIT_US (10800)
-#define TEMP_SENSOR_POWER_ON_WAIT_US  (80000)
 
 
 /*

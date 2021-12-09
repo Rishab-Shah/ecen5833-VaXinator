@@ -8,6 +8,8 @@
    March 17
    Dave Sluiter: Use this file to define functions that set up or control GPIOs.
 
+   Updated by Rishab Shah Nov 12, 2021. Configured GPIO for project.
+
  */
 
 #include "gpio.h"
