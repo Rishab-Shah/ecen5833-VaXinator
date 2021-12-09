@@ -27,7 +27,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  * Date:        08-07-2021
- * Author:      Dave Sluiter
+ * Author:      Rishab
  * Description: This code was created by the Silicon Labs application wizard
  *              and started as "Bluetooth - SoC Empty".
  *              It is to be used only for ECEN 5823 "IoT Embedded Firmware".

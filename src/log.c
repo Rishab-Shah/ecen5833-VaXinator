@@ -11,6 +11,9 @@
  *      Editor: Mar 17, 2021, Dave Sluiter
  *      Change: Commented out logInit() and logFlush() as not needed in SSv5.
  *
+ *      Editor: Sep 12, 2021, Rishab Shah
+ *      Change: Uncommented letimerMilliseconds() in loggerGetTimestamp()
+ *
  */
 
 

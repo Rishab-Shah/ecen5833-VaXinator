@@ -2,7 +2,7 @@
  * ble.h - BLE functions
  *
  *  Created on: Sep 27, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  *  Attribution: The sl_bt_evt_system_boot_id code was sourced
  *      from the soc_thermometer and soc_thermometer_client example project.
  */

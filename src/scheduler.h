@@ -2,7 +2,7 @@
  * scheduler.h - Scheduler functions
  *
  *  Created on: Sep 12, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  */
 
 #ifndef SRC_SCHEDULER_H_

@@ -2,7 +2,7 @@
  * scheduler.c - Scheduler functions
  *
  *  Created on: Sep 12, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  */
 
 #include "scheduler.h"

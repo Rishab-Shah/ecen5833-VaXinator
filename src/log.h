@@ -10,6 +10,9 @@
  *              August 6, 2021. Got messages that sl_app_log() is deprecated and we
  *              should switch to app_log().
  *
+ *      Editor: Sep 12, 2021, Rishab Shah
+ *      Change: Uncommented letimerMilliseconds() in loggerGetTimestamp()
+ *
  */
 
 #ifndef SRC_LOG_H_

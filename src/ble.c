@@ -2,7 +2,7 @@
  * ble.c
  *
  *  Created on: Sep 27, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  */
 
 #include "ble.h"
