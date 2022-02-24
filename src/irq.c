@@ -14,13 +14,21 @@ uint32_t g_systickCounter = 0;
 
 
 void LETIMER0_IRQHandler(void) {
-    uint32_t interrupt_flags = LETIMER0->IF;
-    LETIMER0->IFC = 0x1F;
+    //uint32_t interrupt_flags = LETIMER0->IF;
+    //LETIMER0->IFC = 0x1F;
 
-    if (interrupt_flags & _LETIMER_IF_UF_MASK) {
+    uint32_t flags;
+
+    //determine pending interrupts
+    flags = LETIMER_IntGet(LETIMER0);
+
+    //clear pending interrupts
+    LETIMER_IntClear(LETIMER0,flags);
+
+    if (flags & _LETIMER_IF_UF_MASK) {
         Scheduler_SetEvent_LETIMER0_UF();
     }
-    else if (interrupt_flags & _LETIMER_IF_COMP1_MASK) {
+    else if (flags & _LETIMER_IF_COMP1_MASK) {
         Scheduler_SetEvent_LETIMER0_COMP1();
     }
 }

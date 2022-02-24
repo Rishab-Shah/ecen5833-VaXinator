@@ -61,6 +61,7 @@
 #include "src/pulse_oxymeter.h"
 #include "src/scheduler.h"
 #include "em_cmu.h"
+#include "src/bno055.h"
 
 #define EM0                           (0)
 #define EM1                           (1)
@@ -68,7 +69,7 @@
 #define EM3                           (3)
 
 
-#define LOWEST_ENERGY_LEVEL           (EM3)
+#define LOWEST_ENERGY_LEVEL           (EM0)
 
 #define LFXO_FREQ                     (32768)
 #define ULFRCO_FREQ                   (1000)

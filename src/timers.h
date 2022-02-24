@@ -15,8 +15,7 @@
 #define VALUE_TO_LOAD_FOR_PERIOD    (((LETIMER_PERIOD_MS)*(ACTUAL_CLK_FREQ))/(1000))
 #define CLK_FREQ_TO_PERIOD_MAPPING  (VALUE_TO_LOAD_FOR_PERIOD/LETIMER_PERIOD_MS)
 
-#define LETIMER_PERIOD_MS           (1500)
-#define LED_ON_MS                   (175)
+#define LETIMER_PERIOD_MS           (3000)
 
 
 /*
