@@ -144,7 +144,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     // sequence through states driven by events
 #if DEVICE_IS_BLE_SERVER
-    init_bno055_machine(evt);
+    //init_bno055_machine(evt);
+    init_bme280_machine(evt);
 #else
     BleClient_DiscoveryStateMachine(evt);
 #endif
