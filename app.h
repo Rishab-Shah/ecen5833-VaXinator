@@ -63,6 +63,7 @@
 #include "em_cmu.h"
 #include "src/bno055.h"
 #include "src/bme280.h"
+#include "src/uart.h"
 
 #define EM0                           (0)
 #define EM1                           (1)
