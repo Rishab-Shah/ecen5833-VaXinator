@@ -63,7 +63,9 @@
 #include "em_cmu.h"
 #include "src/bno055.h"
 #include "src/bme280.h"
-#include "src/uart.h"
+#include "src/leuart.h"
+#include "src/spi.h"
+#include "sl_uartdrv_instances.h"
 
 #define EM0                           (0)
 #define EM1                           (1)

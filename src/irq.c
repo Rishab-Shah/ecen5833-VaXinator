@@ -12,11 +12,13 @@
 
 uint32_t g_systickCounter = 0;
 
+extern LDMA_Descriptor_t ldmaTXDescriptor;
+extern LDMA_TransferCfg_t ldmaTXConfig;
+
+extern LDMA_Descriptor_t ldmaRXDescriptor;
+extern LDMA_TransferCfg_t ldmaRXConfig;
 
 void LETIMER0_IRQHandler(void) {
-    //uint32_t interrupt_flags = LETIMER0->IF;
-    //LETIMER0->IFC = 0x1F;
-
     uint32_t flags;
 
     //determine pending interrupts
@@ -48,7 +50,54 @@ void I2C0_IRQHandler(void) {
     }
 }
 
+extern uint8_t rx_dma_channel;
+extern uint8_t tx_dma_channel;
 
+uint8_t counter_rx = 0;
+uint8_t counter_tx = 0;
+
+void LDMA_IRQHandler()
+{
+  uint32_t flags = LDMA_IntGet();
+
+  if(flags & (1 << rx_dma_channel))
+  {
+      //LDMA_StartTransfer(RX_DMA_CHANNEL, &ldmaRXConfig, &ldmaRXDescriptor);
+      Scheduler_SetEvent_SPI_RX();
+      counter_rx++;
+      if(counter_rx == 1)
+      {
+          GPIO_PinOutSet(SL_SPIDRV_FLASH_MEM_CS_PORT,SL_SPIDRV_FLASH_MEM_CS_PIN);
+          LDMA_StopTransfer(tx_dma_channel);
+          LDMA_StopTransfer(rx_dma_channel);
+          counter_rx = 0;
+      }
+
+      LDMA_IntClear(1 << rx_dma_channel);
+  }
+  else
+  {
+      counter_tx++;
+      Scheduler_SetEvent_SPI_TX();
+#if 1
+      if(counter_tx == 1)
+      {
+          LDMA_StartTransfer(tx_dma_channel, &ldmaTXConfig, &ldmaTXDescriptor);
+          LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
+          counter_tx = 0;
+      }
+      else
+      {
+
+      }
+#endif
+      LDMA_IntClear(1 << tx_dma_channel);
+
+  }
+}
+
+
+#if 0
 void GPIO_EVEN_IRQHandler(void) {
     uint32_t interrupt_flags = GPIO_IntGet();
     GPIO->IFC = 0xFFFF;
@@ -83,7 +132,7 @@ void GPIO_ODD_IRQHandler(void) {
         pressed ^= 1;
     }
 }
-
+#endif
 
 uint32_t letimerMilliseconds()
 {

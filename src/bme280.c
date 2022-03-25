@@ -17,7 +17,7 @@
  Macros
 *******************************************************************************/
 #define ERROR                   (-1)
-#define DEBUG_1                 (0)
+#define DEBUG_1                 (1)
 /*******************************************************************************
  Global
 *******************************************************************************/
@@ -30,6 +30,7 @@
  Function Definition
 *******************************************************************************/
 bool BME280_VerifyIdentity(uint8_t* rd_buff);
+void BME280_write(uint8_t reg, uint8_t byte_val);
 
 uint8_t bme280_wr_buff[8] = { 0 };
 uint8_t bme280_rd_buff[8] = { 0 };
@@ -55,8 +56,13 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_UF)
       {
+          LOG_INFO("BME280_ADD_VERIFN\r");
+         initTransferLDMA();
+          //spi_init();
 #if DEBUG_1
+        int q = 3;
         LOG_INFO("BME280_ADD_VERIFN\r");
+        displayPrintf(DISPLAY_ROW_X, "BME280_ADD_VERIFN");
 #endif
         address_verification = false;
         address_verification = BME280_VerifyIdentity(&bme280_rd_buff[0]);

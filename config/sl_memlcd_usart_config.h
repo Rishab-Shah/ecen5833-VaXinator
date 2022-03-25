@@ -7,15 +7,15 @@
 #define SL_MEMLCD_SPI_PERIPHERAL                 USART1
 #define SL_MEMLCD_SPI_PERIPHERAL_NO              1
 
-// USART1 TX on PC6
-#define SL_MEMLCD_SPI_TX_PORT                    gpioPortC
-#define SL_MEMLCD_SPI_TX_PIN                     6
-#define SL_MEMLCD_SPI_TX_LOC                     11
+// USART1 TX on PF5
+#define SL_MEMLCD_SPI_TX_PORT                    gpioPortF
+#define SL_MEMLCD_SPI_TX_PIN                     5
+#define SL_MEMLCD_SPI_TX_LOC                     29
 
-// USART1 CLK on PC8
-#define SL_MEMLCD_SPI_CLK_PORT                   gpioPortC
-#define SL_MEMLCD_SPI_CLK_PIN                    8
-#define SL_MEMLCD_SPI_CLK_LOC                    11
+// USART1 CLK on PF4
+#define SL_MEMLCD_SPI_CLK_PORT                   gpioPortF
+#define SL_MEMLCD_SPI_CLK_PIN                    4
+#define SL_MEMLCD_SPI_CLK_LOC                    26
 // [USART_SL_MEMLCD_SPI]$
 
 // <gpio> SL_MEMLCD_SPI_CS

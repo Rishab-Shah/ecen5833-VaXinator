@@ -106,7 +106,9 @@ typedef enum {
     ev_PB0_RELEASED = 5,
     ev_PB1_PRESSED = 6,
     ev_PB1_RELEASED = 7,
-    ev_SHUTDOWN = 8
+    ev_SHUTDOWN = 8,
+    ev_SPI_TX = 9,
+    ev_SPI_RX = 10
 } ble_ext_signal_event_t;
 
 

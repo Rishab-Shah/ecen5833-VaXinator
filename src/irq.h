@@ -14,7 +14,7 @@
 #include "timers.h"
 #include "gpio.h"
 #include "scheduler.h"
-
+#include "spi.h"
 /*
  * LETIMER0 ISR
  *

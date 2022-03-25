@@ -202,6 +202,45 @@
           </folder>
         </folder>
       </folder>
+      <folder name="emdrv">
+        <folder name="dmadrv">
+          <folder name="src">
+            <file name="dmadrv.c" linked="false" uri="studio:/sdk/platform/emdrv/dmadrv/src/dmadrv.c"/>
+          </folder>
+          <folder name="inc">
+            <file name="dmadrv.h" linked="false" uri="studio:/sdk/platform/emdrv/dmadrv/inc/dmadrv.h"/>
+          </folder>
+        </folder>
+        <folder name="common">
+          <folder name="inc">
+            <file name="ecode.h" linked="false" uri="studio:/sdk/platform/emdrv/common/inc/ecode.h"/>
+          </folder>
+        </folder>
+        <folder name="gpiointerrupt">
+          <folder name="src">
+            <file name="gpiointerrupt.c" linked="false" uri="studio:/sdk/platform/emdrv/gpiointerrupt/src/gpiointerrupt.c"/>
+          </folder>
+          <folder name="inc">
+            <file name="gpiointerrupt.h" linked="false" uri="studio:/sdk/platform/emdrv/gpiointerrupt/inc/gpiointerrupt.h"/>
+          </folder>
+        </folder>
+        <folder name="spidrv">
+          <folder name="src">
+            <file name="spidrv.c" linked="false" uri="studio:/sdk/platform/emdrv/spidrv/src/spidrv.c"/>
+          </folder>
+          <folder name="inc">
+            <file name="spidrv.h" linked="false" uri="studio:/sdk/platform/emdrv/spidrv/inc/spidrv.h"/>
+          </folder>
+        </folder>
+        <folder name="uartdrv">
+          <folder name="src">
+            <file name="uartdrv.c" linked="false" uri="studio:/sdk/platform/emdrv/uartdrv/src/uartdrv.c"/>
+          </folder>
+          <folder name="inc">
+            <file name="uartdrv.h" linked="false" uri="studio:/sdk/platform/emdrv/uartdrv/inc/uartdrv.h"/>
+          </folder>
+        </folder>
+      </folder>
       <folder name="middleware">
         <folder name="glib">
           <folder name="dmd">
@@ -247,7 +286,9 @@
           <file name="em_emu.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_emu.h"/>
           <file name="em_gpio.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_gpio.h"/>
           <file name="em_i2c.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_i2c.h"/>
+          <file name="em_ldma.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_ldma.h"/>
           <file name="em_letimer.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_letimer.h"/>
+          <file name="em_leuart.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_leuart.h"/>
           <file name="em_msc.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_msc.h"/>
           <file name="em_msc_compat.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_msc_compat.h"/>
           <file name="em_prs.h" linked="false" uri="studio:/sdk/platform/emlib/inc/em_prs.h"/>
@@ -263,7 +304,9 @@
           <file name="em_emu.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_emu.c"/>
           <file name="em_gpio.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_gpio.c"/>
           <file name="em_i2c.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_i2c.c"/>
+          <file name="em_ldma.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_ldma.c"/>
           <file name="em_letimer.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_letimer.c"/>
+          <file name="em_leuart.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_leuart.c"/>
           <file name="em_msc.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_msc.c"/>
           <file name="em_prs.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_prs.c"/>
           <file name="em_rtcc.c" linked="false" uri="studio:/sdk/platform/emlib/src/em_rtcc.c"/>
@@ -655,10 +698,13 @@
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/bootloader/api"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/CMSIS/Include"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/service/device_init/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/dmadrv/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/middleware/glib/dmd"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/middleware/glib"/>
+  <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/common/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emlib/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/middleware/glib/glib"/>
+  <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/gpiointerrupt/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/driver/i2cspm/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/service/iostream/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/hardware/driver/memlcd/src/ls013b7dh03"/>
@@ -688,6 +734,8 @@
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/service/system/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/service/sleeptimer/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/util/third_party/crypto/sl_component/sl_protocol_crypto/src"/>
+  <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/spidrv/inc"/>
+  <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/uartdrv/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/service/udelay/inc"/>
   <macroDefinition name="EFR32BG13P632F512GM48"/>
   <macroDefinition name="SL_COMPONENT_CATALOG_PRESENT"/>

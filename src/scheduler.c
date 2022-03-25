@@ -83,6 +83,22 @@ void Scheduler_SetEvent_PB1_RELEASED(void) {
     CORE_EXIT_CRITICAL();
 }
 
+void Scheduler_SetEvent_SPI_TX(void) {
+    CORE_DECLARE_IRQ_STATE;
+
+    CORE_ENTER_CRITICAL();
+    sl_bt_external_signal(ev_SPI_TX);
+    CORE_EXIT_CRITICAL();
+}
+
+void Scheduler_SetEvent_SPI_RX(void) {
+    CORE_DECLARE_IRQ_STATE;
+
+    CORE_ENTER_CRITICAL();
+    sl_bt_external_signal(ev_SPI_RX);
+    CORE_EXIT_CRITICAL();
+}
+
 /************************************************/
 /***************Client Functions*****************/
 /************************************************/
@@ -124,6 +140,7 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
     }
 }
 
+#if 0
 void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {
     disc_fsm_state_t current_state;
     static disc_fsm_state_t next_state = SCANNING;
@@ -282,5 +299,5 @@ void BleClient_RestartScanning(void) {
         LOG_ERROR("sl_bt_scanner_start: %x\r", ble_status);
     }
 }
-
+#endif
 

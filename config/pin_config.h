@@ -58,6 +58,16 @@
 // [LETIMER0]$
 
 // $[LEUART0]
+// LEUART0 RX on PD10
+#define LEUART0_RX_PORT                          gpioPortD
+#define LEUART0_RX_PIN                           10
+#define LEUART0_RX_LOC                           17
+
+// LEUART0 TX on PD11
+#define LEUART0_TX_PORT                          gpioPortD
+#define LEUART0_TX_PIN                           11
+#define LEUART0_TX_LOC                           19
+
 // [LEUART0]$
 
 // $[LFXO]
@@ -135,15 +145,25 @@
 // [USART0]$
 
 // $[USART1]
-// USART1 CLK on PC8
-#define USART1_CLK_PORT                          gpioPortC
-#define USART1_CLK_PIN                           8
-#define USART1_CLK_LOC                           11
+// USART1 CLK on PF4
+#define USART1_CLK_PORT                          gpioPortF
+#define USART1_CLK_PIN                           4
+#define USART1_CLK_LOC                           26
 
-// USART1 TX on PC6
-#define USART1_TX_PORT                           gpioPortC
-#define USART1_TX_PIN                            6
-#define USART1_TX_LOC                            11
+// USART1 CS on PF7
+#define USART1_CS_PORT                           gpioPortF
+#define USART1_CS_PIN                            7
+#define USART1_CS_LOC                            28
+
+// USART1 RX on PF6
+#define USART1_RX_PORT                           gpioPortF
+#define USART1_RX_PIN                            6
+#define USART1_RX_LOC                            29
+
+// USART1 TX on PF5
+#define USART1_TX_PORT                           gpioPortF
+#define USART1_TX_PIN                            5
+#define USART1_TX_LOC                            29
 
 // [USART1]$
 

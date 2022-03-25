@@ -115,6 +115,25 @@ void Scheduler_SetEvent_PB1_PRESSED(void);
 void Scheduler_SetEvent_PB1_RELEASED(void);
 
 
+/*
+ * Sets SPI_TX event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void Scheduler_SetEvent_SPI_TX(void);
+
+
+/*
+ * Sets SPI_RX event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void Scheduler_SetEvent_SPI_RX(void);
+
 /************************************************/
 /***************Server Functions*****************/
 /************************************************/
@@ -134,7 +153,7 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 /***************Client Functions*****************/
 /************************************************/
 
-
+#if 0
 /*
  * Discovery state machine driven by BLE Client events
  *
@@ -143,7 +162,7 @@ void ActivityMonitoringSystem_StateMachine(sl_bt_msg_t* event);
  * @return None
  */
 void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event);
-
+#endif
 
 /*
  * Requests health service info from the server

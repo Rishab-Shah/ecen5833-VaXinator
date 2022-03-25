@@ -321,6 +321,9 @@ BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
           z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
 
           LOG_INFO("X= %d::Y=%d::Z=%d\r",x,y,z);
+          displayPrintf(DISPLAY_ROW_X, "X = %d mg", x);
+          displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
+          displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
 
           ret_status = timerWaitUs_irq((500)*(1000));
           if(ret_status == -1)

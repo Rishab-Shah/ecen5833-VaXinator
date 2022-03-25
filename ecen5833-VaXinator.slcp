@@ -37,6 +37,9 @@ component:
 - {id: bluetooth_feature_advertiser}
 - instance: [vcom]
   id: iostream_usart
+- {id: spidrv_core}
+- instance: [vcom2]
+  id: uartdrv_leuart
 - {id: bluetooth_feature_system}
 - {id: bluetooth_feature_scanner}
 - {id: emlib_letimer}
@@ -44,6 +47,8 @@ component:
   id: i2cspm
 - {id: component_catalog}
 - {id: ota_dfu}
+- instance: [FLASH_MEM]
+  id: spidrv
 - {id: bootloader_interface}
 - {id: app_assert}
 - {id: brd4104a}

@@ -100,6 +100,10 @@ SL_WEAK void app_init(void)
     PB1_Init();
     I2C0_Init();
     //LEUART0_Init();
+    //sl_uartdrv_init_instances();
+
+
+    LOG_INFO("Hey print - after spi\r");
 }
 
 /**************************************************************************//**
@@ -132,6 +136,7 @@ SL_WEAK void app_process_action(void)
 void sl_bt_on_event(sl_bt_msg_t *evt)
 {
 
+
     // Just a trick to hide a compiler warning about unused input parameter evt.
     // We will add real functionality here later.
     //if (evt->header) {
@@ -142,13 +147,22 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // and don’t necessarily advance our state machines.
     // For assignment 5 uncomment the next 2 function calls
     handle_ble_event(evt); // put this code in ble.c/.h
-
+#if 0
+    uint8_t databuf[200] = {0};
+    UARTDRV_ForceReceive(sl_uartdrv_get_default(), databuf, 200);
+    LOG_INFO("GPS - %s\r\n", databuf);
+    UARTDRV_ReceiveB(sl_uartdrv_get_default(), databuf, 200);
+    LOG_INFO("GPS - %s\r\n", databuf);
+#endif
     // sequence through states driven by events
 #if DEVICE_IS_BLE_SERVER
     //init_bno055_machine(evt);
-    init_bme280_machine(evt);
+    //LOG_INFO("Hey print\r");
+    //init_bme280_machine(evt);
+    init_flash_setup(evt);
+
 #else
-    BleClient_DiscoveryStateMachine(evt);
+    //BleClient_DiscoveryStateMachine(evt);
 #endif
 
 
