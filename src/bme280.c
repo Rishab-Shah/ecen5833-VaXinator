@@ -35,6 +35,14 @@ void BME280_write(uint8_t reg, uint8_t byte_val);
 uint8_t bme280_wr_buff[8] = { 0 };
 uint8_t bme280_rd_buff[8] = { 0 };
 
+typedef struct
+{
+  uint16_t dig_T1;
+  int16_t dig_T2;
+  int16_t dig_T3;
+}factory_coeff;
+
+factory_coeff fc;
 BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
 {
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
@@ -56,13 +64,8 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_UF)
       {
-          LOG_INFO("BME280_ADD_VERIFN\r");
-         initTransferLDMA();
-          //spi_init();
 #if DEBUG_1
-        int q = 3;
-        LOG_INFO("BME280_ADD_VERIFN\r");
-        displayPrintf(DISPLAY_ROW_X, "BME280_ADD_VERIFN");
+        //LOG_INFO("BME280_ADD_VERIFN\r");
 #endif
         address_verification = false;
         address_verification = BME280_VerifyIdentity(&bme280_rd_buff[0]);
@@ -80,7 +83,7 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
     case BME280_REG_SOFTRESET:
     {
 #if DEBUG_1
-      LOG_INFO("BME280_REG_SOFTRESET\r");
+      //LOG_INFO("BME280_REG_SOFTRESET\r");
 #endif
       BME280_write(BME280_REGISTER_SOFTRESET,0xB6);
       nextState = BME280_REG_SOFTRESET_DELAY_1;
@@ -110,11 +113,79 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
 #if DEBUG_1
           LOG_INFO("BME280_READ_CALIB\r");
 #endif
-         // BME280_read(BNO055_SYS_TRIGGER_ADDR,0x20);
-          nextState = BME280_ADD_VERIFN;
+          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+          bme280_wr_buff[0] = BME280_REGISTER_STATUS;
+          I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 1);
+          nextState = BME280_READ_CALIB_DELAY_2;
       }
       break;
     }
+    case BME280_READ_CALIB_DELAY_2:
+    {
+      if(event == ev_I2C0_TRANSFER_DONE)
+      {
+#if DEBUG_1
+          LOG_INFO("BME280_READ_CALIB_DELAY_2\r");
+#endif
+#if 1
+          if((bme280_rd_buff[0] & (1<<0)) != 0)
+          {
+              ret_status = timerWaitUs_irq(STD_DELAY);
+              if(ret_status == ERROR)
+              {
+                  LOG_ERROR("The value is more than the routine can provide\r");
+              }
+              else
+              {
+                  nextState = BME280_READ_CALIB;
+              }
+          }
+          else
+          {
+              //go to next state
+              nextState = BME280_READ_COEFF_TEMP_1;
+          }
+#endif
+      }
+      break;
+    }
+    case BME280_READ_COEFF_TEMP_1:
+    {
+        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+        bme280_wr_buff[0] = BME280_REGISTER_DIG_T1;
+        I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 2);
+        nextState = BME280_READ_COEFF_TEMP_2;
+        break;
+    }
+    case BME280_READ_COEFF_TEMP_2:
+    {
+      if(event == ev_I2C0_TRANSFER_DONE)
+      {
+          fc.dig_T1 = bme280_rd_buff[0];
+
+          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+          bme280_wr_buff[0] = BME280_REGISTER_DIG_T2;
+          I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 2);
+          nextState = BME280_READ_COEFF_TEMP_3;
+      }
+
+      break;
+    }
+    case BME280_READ_COEFF_TEMP_3:
+    {
+      if(event == ev_I2C0_TRANSFER_DONE)
+      {
+          fc.dig_T2 = bme280_rd_buff[0];
+
+          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+          bme280_wr_buff[0] = BME280_REGISTER_DIG_T2;
+          I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 2);
+          nextState = BME280_READ_COEFF_TEMP_3;
+      }
+      break;
+    }
+
+
 #if 0
     case BNO055_RESET_DELAY_2:
     {

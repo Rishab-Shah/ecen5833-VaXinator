@@ -158,8 +158,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #if DEVICE_IS_BLE_SERVER
     //init_bno055_machine(evt);
     //LOG_INFO("Hey print\r");
-    //init_bme280_machine(evt);
-    init_flash_setup(evt);
+    init_bme280_machine(evt);
+    //init_flash_setup(evt);
 
 #else
     //BleClient_DiscoveryStateMachine(evt);
