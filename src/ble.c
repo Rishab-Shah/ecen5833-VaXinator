@@ -550,6 +550,7 @@ void BleServer_HandleBootEvent(void) {
         LOG_ERROR("sl_system_set_soft_timer: %x\r", ble_status);
     }
 
+#if 0
     displayInit();
 
     displayPrintf(DISPLAY_ROW_NAME, BLE_DEVICE_TYPE_STRING);
@@ -559,6 +560,7 @@ void BleServer_HandleBootEvent(void) {
                   ble_data.serverAddress.addr[4], ble_data.serverAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
     displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
+#endif
 }
 
 void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
@@ -587,8 +589,9 @@ void BleServer_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_connection_set_parameters: %x\r", ble_status);
     }
-
+#if DISP
     displayPrintf(DISPLAY_ROW_CONNECTION, "Connected");
+#endif
 }
 
 void BleServer_HandleConnectionClosedEvent(void) {
@@ -600,6 +603,7 @@ void BleServer_HandleConnectionClosedEvent(void) {
     ble_data.s_IndicationInFlight = false;
     ble_data.s_Bonded = false;
     ble_data.s_HealthIndicating = false;
+    //ble_data.s_TempHumIndicating = false;
     ble_data.s_AccelIndication = false;
 
     IndicationQ_Reset();
@@ -614,9 +618,9 @@ void BleServer_HandleConnectionClosedEvent(void) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_advertiser_start: %x\r", ble_status);
     }
-
+#if DISP
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
-
+#endif
     gpioLed0SetOff();
     gpioLed1SetOff();
 
@@ -730,15 +734,20 @@ void BleClient_HandleBondingConfirmEvent(void) {
 }
 
 void BleServer_HandlePasskeyConfirmEvent(sl_bt_msg_t* event) {
+#if DISP
     displayPrintf(DISPLAY_ROW_PASSKEY, "%d", event->data.evt_sm_confirm_passkey.passkey);
     displayPrintf(DISPLAY_ROW_ACTION, "Confirm with PB0");
+#endif
 }
 
 void BleServer_HandleBondedEvent(void) {
+#if DISP
     displayPrintf(DISPLAY_ROW_CONNECTION, "Bonded");
     displayPrintf(DISPLAY_ROW_PASSKEY, "");
     displayPrintf(DISPLAY_ROW_ACTION, "");
+#endif
     ble_data.s_Bonded = true;
+
     gpioLed0SetOff();
     gpioLed1SetOff();
 }
@@ -829,7 +838,7 @@ void BleClient_HandleBootEvent(void) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_scanner_start: %x\r", ble_status);
     }
-
+#if DISP
     displayInit();
 
     displayPrintf(DISPLAY_ROW_NAME, BLE_DEVICE_TYPE_STRING);
@@ -839,7 +848,7 @@ void BleClient_HandleBootEvent(void) {
                   ble_data.c_DeviceAddress.addr[4], ble_data.c_DeviceAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
     displayPrintf(DISPLAY_ROW_ASSIGNMENT, "IoT Project");
-
+#endif
     //health service
     memcpy(ble_data.s_HealthService,health_service,HEALTH_SIZE*sizeof(ble_data.s_HealthService[0]));
     memcpy(ble_data.s_HealthChar,health_char,HEALTH_SIZE*sizeof(ble_data.s_HealthChar[0]));
@@ -876,12 +885,13 @@ void BleClient_HandleScanReportEvent(sl_bt_msg_t* event) {
 void BleClient_HandleConnectionOpenedEvent(sl_bt_msg_t* event) {
     ble_data.c_ConnectionHandle = event->data.evt_connection_opened.connection;
     ble_data.c_Connected = true;
-
+#if DISP
     displayPrintf(DISPLAY_ROW_BTADDR2, "%02X:%02X:%02X:%02X:%02X:%02X",
                   ble_data.serverAddress.addr[0], ble_data.serverAddress.addr[1],
                   ble_data.serverAddress.addr[2], ble_data.serverAddress.addr[3],
                   ble_data.serverAddress.addr[4], ble_data.serverAddress.addr[5]);
     displayPrintf(DISPLAY_ROW_CONNECTION, "Connected");
+#endif
 }
 
 void BleClient_HandleConnectionClosedEvent(void) {
@@ -894,6 +904,7 @@ void BleClient_HandleConnectionClosedEvent(void) {
         LOG_ERROR("sl_bt_sm_delete_bondings: %x\r", ble_status);
     }
 
+#if DISP
     displayPrintf(DISPLAY_ROW_BTADDR2, "");
     displayPrintf(DISPLAY_ROW_CONNECTION, "Discovering");
     displayPrintf(DISPLAY_ROW_X, "");
@@ -901,6 +912,7 @@ void BleClient_HandleConnectionClosedEvent(void) {
     displayPrintf(DISPLAY_ROW_Z, "");
     displayPrintf(DISPLAY_ROW_HEARTBEAT, "");
     displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "");
+#endif
 
     gpioLed0SetOff();
     gpioLed1SetOff();
@@ -961,7 +973,7 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
         ble_data.c_HealthCharValue = &(event->data.evt_gatt_characteristic_value.value.data[0]);
         ble_data.c_HealthValue = ble_data.c_HealthCharValue[0];
         LOG_INFO("heartbeat_value = %d\r",ble_data.c_HealthValue);
-        displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",ble_data.c_HealthValue);
+        //displayPrintf(DISPLAY_ROW_HEARTBEAT, "HeartBeat = %d",ble_data.c_HealthValue);
 
         sc = sl_bt_gatt_send_characteristic_confirmation(event->data.evt_gatt_characteristic_value.connection);
         if(sc != SL_STATUS_OK)
@@ -987,48 +999,48 @@ void BleClient_HandleGattCharacteristicValueEvent(sl_bt_msg_t* event) {
         y = y >> 4;
         z = z >> 4;
 
-        displayPrintf(DISPLAY_ROW_X, "X = %d mg", x);
-        displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
-        displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
+        //displayPrintf(DISPLAY_ROW_X, "X = %d mg", x);
+        //displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
+        //displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
 
         if (ble_data.c_HealthValue == 0) {
-            displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Reading Heartbeat...");
+            //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Reading Heartbeat...");
         }
         else if (ble_data.c_HealthValue < 80) {
             if ((ble_data.c_AccelX == 0) && (ble_data.c_AccelY == 0) && (ble_data.c_AccelZ == 0)) {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Relaxed State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Relaxed State");
             }
             else if (((x > ble_data.c_AccelX - 10) && (x < ble_data.c_AccelX + 10)) && ((y > ble_data.c_AccelY - 10) && (y < ble_data.c_AccelY + 10)) && ((z > ble_data.c_AccelZ - 10) && (z < ble_data.c_AccelZ + 10))) {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Relaxed State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Relaxed State");
             }
             else {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
             }
         }
         else if (ble_data.c_HealthValue >= 80 && ble_data.c_HealthValue < 90) {
             if ((ble_data.c_AccelX == 0) && (ble_data.c_AccelY == 0) && (ble_data.c_AccelZ == 0)) {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
             }
             else if (((x > ble_data.c_AccelX - 10) && (x < ble_data.c_AccelX + 10)) && ((y > ble_data.c_AccelY - 10) && (y < ble_data.c_AccelY + 10)) && ((z > ble_data.c_AccelZ - 10) && (z < ble_data.c_AccelZ + 10))) {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Low Activity State");
             }
             else {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
             }
         }
         else if (ble_data.c_HealthValue >= 90 && ble_data.c_HealthValue < 100) {
             if ((ble_data.c_AccelX == 0) && (ble_data.c_AccelY == 0) && (ble_data.c_AccelZ == 0)) {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
             }
             else if (((x > ble_data.c_AccelX - 10) && (x < ble_data.c_AccelX + 10)) && ((y > ble_data.c_AccelY - 10) && (y < ble_data.c_AccelY + 10)) && ((z > ble_data.c_AccelZ - 10) && (z < ble_data.c_AccelZ + 10))) {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "Mid Activity State");
             }
             else {
-                displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "High Activity State");
+                //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "High Activity State");
             }
         }
         else if (ble_data.c_HealthValue >= 100) {
-            displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "High Activity State");
+            //displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "High Activity State");
         }
 
         ble_data.c_AccelX = x;
@@ -1062,15 +1074,19 @@ void BleClient_HandleExternalSignalEvent(sl_bt_msg_t* event) {
 }
 
 void BleClient_HandlePasskeyConfirmEvent(sl_bt_msg_t* event) {
+#if DISP
     displayPrintf(DISPLAY_ROW_PASSKEY, "%d", event->data.evt_sm_confirm_passkey.passkey);
     displayPrintf(DISPLAY_ROW_ACTION, "Confirm with PB0");
+#endif
 }
 
 
 void BleClient_HandleBondedEvent(void) {
+#if DISP
     displayPrintf(DISPLAY_ROW_CONNECTION, "Bonded");
     displayPrintf(DISPLAY_ROW_PASSKEY, "");
     displayPrintf(DISPLAY_ROW_ACTION, "");
+#endif
     ble_data.c_Bonded = true;
     gpioLed0SetOff();
     gpioLed1SetOff();

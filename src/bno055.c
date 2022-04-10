@@ -38,6 +38,7 @@ uint8_t bno055_rd_buff[8] = { 0 };
 
 BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
 {
+  ble_data_struct_t* ble_data = BLE_GetDataStruct();
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
   /* return state logic */
   BNO055_state_t return_state = BNO055_DEFAULT;
@@ -336,9 +337,15 @@ BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
           z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
 
           LOG_INFO("X= %d::Y=%d::Z=%d\r",x,y,z);
-          displayPrintf(DISPLAY_ROW_X, "X = %d mg", x);
-          displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
-          displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
+
+          if (ble_data->s_AccelIndication && ble_data->s_ClientConnected)
+          {
+              LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
+              BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
+          }
+          //displayPrintf(DISPLAY_ROW_X, "X = %d mg", x);
+          //displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
+          //displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
 
           ret_status = timerWaitUs_irq((500)*(1000));
           if(ret_status == -1)
