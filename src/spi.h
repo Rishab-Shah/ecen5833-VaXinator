@@ -27,7 +27,9 @@ typedef enum
 {
   FLASH_ADD_VERIFN,
 
+  FLASH_READ_STATUS_REGISTER,
   FLASH_SETMODE,
+  FLASH_SETMODE_2,
 #if 0
   BNO055_SETMODE_DELAY_1,
 
@@ -56,7 +58,7 @@ typedef enum
 }FLASH_state_t;
 
 
-FLASH_state_t init_flash_machine(sl_bt_msg_t *evt);
+
 
 #include "sl_status.h"
 #include "em_usart.h"
@@ -88,8 +90,25 @@ FLASH_state_t init_flash_machine(sl_bt_msg_t *evt);
 #define RX_DMA_CHANNEL                           (0)
 #define TX_DMA_CHANNEL                           (1)
 
+
+#define SEND_AS_DATA          (0)
+#define SEND_AS_ADDRESS       (1)
+
+
+//FLASH_state_t init_flash_machine(sl_bt_msg_t *evt);
+FLASH_state_t init_flash_setup(sl_bt_msg_t *evt);
+
 void flash_spi_init();
+void flash_spi_usart_configuration();
+void trigger_CE_high_to_low_transition();
+void trigger_CE_low_to_high_transition();
 
+void update_write_params(uint8_t command, uint16_t write_count,
+                         uint8_t tempbuffer[],uint8_t data_or_address);
 
+void update_read_params(uint16_t read_count);
+void start_ldma_transfer(uint8_t tx_rx_channel_selection);
+void stop_ldma_transfer(uint8_t tx_rx_channel_selection);
+void initTransferLDMA(void);
 
 #endif /* SRC_SPI_H_ */

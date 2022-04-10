@@ -56,6 +56,7 @@ extern uint8_t tx_dma_channel;
 uint8_t counter_rx = 0;
 uint8_t counter_tx = 0;
 
+#if 0
 void LDMA_IRQHandler()
 {
   uint32_t flags = LDMA_IntGet();
@@ -67,7 +68,8 @@ void LDMA_IRQHandler()
       counter_rx++;
       if(counter_rx == 1)
       {
-          GPIO_PinOutSet(SL_SPIDRV_FLASH_MEM_CS_PORT,SL_SPIDRV_FLASH_MEM_CS_PIN);
+          trigger_CE_low_to_high_transition();
+
           LDMA_StopTransfer(tx_dma_channel);
           LDMA_StopTransfer(rx_dma_channel);
           counter_rx = 0;
@@ -82,9 +84,10 @@ void LDMA_IRQHandler()
 #if 1
       if(counter_tx == 1)
       {
-          LDMA_StartTransfer(tx_dma_channel, &ldmaTXConfig, &ldmaTXDescriptor);
-          LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
+          //LDMA_StartTransfer(tx_dma_channel, &ldmaTXConfig, &ldmaTXDescriptor);
+          //LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
           counter_tx = 0;
+         // trigger_CE_low_to_high_transition();
       }
       else
       {
@@ -92,9 +95,32 @@ void LDMA_IRQHandler()
       }
 #endif
       LDMA_IntClear(1 << tx_dma_channel);
-
   }
 }
+#endif
+
+#if 1
+void LDMA_IRQHandler()
+{
+  uint32_t flags = LDMA_IntGet();
+
+  if(flags & (1 << rx_dma_channel))
+  {
+      LDMA_IntClear(1 << rx_dma_channel);
+      LDMA_StopTransfer(rx_dma_channel);
+      Scheduler_SetEvent_SPI_RX();
+  }
+  else
+  {
+      LDMA_IntClear(1 << tx_dma_channel);
+      LDMA_StopTransfer(tx_dma_channel);
+      Scheduler_SetEvent_SPI_TX();
+  }
+}
+#endif
+
+
+
 
 
 #if 0

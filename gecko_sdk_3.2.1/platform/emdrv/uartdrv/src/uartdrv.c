@@ -1627,10 +1627,10 @@ Ecode_t UARTDRV_InitLeuart(UARTDRV_Handle_t handle,
 #endif
 
   // Only try to use LF clock if LFXO or LFRCO is enabled and requested baudrate is low
-  if (CMU->STATUS & CMU_STATUS_LFXOENS
+  if ((CMU->STATUS & CMU_STATUS_LFXOENS)
       && (leuartInit.baudrate <= SystemLFXOClockGet())) {
     CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
-  } else if (CMU->STATUS & CMU_STATUS_LFRCOENS
+  } else if ((CMU->STATUS & CMU_STATUS_LFRCOENS)
              && (leuartInit.baudrate <= SystemLFRCOClockGet())) {
     CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);
   } else {

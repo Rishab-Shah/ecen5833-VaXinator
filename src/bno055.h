@@ -38,6 +38,8 @@
 #define STD_DELAY                   ((10)*(MSEC_TO_USEC))
 #define POST_RESET_STARTUP_DELAY    ((500)*(MSEC_TO_USEC))
 
+#define PSEUDO_TRIGGER              ((1)*(MSEC_TO_USEC))
+
 typedef enum
 {
   BNO055_ADD_VERIFN,
