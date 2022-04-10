@@ -83,11 +83,11 @@ BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
       ret_status = timerWaitUs_irq(PSEUDO_TRIGGER);
       if(ret_status == ERROR)
       {
-        LOG_ERROR("The value is more than the routine can provide\r");
+          LOG_ERROR("The value is more than the routine can provide\r");
       }
       else
       {
-        nextState = BNO055_SETMODE_DELAY_1;
+          nextState = BNO055_SETMODE_DELAY_1;
       }
       break;
     }
@@ -98,11 +98,11 @@ BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
         ret_status = timerWaitUs_irq(SETMODE_DELAY);
         if(ret_status == ERROR)
         {
-          LOG_ERROR("The value is more than the routine can provide\r");
+            LOG_ERROR("The value is more than the routine can provide\r");
         }
         else
         {
-          nextState = BNO055_RESET;
+            nextState = BNO055_RESET;
         }
       }
       break;
@@ -184,7 +184,6 @@ BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
        {
            nextState = BNO055_NORMAL_MODE_SET;
        }
-
       break;
     }
     case BNO055_NORMAL_MODE_SET:
@@ -368,16 +367,16 @@ BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
 
 void BNO055_write(uint8_t reg, uint8_t byte_val)
 {
-  bno055_wr_buff[0] = reg;
-  bno055_wr_buff[1] = byte_val;
-  I2C0_Write(BNO055_ADDRESS_A,&bno055_wr_buff[0],2);
+    bno055_wr_buff[0] = reg;
+    bno055_wr_buff[1] = byte_val;
+    I2C0_Write(BNO055_ADDRESS_A,&bno055_wr_buff[0],2);
 }
 
 void setMode(uint8_t set_mode)
 {
-  bno055_wr_buff[0] = BNO055_OPR_MODE_ADDR;
-  bno055_wr_buff[1] = set_mode;
-  I2C0_Write(BNO055_ADDRESS_A,&bno055_wr_buff[0],2);
+    bno055_wr_buff[0] = BNO055_OPR_MODE_ADDR;
+    bno055_wr_buff[1] = set_mode;
+    I2C0_Write(BNO055_ADDRESS_A,&bno055_wr_buff[0],2);
 }
 
 bool BNO055_VerifyIdentity(uint8_t* rd_buff)
