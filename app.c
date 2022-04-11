@@ -118,10 +118,13 @@ SL_WEAK void app_process_action(void)
     //         later assignments.
 
 
+#if NO_BL
 
-    //event_t event = Scheduler_GetNextEvent();
-
-    //TemperatureStateMachine(event);
+#else
+  ble_ext_signal_event_t event = Scheduler_GetNextEvent();
+  init_bno055_machine(event);
+#endif
+  //TemperatureStateMachine(event);
 }
 
 /**************************************************************************//**
@@ -146,7 +149,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // Some events require responses from our application code,
     // and don’t necessarily advance our state machines.
     // For assignment 5 uncomment the next 2 function calls
-    handle_ble_event(evt); // put this code in ble.c/.h
+ // put this code in ble.c/.h
 #if 0
     uint8_t databuf[200] = {0};
     UARTDRV_ForceReceive(sl_uartdrv_get_default(), databuf, 200);
@@ -156,9 +159,14 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #endif
     // sequence through states driven by events
 #if DEVICE_IS_BLE_SERVER
-    init_bno055_machine(evt);
+#if NO_BL
+    handle_ble_event(evt);
+    //init_bno055_machine(evt);
     //init_bme280_machine(evt);
-    //init_flash_setup(evt);
+    init_flash_setup(evt);
+#else
+    //nothing to write
+#endif
 
 #else
     //BleClient_DiscoveryStateMachine(evt);

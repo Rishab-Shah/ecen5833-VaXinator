@@ -82,7 +82,6 @@ void readFillArray(uint8_t firstbyte, uint8_t secondbyte);
 /*******************************************************************************
  Global
 *******************************************************************************/
-uint8_t event_requested;
 uint8_t write_i2c0_buffer[8] = {0};
 uint8_t read_i2c0_buffer[10] = {0};
 

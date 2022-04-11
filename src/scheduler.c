@@ -9,17 +9,40 @@
 
 #define INCLUDE_LOG_DEBUG 0
 #include "src/log.h"
-
+uint32_t event_requested;
 /************************************************/
 /****************Event Handlers******************/
 /************************************************/
+uint32_t Scheduler_GetNextEvent()
+{
+  uint32_t theEvent = 0;
+
+  //Exit critical section
+  CORE_DECLARE_IRQ_STATE;
+
+  //Enter critical section
+  CORE_ENTER_CRITICAL();
+
+  theEvent = (uint32_t)event_requested;
+  event_requested = ev_NONE;
+
+  //Exit critical section
+  CORE_EXIT_CRITICAL();
+
+  return (theEvent);
+}
+
 void Scheduler_SetEvent_LETIMER0_UF(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_LETIMER0_UF);
     SysTick_IncrementCounter();
+#if NO_BL
     sl_bt_external_signal(ev_LETIMER0_UF);
+#else
+    event_requested = ev_LETIMER0_UF;
+#endif
     CORE_EXIT_CRITICAL();
 }
 
@@ -29,7 +52,11 @@ void Scheduler_SetEvent_LETIMER0_COMP1(void) {
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_LETIMER0_COMP1);
+#if NO_BL
     sl_bt_external_signal(ev_LETIMER0_COMP1);
+#else
+    event_requested = ev_LETIMER0_COMP1;
+#endif
     CORE_EXIT_CRITICAL();
 }
 
@@ -39,7 +66,11 @@ void Scheduler_SetEvent_I2C0_TRANSFER_DONE(void) {
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_I2C0_TRANSFER_DONE);
+#if NO_BL
     sl_bt_external_signal(ev_I2C0_TRANSFER_DONE);
+#else
+    event_requested = ev_I2C0_TRANSFER_DONE;
+#endif
     CORE_EXIT_CRITICAL();
 }
 
@@ -48,8 +79,12 @@ void Scheduler_SetEvent_PB0_PRESSED(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
+#if NO_BL
     //EventQ_EnqueueEvent(ev_PB0_PRESSED);
     sl_bt_external_signal(ev_PB0_PRESSED);
+#else
+    event_requested = ev_PB0_PRESSED;
+#endif
     CORE_EXIT_CRITICAL();
 }
 
@@ -59,7 +94,11 @@ void Scheduler_SetEvent_PB0_RELEASED(void) {
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_PB0_RELEASED);
+#if NO_BL
     sl_bt_external_signal(ev_PB0_RELEASED);
+#else
+    event_requested = ev_PB0_RELEASED;
+#endif
     CORE_EXIT_CRITICAL();
 }
 
@@ -69,7 +108,12 @@ void Scheduler_SetEvent_PB1_PRESSED(void) {
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_PB0_PRESSED);
+#if NO_BL
     sl_bt_external_signal(ev_PB1_PRESSED);
+#else
+    event_requested = ev_PB1_PRESSED;
+#endif
+
     CORE_EXIT_CRITICAL();
 }
 
@@ -79,7 +123,11 @@ void Scheduler_SetEvent_PB1_RELEASED(void) {
 
     CORE_ENTER_CRITICAL();
     //EventQ_EnqueueEvent(ev_PB0_RELEASED);
+#if NO_BL
     sl_bt_external_signal(ev_PB1_RELEASED);
+#else
+    event_requested = ev_PB1_RELEASED;
+#endif
     CORE_EXIT_CRITICAL();
 }
 
@@ -87,7 +135,12 @@ void Scheduler_SetEvent_SPI_TX(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
+#if NO_BL
     sl_bt_external_signal(ev_SPI_TX);
+#else
+    event_requested = ev_SPI_TX;
+#endif
+
     CORE_EXIT_CRITICAL();
 }
 
@@ -95,7 +148,12 @@ void Scheduler_SetEvent_SPI_RX(void) {
     CORE_DECLARE_IRQ_STATE;
 
     CORE_ENTER_CRITICAL();
+#if NO_BL
     sl_bt_external_signal(ev_SPI_RX);
+#else
+    event_requested = ev_SPI_RX;
+#endif
+
     CORE_EXIT_CRITICAL();
 }
 

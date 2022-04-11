@@ -17,6 +17,7 @@
 #include "gpio.h"
 #include "ble.h"
 #include "scheduler.h"
+#include "app.h"
 
 #define BNO055_ADDRESS_A        (0x28)
 #define BNO055_ID               (0xA0)
@@ -71,6 +72,9 @@ typedef enum
   BNO055_DEFAULT,
 }BNO055_state_t;
 
-
-BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt);
+#if NO_BL
+//BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt);
+#else
+//BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt);
+#endif
 #endif /* SRC_BNO055_H_ */
