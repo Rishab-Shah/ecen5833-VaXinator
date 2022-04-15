@@ -52,7 +52,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
   BNO055_state_t return_state = BNO055_DEFAULT;
   /* current machine logic */
   BNO055_state_t currentState;
-  static BNO055_state_t nextState = BNO055_ADD_VERIFN;
+  static BNO055_state_t nextState = BNO055_SETMODE;
   bool address_verification = false;
   int ret_status = 0;
 #if NO_BL
@@ -69,9 +69,30 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     {
       if(event == ev_LETIMER0_UF)
       {
+          LOG_INFO("BNO055_ADD_VERIFN\r");
 #if DEBUG_1
         LOG_INFO("BNO055_ADD_VERIFN\r");
 #endif
+#if 0
+        ret_status = timerWaitUs_irq(((1500)*(MSEC_TO_USEC)));
+        if(ret_status == ERROR)
+        {
+            LOG_ERROR("The value is more than the routine can provide\r");
+        }
+        else
+        {   gpioLed0SetOn();
+            nextState = BNO055_SETMODE;
+        }
+#endif
+#if 0
+        if (ble_data->s_AccelIndication && ble_data->s_ClientConnected)
+        {
+            bno055_rd_buff[0] = 0x01;
+            LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
+            BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
+        }
+#endif
+#if 1
         address_verification = false;
         address_verification = BNO055_VerifyIdentity(&bno055_rd_buff[0]);
         if(address_verification == true)
@@ -82,24 +103,39 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         {
             //Add a counter logic
         }
+#endif
       }
       break;
     }
     case BNO055_SETMODE:
     {
+#if 0
+      if(event == ev_LETIMER0_COMP1)
+      {
+          LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+          gpioLed0SetOff();
+          nextState = BNO055_ADD_VERIFN;
+      }
+#endif
+
 #if DEBUG_1
       LOG_INFO("BNO055_SETMODE\r");
 #endif
-      setMode(OPERATION_MODE_CONFIG);
-      ret_status = timerWaitUs_irq(PSEUDO_TRIGGER);
-      if(ret_status == ERROR)
+#if 1
+      if(event == ev_LETIMER0_UF)
       {
-          LOG_ERROR("The value is more than the routine can provide\r");
+        setMode(OPERATION_MODE_CONFIG);
+        ret_status = timerWaitUs_irq(PSEUDO_TRIGGER);
+        if(ret_status == ERROR)
+        {
+            LOG_ERROR("The value is more than the routine can provide\r");
+        }
+        else
+        {
+            nextState = BNO055_SETMODE_DELAY_1;
+        }
       }
-      else
-      {
-          nextState = BNO055_SETMODE_DELAY_1;
-      }
+#endif
       break;
     }
     case BNO055_SETMODE_DELAY_1:
@@ -317,6 +353,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     {
       if(event == ev_LETIMER0_COMP1)
       {
+          gpioLed0SetOn();
           LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
 #if DEBUG_1
           LOG_INFO("READ_XYZ_DATA\r");
@@ -336,6 +373,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     {
       if(event == ev_I2C0_TRANSFER_DONE)
       {
+          gpioLed0SetOff();
 #if POWER_MANAGEMENT
           //Enter EM2 mode
           sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
@@ -350,7 +388,6 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #if NO_BL
           if (ble_data->s_AccelIndication && ble_data->s_ClientConnected)
           {
-
               LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
               BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
           }
@@ -361,7 +398,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
           //displayPrintf(DISPLAY_ROW_Y, "Y = %d mg", y);
           //displayPrintf(DISPLAY_ROW_Z, "Z = %d mg", z);
 
-          ret_status = timerWaitUs_irq((500)*(1000));
+          ret_status = timerWaitUs_irq((1000)*(1000));
           if(ret_status == -1)
           {
               LOG_ERROR("The value is more than the routine can provide \r");

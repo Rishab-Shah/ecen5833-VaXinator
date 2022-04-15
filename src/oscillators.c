@@ -68,9 +68,3 @@ void Osc_InitLETIMER0(void) {
 
 #endif
 }
-
-void Osc_InitI2C0(void) {
-    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);
-    CMU_ClockDivSet(cmuClock_HFPER, cmuClkDiv_4);
-    CMU_OscillatorEnable(cmuOsc_HFRCO, true, true);
-}

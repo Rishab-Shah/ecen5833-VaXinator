@@ -14,11 +14,13 @@
 I2CSPM_Init_TypeDef i2c_init_struct = {
     .port = I2C0,
     .sclPort = gpioPortC,
-    .sclPin = 10,
+    //.sclPin = 10,//9,//10,
+    .sclPin = 9,
     .sdaPort = gpioPortC,
-    .sdaPin = 11,
-    .portLocationScl = 14,
-    .portLocationSda = 16,
+    //.sdaPin = 11,//8,//11,
+    .sdaPin = 8,
+    .portLocationScl = 13,//14,
+    .portLocationSda = 13,//16,
     .i2cRefFreq = 0,
     .i2cMaxFreq = I2C_FREQ_STANDARD_MAX,
     .i2cClhr = i2cClockHLRStandard

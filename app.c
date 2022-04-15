@@ -93,16 +93,17 @@ SL_WEAK void app_init(void)
 
     LETIMER0_Start();
 
+#if 1
     BLE_Init();
 
-    gpioInit();
-    PB0_Init();
-    PB1_Init();
+    //gpioInit();
+    //PB0_Init();
+    //PB1_Init();
     I2C0_Init();
     //LEUART0_Init();
     //sl_uartdrv_init_instances();
 
-
+#endif
     LOG_INFO("Hey print - after spi\r");
 }
 
@@ -123,6 +124,7 @@ SL_WEAK void app_process_action(void)
 #else
   ble_ext_signal_event_t event = Scheduler_GetNextEvent();
   init_bno055_machine(event);
+  LOG_INFO("START OF CODE\r");
 #endif
   //TemperatureStateMachine(event);
 }

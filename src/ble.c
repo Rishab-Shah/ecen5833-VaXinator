@@ -680,7 +680,7 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             {
                 /* app gave enable indication */
                 ble_data.s_HealthIndicating = true;
-                gpioLed1SetOn();
+                //gpioLed1SetOn();
             }
         }
         if(status_flags == sl_bt_gatt_server_confirmation)

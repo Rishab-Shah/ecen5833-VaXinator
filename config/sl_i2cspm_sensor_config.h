@@ -44,15 +44,15 @@
 #define SL_I2CSPM_SENSOR_PERIPHERAL              I2C0
 #define SL_I2CSPM_SENSOR_PERIPHERAL_NO           0
 
-// I2C0 SCL on PC10
+// I2C0 SCL on PC9
 #define SL_I2CSPM_SENSOR_SCL_PORT                gpioPortC
-#define SL_I2CSPM_SENSOR_SCL_PIN                 10
-#define SL_I2CSPM_SENSOR_SCL_LOC                 14
+#define SL_I2CSPM_SENSOR_SCL_PIN                 9
+#define SL_I2CSPM_SENSOR_SCL_LOC                 13
 
-// I2C0 SDA on PC11
+// I2C0 SDA on PC8
 #define SL_I2CSPM_SENSOR_SDA_PORT                gpioPortC
-#define SL_I2CSPM_SENSOR_SDA_PIN                 11
-#define SL_I2CSPM_SENSOR_SDA_LOC                 16
+#define SL_I2CSPM_SENSOR_SDA_PIN                 8
+#define SL_I2CSPM_SENSOR_SDA_LOC                 13
 // [I2C_SL_I2CSPM_SENSOR]$
 // <<< sl:end pin_tool >>>
 

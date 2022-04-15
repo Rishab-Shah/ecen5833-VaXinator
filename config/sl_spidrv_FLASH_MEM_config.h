@@ -67,25 +67,25 @@
 #define SL_SPIDRV_FLASH_MEM_PERIPHERAL           USART1
 #define SL_SPIDRV_FLASH_MEM_PERIPHERAL_NO        1
 
-// USART1 TX on PF5
-#define SL_SPIDRV_FLASH_MEM_TX_PORT              gpioPortF
-#define SL_SPIDRV_FLASH_MEM_TX_PIN               5
-#define SL_SPIDRV_FLASH_MEM_TX_LOC               29
+// USART1 TX on PA0
+#define SL_SPIDRV_FLASH_MEM_TX_PORT              gpioPortA
+#define SL_SPIDRV_FLASH_MEM_TX_PIN               0
+#define SL_SPIDRV_FLASH_MEM_TX_LOC               0
 
-// USART1 RX on PF6
-#define SL_SPIDRV_FLASH_MEM_RX_PORT              gpioPortF
-#define SL_SPIDRV_FLASH_MEM_RX_PIN               6
-#define SL_SPIDRV_FLASH_MEM_RX_LOC               29
+// USART1 RX on PA2
+#define SL_SPIDRV_FLASH_MEM_RX_PORT              gpioPortA
+#define SL_SPIDRV_FLASH_MEM_RX_PIN               2
+#define SL_SPIDRV_FLASH_MEM_RX_LOC               1
 
-// USART1 CLK on PF4
-#define SL_SPIDRV_FLASH_MEM_CLK_PORT             gpioPortF
-#define SL_SPIDRV_FLASH_MEM_CLK_PIN              4
-#define SL_SPIDRV_FLASH_MEM_CLK_LOC              26
+// USART1 CLK on PA1
+#define SL_SPIDRV_FLASH_MEM_CLK_PORT             gpioPortA
+#define SL_SPIDRV_FLASH_MEM_CLK_PIN              1
+#define SL_SPIDRV_FLASH_MEM_CLK_LOC              31
 
-// USART1 CS on PF7
-#define SL_SPIDRV_FLASH_MEM_CS_PORT              gpioPortF
-#define SL_SPIDRV_FLASH_MEM_CS_PIN               7
-#define SL_SPIDRV_FLASH_MEM_CS_LOC               28
+// USART1 CS on PA3
+#define SL_SPIDRV_FLASH_MEM_CS_PORT              gpioPortA
+#define SL_SPIDRV_FLASH_MEM_CS_PIN               3
+#define SL_SPIDRV_FLASH_MEM_CS_LOC               0
 // [USART_SL_SPIDRV_FLASH_MEM]$
 // <<< sl:end pin_tool >>>
 

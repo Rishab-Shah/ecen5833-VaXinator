@@ -71,7 +71,7 @@
 #define EM1                           (1)
 #define EM2                           (2)
 #define EM3                           (3)
-#define NO_BL                         (0)
+#define NO_BL                         (1)
 
 #define LOWEST_ENERGY_LEVEL           (EM0)
 

@@ -86,7 +86,7 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
       //LOG_INFO("BME280_REG_SOFTRESET\r");
 #endif
       BME280_write(BME280_REGISTER_SOFTRESET,0xB6);
-      nextState = BME280_REG_SOFTRESET_DELAY_1;
+      nextState = BME280_ADD_VERIFN;
       break;
     }
     case BME280_REG_SOFTRESET_DELAY_1:
@@ -431,6 +431,7 @@ bool BME280_VerifyIdentity(uint8_t* rd_buff)
     I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &rd_buff[0], 1);
     if(rd_buff[0] == BME280_ID)
     {
+        LOG_INFO("rd_bugff[0] = %x\r",rd_buff[0]);
         return true;
     }
     else

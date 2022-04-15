@@ -1,6 +1,6 @@
 #CRC Codes for initially generated config files -- do not modify!
 app_assert_config.h=1717687323
-app_log_config.h=-311987036
+app_log_config.h=862545309
 btconf/gatt_configuration.btconf=-469633858
 btconf/ota_dfu.xml=512938454
 dmadrv_config.h=145163010
