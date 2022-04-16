@@ -28,6 +28,7 @@
 #define BNO055_SYS_TRIGGER_ADDR (0X3F)
 #define BNO055_PWR_MODE_ADDR    (0X3E)
 #define POWER_MODE_NORMAL       (0X00)
+#define POWER_MODE_LOW_POWER    (0x01)
 #define BNO055_PAGE_ID_ADDR     (0X07)
 #define OPERATION_MODE_NDOF     (0X0C)
 
@@ -35,10 +36,11 @@
 
 //Timer
 #define SETMODE_DELAY               ((30)*(MSEC_TO_USEC))
-#define NORMAL_MODE_DELAY           ((50)*(MSEC_TO_USEC))
-#define STD_DELAY                   ((10)*(MSEC_TO_USEC))
+#define POWER_MODE_DELAY            ((50)*(MSEC_TO_USEC))
+#define BNO055_STD_DELAY            ((10)*(MSEC_TO_USEC))
 #define POST_RESET_STARTUP_DELAY    ((500)*(MSEC_TO_USEC))
-
+#define POST_OPERATION_MODE_DELAY   ((1000)*(MSEC_TO_USEC))
+#define BNO055_DATA_POLL            ((1000)*(MSEC_TO_USEC))
 #define PSEUDO_TRIGGER              ((1)*(MSEC_TO_USEC))
 
 typedef enum
@@ -54,8 +56,8 @@ typedef enum
   BNO055_READ_POST_RESET,
   BNO055_READ_POST_RESET_DELAY_3,
 
-  BNO055_NORMAL_MODE_SET,
-  BNO055_NORMAL_MODE_SET_DELAY_4,
+  BNO055_POWER_MODE_SET,
+  BNO055_POWER_MODE_SET_DELAY_4,
 
   BNO055_PAGE_ADDR,
   BNO055_PAGE_ADDR_DELAY_5,

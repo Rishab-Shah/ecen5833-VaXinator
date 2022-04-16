@@ -176,7 +176,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
           //Enter EM2 mode
           sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-          ret_status = timerWaitUs_irq(STD_DELAY);
+          ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
           if(ret_status == ERROR)
           {
             LOG_ERROR("The value is more than the routine can provide\r");
@@ -192,7 +192,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
           //Enter EM2 mode
           sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-          ret_status = timerWaitUs_irq(STD_DELAY);
+          ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
           if(ret_status == ERROR)
           {
             LOG_ERROR("The value is more than the routine can provide\r");
@@ -209,32 +209,32 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     {
       if(event == ev_LETIMER0_COMP1)
       {
-        ret_status = timerWaitUs_irq(NORMAL_MODE_DELAY);
+        ret_status = timerWaitUs_irq(POWER_MODE_DELAY);
         if(ret_status == ERROR)
         {
           LOG_ERROR("The value is more than the routine can provide\r");
         }
         else
         {
-          nextState = BNO055_NORMAL_MODE_SET;
+          nextState = BNO055_POWER_MODE_SET;
         }
       }
       break;
     }
-    case BNO055_NORMAL_MODE_SET:
+    case BNO055_POWER_MODE_SET:
     {
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
 #if DEBUG_1
-        LOG_INFO("BNO055_NORMAL_MODE_SET\r");
+        LOG_INFO("BNO055_POWER_MODE_SET\r");
 #endif
         BNO055_write(BNO055_PWR_MODE_ADDR,POWER_MODE_NORMAL);
-        nextState = BNO055_NORMAL_MODE_SET_DELAY_4;
+        nextState = BNO055_POWER_MODE_SET_DELAY_4;
       }
       break;
     }
-    case BNO055_NORMAL_MODE_SET_DELAY_4:
+    case BNO055_POWER_MODE_SET_DELAY_4:
     {
       if(event == ev_I2C0_TRANSFER_DONE)
       {
@@ -242,7 +242,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-        ret_status = timerWaitUs_irq(STD_DELAY);
+        ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
         if(ret_status == -1)
         {
           LOG_ERROR("The value is more than the routine can provide \r");
@@ -275,7 +275,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-        ret_status = timerWaitUs_irq(STD_DELAY);
+        ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
         if(ret_status == -1)
         {
           LOG_ERROR("The value is more than the routine can provide \r");
@@ -308,7 +308,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-        ret_status = timerWaitUs_irq(STD_DELAY);
+        ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
         if(ret_status == -1)
         {
           LOG_ERROR("The value is more than the routine can provide \r");
@@ -341,7 +341,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-        ret_status = timerWaitUs_irq((1000)*(1000));
+        ret_status = timerWaitUs_irq(POST_OPERATION_MODE_DELAY);
         if(ret_status == -1)
         {
           LOG_ERROR("The value is more than the routine can provide \r");
@@ -396,7 +396,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
           BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
         }
 #endif
-        ret_status = timerWaitUs_irq((1000)*(1000));
+        ret_status = timerWaitUs_irq(BNO055_DATA_POLL);
         if(ret_status == -1)
         {
           LOG_ERROR("The value is more than the routine can provide \r");
