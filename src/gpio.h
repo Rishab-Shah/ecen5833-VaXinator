@@ -22,21 +22,26 @@
 // and GPIO documentation at https://siliconlabs.github.io/Gecko_SDK_Doc/efm32g/html/group__GPIO.html
 // to determine the correct values for these.
 
-#define PMIC_port  gpioPortA // change to correct ports and pins
-#define PMIC_pin   5
+#define PMIC_port           (gpioPortA)
+#define PMIC_pin            (5)
 
-#define	LED0_port           (gpioPortF) // change to correct ports and pins
+#define	LED0_port           (gpioPortF)
 #define LED0_pin            (4)
-#define LED1_port           (gpioPortF)
-#define LED1_pin            (5)
 
-#define Debug_port  gpioPortA // change to correct ports and pins
-#define Debug_pin   4
+#define Debug_port          (gpioPortA)
+#define Debug_pin           (4)
+
+#define GPSLoadSw_port      (gpioPortF)
+#define GPSLoadSw_pin       (5)
 
 #define PB0_port            (gpioPortF)
 #define PB0_pin             (6)
 #define PB1_port            (gpioPortF)
 #define PB1_pin             (7)
+
+
+
+
 
 #define LCD_ENABLE_PORT     (gpioPortD)
 #define LCD_ENABLE_PIN      (15)
@@ -55,16 +60,17 @@
 
 // Function prototypes
 void gpioInit();
-void gpioLed0SetOn();
-void gpioLed0SetOff();
-void gpioLed1SetOn();
-void gpioLed1SetOff();
+void gpioDebugLEDSetOn();
+void gpioDebugLEDSetOff();
+void gpioGPSLoadSwitchOff();
+void gpioGPSLoadSwitchOn();
+void gpioPMICSetOn();
+void gpioPMICSetOff();
 
 void PB0_Init(void);
 void PB1_Init(void);
 
-void gpioSensorEnSetOn(void);
-void gpioSetDisplayExtcomin(int on);
+
 
 //PROJECT::MAX30101 - GPIO Configurations
 void gpioMAX30101_InitConfigurations();
@@ -72,5 +78,6 @@ void gpioPowerOff_mfio_MAX30101();
 void gpioPowerOn_mfio_MAX30101();
 void gpioPowerOff_reset_MAX30101();
 void gpioPowerOn_reset_MAX30101();
-
+void gpioSensorEnSetOn(void);
+void gpioSetDisplayExtcomin(int on);
 #endif /* SRC_GPIO_H_ */

@@ -73,7 +73,7 @@
 #define EM3                           (3)
 #define NO_BL                         (1)
 
-#define LOWEST_ENERGY_LEVEL           (EM0)
+#define LOWEST_ENERGY_LEVEL           (EM2)
 
 #define LFXO_FREQ                     (32768)
 #define ULFRCO_FREQ                   (1000)

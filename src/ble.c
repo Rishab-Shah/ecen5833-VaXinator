@@ -621,9 +621,7 @@ void BleServer_HandleConnectionClosedEvent(void) {
 #if DISP
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
 #endif
-    gpioLed0SetOff();
-    gpioLed1SetOff();
-
+    gpioDebugLEDSetOff();
 }
 
 void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
@@ -674,13 +672,11 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             {
                 /* app gave disable indication */
                 ble_data.s_HealthIndicating = false;
-                gpioLed1SetOff();
             }
             if(client_flags == gatt_indication)
             {
                 /* app gave enable indication */
                 ble_data.s_HealthIndicating = true;
-                //gpioLed1SetOn();
             }
         }
         if(status_flags == sl_bt_gatt_server_confirmation)
@@ -695,13 +691,12 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             {
                 /* app gave disable indication */
                 ble_data.s_AccelIndication = false;
-                gpioLed1SetOff();
             }
             if(client_flags == gatt_indication)
             {
                 /* app gave enable indication */
                 ble_data.s_AccelIndication = true;
-                gpioLed0SetOn();
+                gpioDebugLEDSetOn();
             }
         }
         if(status_flags == sl_bt_gatt_server_confirmation)
@@ -748,8 +743,7 @@ void BleServer_HandleBondedEvent(void) {
 #endif
     ble_data.s_Bonded = true;
 
-    gpioLed0SetOff();
-    gpioLed1SetOff();
+    gpioDebugLEDSetOff();
 }
 
 void BleServer_HandleBondingFailedEvent(sl_bt_msg_t* event) {
@@ -914,8 +908,7 @@ void BleClient_HandleConnectionClosedEvent(void) {
     displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "");
 #endif
 
-    gpioLed0SetOff();
-    gpioLed1SetOff();
+    gpioDebugLEDSetOff();
 }
 
 void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
@@ -1088,8 +1081,7 @@ void BleClient_HandleBondedEvent(void) {
     displayPrintf(DISPLAY_ROW_ACTION, "");
 #endif
     ble_data.c_Bonded = true;
-    gpioLed0SetOff();
-    gpioLed1SetOff();
+    gpioDebugLEDSetOff();
 }
 
 void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event) {

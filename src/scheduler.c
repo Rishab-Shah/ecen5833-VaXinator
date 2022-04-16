@@ -311,7 +311,6 @@ void BleClient_EnableHealthIndications(ble_data_struct_t* ble_data) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
     }
-   // gpioLed1SetOn();
 }
 
 void BleClient_RequestAccelServiceInfo(ble_data_struct_t* ble_data) {
@@ -346,7 +345,7 @@ void BleClient_EnableAccelIndications(ble_data_struct_t* ble_data) {
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_bt_gatt_set_characteristic_notification: %x\r", ble_status);
     }
-    gpioLed0SetOn();
+    gpioDebugLEDSetOn();
 }
 
 void BleClient_RestartScanning(void) {
