@@ -30,6 +30,8 @@ void gpioInit()
   gpioPMICSetOn();
   gpioDebugLEDSetOff();
   gpioGPSLoadSwitchOff();
+  PB0_Init();
+
 } // gpioInit()
 
 void gpioDebugLEDSetOn()
@@ -77,9 +79,10 @@ void gpioSetDisplayExtcomin(int on)
 void PB0_Init(void)
 {
   GPIO_PinModeSet(PB0_port, PB0_pin, gpioModeInputPullFilter, true);
-  GPIO_ExtIntConfig(PB0_port, PB0_pin, PB0_pin, true, true, true);
+  GPIO_ExtIntConfig(PB0_port, PB0_pin, PB0_pin, false, true, true);
   NVIC_EnableIRQ(GPIO_EVEN_IRQn);
 }
+
 void PB1_Init(void)
 {
   GPIO_PinModeSet(PB1_port, PB1_pin, gpioModeInputPullFilter, true);

@@ -96,10 +96,10 @@ SL_WEAK void app_init(void)
 #if 1
     BLE_Init();
 
-    //gpioInit();
-    //PB0_Init();
-    //PB1_Init();
     I2C0_Init();
+
+
+
     //LEUART0_Init();
     //sl_uartdrv_init_instances();
 
@@ -163,6 +163,29 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #if DEVICE_IS_BLE_SERVER
 #if NO_BL
     handle_ble_event(evt);
+    ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
+
+    if(event == ev_PB0_RELEASED)
+    {
+//        static int z = 1;
+//        if(z == 1)
+//        {
+//            gpioDebugLEDSetOn();
+//            z = 0;
+//        }
+//        else
+//        {
+//            z = 1;
+//            gpioDebugLEDSetOff();
+
+            //for(int i = 0; i < 10000; i++)
+            //{}
+            gpioPMICSetOff();
+//        }
+
+    }
+
+
     init_bno055_machine(evt);
     //init_bme280_machine(evt);
     //init_flash_setup(evt);

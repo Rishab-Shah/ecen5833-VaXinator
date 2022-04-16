@@ -41,10 +41,10 @@ component:
 - instance: [vcom2]
   id: uartdrv_leuart
 - {id: bluetooth_feature_system}
-- {id: bluetooth_feature_scanner}
-- {id: emlib_letimer}
 - instance: [sensor]
   id: i2cspm
+- {id: emlib_letimer}
+- {id: bluetooth_feature_scanner}
 - {id: component_catalog}
 - {id: ota_dfu}
 - instance: [FLASH_MEM]

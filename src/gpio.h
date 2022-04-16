@@ -34,8 +34,11 @@
 #define GPSLoadSw_port      (gpioPortF)
 #define GPSLoadSw_pin       (5)
 
-#define PB0_port            (gpioPortF)
-#define PB0_pin             (6)
+#define PB0_port            (gpioPortB)
+#define PB0_pin             (12)
+
+
+
 #define PB1_port            (gpioPortF)
 #define PB1_pin             (7)
 

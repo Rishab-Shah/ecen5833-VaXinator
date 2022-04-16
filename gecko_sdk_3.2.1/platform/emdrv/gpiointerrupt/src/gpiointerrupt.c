@@ -33,7 +33,8 @@
 #include "gpiointerrupt.h"
 #include "em_assert.h"
 #include "em_common.h"
-
+#include "src/gpio.h"
+#include "src/scheduler.h"
 /***************************************************************************//**
  * @addtogroup gpioint
  * @{
@@ -163,6 +164,7 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
  *   call the dispatcher passing the flags which triggered the interrupt.
  *
  ******************************************************************************/
+#if 0
 void GPIO_EVEN_IRQHandler(void)
 {
   uint32_t iflags;
@@ -170,12 +172,27 @@ void GPIO_EVEN_IRQHandler(void)
   /* Get all even interrupts. */
   iflags = GPIO_IntGetEnabled() & _GPIOINT_IF_EVEN_MASK;
 
+  uint32_t interrupt_flags = GPIO_IntGet();
+  GPIO->IFC = 0xFFFF;
+  static uint8_t pressed = 1; // Button press is first time we enter ISR
+
+  if (interrupt_flags & (0x01 << PB0_pin)) {
+      if (!pressed) {
+          Scheduler_SetEvent_PB0_RELEASED();
+      }
+      else {
+          Scheduler_SetEvent_PB0_PRESSED();
+      }
+
+      pressed ^= 1;
+  }
+
   /* Clean only even interrupts. */
   GPIO_IntClear(iflags);
 
   GPIOINT_IRQDispatcher(iflags);
 }
-
+#endif
 /***************************************************************************//**
  * @brief
  *   GPIO ODD interrupt handler. Interrupt handler clears all IF odd flags and
