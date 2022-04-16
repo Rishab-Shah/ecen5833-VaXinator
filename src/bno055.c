@@ -229,7 +229,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #if DEBUG_1
         LOG_INFO("BNO055_POWER_MODE_SET\r");
 #endif
-        BNO055_write(BNO055_PWR_MODE_ADDR,POWER_MODE_NORMAL);
+        BNO055_write(BNO055_PWR_MODE_ADDR,POWER_MODE_LOW_POWER);
         nextState = BNO055_POWER_MODE_SET_DELAY_4;
       }
       break;
