@@ -2,7 +2,7 @@
  * bme280.h
  *
  *  Created on: Feb 24, 2022
- *      Author: rishab
+ *      Author: Mukta
  */
 
 #ifndef SRC_BME280_H_
@@ -22,27 +22,35 @@
 #define BME280_CHIP_ID_ADDR       (0xD0)
 #define BME280_REGISTER_SOFTRESET (0xE0)
 #define BME280_REGISTER_STATUS    (0XF3)
+#define BME280_TEMP_PRESS_CALIB_DATA_ADDR         (0x88)
+#define BME280_HUMIDITY_CALIB1_DATA_ADDR          (0xA1)
+#define BME280_HUMIDITY_CALIB_DATA_ADDR           (0xE1)
+#define BME280_CTRL_HUM_ADDR                      (0xF2)
+#define BME280_CTRL_MEAS_ADDR                     (0xF4)
+#define BME280_CONFIG_ADDR                        (0xF5)
+#define BME280_DATA_ADDR                          (0xFA)
 
-#define BME280_REGISTER_DIG_T1    (0x88)
-#define BME280_REGISTER_DIG_T2    (0x8A)
-#define BME280_REGISTER_DIG_T3    (0x8C)
+//name Macros related to size
+#define BME280_TEMP_PRESS_CALIB_DATA_LEN          (6)
+#define BME280_HUMIDITY_CALIB_DATA_LEN            (7)
+#define BME280_T_RH_DATA_LEN                      (5)
 
-#if 0
-#define OPERATION_MODE_CONFIG   (0X00)
-#define BME280_OPR_MODE_ADDR    (0X3D)
-#define BME280_SYS_TRIGGER_ADDR (0X3F)
-#define BME280_PWR_MODE_ADDR    (0X3E)
-#define POWER_MODE_NORMAL       (0X00)
-#define BME280_PAGE_ID_ADDR     (0X07)
-#define OPERATION_MODE_NDOF     (0X0C)
+//settings for BME280
+#define BME280_SLEEP_MODE_SEL                     (0x00)
+#define BME280_HUM_SAMP_ON                        (0x05)
+#define BME280_TEMP_ON_PRS_OFF                    (0xA3)
+#define BME280_CON_1SEC_FILT_OFF                  (0x00)
+#define BME280_FORCED_MODE_SEL                    (0x21)
 
-#define BME280_EULER_H_LSB_ADDR (0X1A)
-#endif
 //Timer
 #define SETMODE_DELAY               ((30)*(MSEC_TO_USEC))
 #define NORMAL_MODE_DELAY           ((50)*(MSEC_TO_USEC))
 #define STD_DELAY                   ((10)*(MSEC_TO_USEC))
 #define POST_RESET_STARTUP_DELAY    ((500)*(MSEC_TO_USEC))
+
+/**\name Macro to combine two 8 bit data's to form a 16 bit data */
+#define BME280_CONCAT_BYTES(msb, lsb)             (((uint16_t)msb << 8) | (uint16_t)lsb)
+
 
 typedef enum
 {
@@ -51,39 +59,29 @@ typedef enum
   BME280_REG_SOFTRESET,
   BME280_REG_SOFTRESET_DELAY_1,
 
-  BME280_READ_CALIB,
-  BME280_READ_CALIB_DELAY_2,
+  BME280_READ_STATUS,
+  BME280_READ_STATUS_RESPONSE,
 
+  BME280_READ_CALIB_1,
+  BME280_READ_CALIB_1_RESPONSE,
+  BME280_READ_CALIB_2,
+  BME280_READ_CALIB_2_RESPONSE,
+  BME280_READ_CALIB_3,
+  BME280_READ_CALIB_3_RESPONSE,
 
-  BME280_READ_COEFF_TEMP_1,
-  BME280_READ_COEFF_TEMP_2,
-  BME280_READ_COEFF_TEMP_3,
+  BME280_SLEEP_MODE_SET,
+  BME280_CONFIG_SET,
+  BME280_HUM_CTRL_SET,
+  BME280_MEAS_CTRL_SET,
+  BME280_AFTER_SET_DELAY_2,
+  BME280_AFTER_INIT_DONE,
 
-  BME280_READ_COEFF_DELAY_2,
-
-  BME280_READ_POST_RESET,
-  BME280_READ_POST_RESET_DELAY_3,
-
-  BME280_NORMAL_MODE_SET,
-  BME280_NORMAL_MODE_SET_DELAY_4,
-
-  BME280_PAGE_ADDR,
-  BME280_PAGE_ADDR_DELAY_5,
-
-  BME280_SYS_TRIGGER,
-  BME280_SYS_TRIGGER_DELAY_6,
-
-  BME280_SET_REQ_MODE,
-  BME280_SET_REQ_MODE_DELAY_7,
-
-  //READ_XYZ_DATA,
-  //READ_XYZ_DATA_DELAY,
+  BME280_READ_TRH_DATA,
+  BME280_DISP_TRH_DATA,
 
   BME280_DEFAULT,
 }BME280_state_t;
 
-
-BME280_state_t init_BME280_machine(sl_bt_msg_t *evt);
-
+BME280_state_t init_bme280_machine(sl_bt_msg_t *evt);
 
 #endif /* SRC_BME280_H_ */

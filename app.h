@@ -73,7 +73,7 @@
 #define EM3                           (3)
 #define NO_BL                         (1)
 
-#define LOWEST_ENERGY_LEVEL           (EM2)
+#define LOWEST_ENERGY_LEVEL           (EM0)
 
 #define LFXO_FREQ                     (32768)
 #define ULFRCO_FREQ                   (1000)
@@ -82,7 +82,7 @@
 #define MSEC_TO_USEC                  (1000)
 #define PSEUDO_TRIGGER                ((1)*(MSEC_TO_USEC))
 
-#if (LOWEST_ENERGY_LEVEL == EMO)
+#if (LOWEST_ENERGY_LEVEL == EM0)
  #define POWER_MANAGEMENT             (0)
  #define LFACLK_FREQ_HZ               (LFXO_FREQ)
  #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
@@ -113,7 +113,7 @@
 //   up the MCU from the call to sl_power_manager_sleep() in the main while (1)
 //   loop.
 // Students: We'll need to modify this for A2 onward.
-#if (LOWEST_ENERGY_LEVEL == EMO)
+#if (LOWEST_ENERGY_LEVEL == EM0)
  #define APP_IS_OK_TO_SLEEP      (false)
 #elif (LOWEST_ENERGY_LEVEL == EM1)
  #define APP_IS_OK_TO_SLEEP      (true)
