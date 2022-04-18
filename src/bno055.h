@@ -81,6 +81,6 @@ typedef enum
 //BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt);
 #endif
 
-asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt);
+asset_monitoring_state_t bno055_read_machine(sl_bt_msg_t *evt);
 asset_monitoring_state_t init_bno055_machine(sl_bt_msg_t *evt);
 #endif /* SRC_BNO055_H_ */

@@ -133,7 +133,7 @@ asset_monitoring_state_t init_bno055_machine(sl_bt_msg_t *evt)
 BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #endif
 {
-  ble_data_struct_t* ble_data = BLE_GetDataStruct();
+  //ble_data_struct_t* ble_data = BLE_GetDataStruct();
 #if NO_BL
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
 #else

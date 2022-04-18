@@ -161,36 +161,39 @@ void Scheduler_SetEvent_SPI_RX(void) {
 /***************Client Functions*****************/
 /************************************************/
 void AssetMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
-    asset_monitoring_state_t current_state;
-    //static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
-    static asset_monitoring_state_t next_state = BME280_INIT_CONFIG;
-    if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
-        return;
-    }
+  asset_monitoring_state_t current_state;
+  //static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
+  static asset_monitoring_state_t next_state = BME280_INIT_CONFIG;
+  if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
+      return;
+  }
 
-    current_state = next_state;
+  current_state = next_state;
 
-    switch (current_state) {
-        case BME280_INIT_CONFIG:
-            next_state = init_bme280_machine(event);
-            LOG_INFO("BME280_INIT_CONFIG\r");
-            break;
+  switch (current_state) {
+    case BME280_INIT_CONFIG:
+        next_state = init_bme280_machine(event);
+        LOG_INFO("BME280_INIT_CONFIG\r");
+        break;
 
-        case BNO055_INIT_CONFIG:
-            next_state = init_bno055_machine(event);
-            LOG_INFO("BNO055_INIT_CONFIG\r");
-            break;
+    case BNO055_INIT_CONFIG:
+        next_state = init_bno055_machine(event);
+        LOG_INFO("BNO055_INIT_CONFIG\r");
+        break;
 
-        case BME280_READ:
-            next_state = bme280_read_machine(event);
-            LOG_INFO("BME280_READ\r");
-            break;
+    case BME280_READ:
+        next_state = bme280_read_machine(event);
+        LOG_INFO("BME280_READ\r");
+        break;
 
-        case BNO055_READ:
-            next_state = bno055_read_machine(event);
-            LOG_INFO("BNO055_READ\r");
-            break;
-    }
+    case BNO055_READ:
+        next_state = bno055_read_machine(event);
+        LOG_INFO("BNO055_READ\r");
+        break;
+
+    default:
+      break;
+  }
 }
 
 #if 0

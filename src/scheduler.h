@@ -19,9 +19,6 @@
 #include "asset_monitoring.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
-#include "pulse_oxymeter.h"
-#include "MMA8452Q.h"
-
 
 /*
  * Client Discovery FSM states enum
