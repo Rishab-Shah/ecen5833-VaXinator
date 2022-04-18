@@ -12,7 +12,8 @@
 
 
 #include <stdlib.h>
-#include "activity_monitoring.h"
+
+#include "asset_monitoring.h"
 #include "i2c.h"
 #include "ble.h"
 #include "timers.h"
@@ -106,7 +107,7 @@ typedef enum {
  *
  * @return Next state of MMA8452Q state machine
  */
-activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
+asset_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
 
 
 /*
@@ -116,7 +117,7 @@ activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event);
  *
  * @return Next state of MMA8452Q state machine
  */
-activity_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event);
+asset_monitoring_state_t MMA8452Q_ReadStateMachine(sl_bt_msg_t* event);
 
 
 #endif /* SRC_MMA8452Q_H_ */

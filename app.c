@@ -167,26 +167,10 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     if(event == ev_PB0_RELEASED)
     {
-//        static int z = 1;
-//        if(z == 1)
-//        {
-//            gpioDebugLEDSetOn();
-//            z = 0;
-//        }
-//        else
-//        {
-//            z = 1;
-//            gpioDebugLEDSetOff();
-
-            //for(int i = 0; i < 10000; i++)
-            //{}
-            gpioPMICSetOff();
-//        }
-
+      gpioPMICSetOff();
     }
 
-
-    init_bno055_machine(evt);
+    AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
     //init_flash_setup(evt);
 #else

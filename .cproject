@@ -507,7 +507,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding=".trash" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="src/pulse_oxymeter.c|src/MMA8452Q.c|.trash" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         					
                     </sourceEntries>
                     				

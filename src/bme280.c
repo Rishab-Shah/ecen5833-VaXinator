@@ -60,11 +60,91 @@ static void parse_humidity_calib_data(const uint8_t *reg_data);
 /*******************************************************************************
  Function Definition
 *******************************************************************************/
-BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
+asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
 {
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
   /* return state logic */
-  BME280_state_t return_state = BME280_DEFAULT;
+  asset_monitoring_state_t return_state = BME280_READ;
+  /* current machine logic */
+  BME280_state_t currentState;
+  static BME280_state_t nextState = BME280_READ_TRH_DATA;
+  int ret_status = 0;
+  if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
+      return return_state;
+  }
+  currentState = nextState;
+  switch(currentState)
+  {
+    case BME280_READ_TRH_DATA:
+    {
+      //default state
+      return_state = BME280_READ;
+#if DEBUG_1
+      LOG_INFO("BME280_READ_TRH_DATA\r");
+#endif
+      if(event == ev_LETIMER0_UF || event == ev_LETIMER0_COMP1)
+      {
+        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+        bme280_wr_buff[0] = BME280_DATA_ADDR;
+        I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], BME280_T_RH_DATA_LEN);
+        nextState = BME280_DISP_TRH_DATA;
+        gpioDebugLEDSetOn();
+      }
+      break;
+    }
+
+    case BME280_DISP_TRH_DATA:
+    {
+      //default state
+      return_state = BME280_READ;
+#if DEBUG_1
+      LOG_INFO("BME280_DISP_TRH_DATA\r");
+#endif
+      if(event == ev_I2C0_TRANSFER_DONE)
+      {
+        uncomp_temp = 0; uncomp_hum = 0;
+        /* Store the parsed register values for temperature data */
+        uncomp_temp = ((uint32_t)bme280_rd_buff[0] << 12) | ((uint32_t)bme280_rd_buff[1] << 4) | ((uint32_t)bme280_rd_buff[2] >> 4);
+
+        /* Store the parsed register values for humidity data */
+        uncomp_hum = (uint32_t)(BME280_CONCAT_BYTES(bme280_rd_buff[3], bme280_rd_buff[4]));
+        //LOG_INFO("BME280 unT = %d  unRH = %d\r", uncomp_temp, uncomp_hum);
+
+        temperature = compensate_temperature(uncomp_temp);
+        humidity = compensate_humidity(uncomp_hum);
+        LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
+        //LOG_INFO("BME280 T1 = %d T2 = %d T3 = %d\r", calib_data.dig_t1, calib_data.dig_t2, calib_data.dig_t3);
+        //LOG_INFO("BME280 H1 = %d H2 = %d H3 = %d H4 = %d H5 = %d H6 = %d\r",
+        //         calib_data.dig_h1, calib_data.dig_h2, calib_data.dig_h3, calib_data.dig_h4, calib_data.dig_h5, calib_data.dig_h6);
+
+        gpioDebugLEDSetOff();
+
+        ret_status = timerWaitUs_irq(STD_DELAY);
+        if(ret_status == ERROR)
+        {
+          LOG_ERROR("The value is more than the routine can provide\r");
+        }
+        else
+        {
+          //update return state for next iteration
+          nextState = BME280_READ_TRH_DATA;
+          //next state to switch in Asset SM
+          return_state = BNO055_READ;
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  return return_state;
+}
+
+asset_monitoring_state_t init_bme280_machine(sl_bt_msg_t *evt)
+{
+  ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
+  /* return state logic */
+  asset_monitoring_state_t return_state = BME280_INIT_CONFIG;
   /* current machine logic */
   BME280_state_t currentState;
   static BME280_state_t nextState = BME280_ADD_VERIFN;
@@ -81,6 +161,8 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_UF)
       {
+        //default state
+        return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
         LOG_INFO("BME280_ADD_VERIFN\r");
 #endif
@@ -88,17 +170,19 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
         address_verification = BME280_VerifyIdentity(&bme280_rd_buff[0]);
         if(address_verification == true)
         {
-            nextState = BME280_REG_SOFTRESET;
+          nextState = BME280_REG_SOFTRESET;
         }
         else
         {
-            //Add a counter logic
+          //Add a counter logic
         }
       }
       break;
     }
     case BME280_REG_SOFTRESET:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_REG_SOFTRESET\r");
 #endif
@@ -108,6 +192,8 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
     }
     case BME280_REG_SOFTRESET_DELAY_1:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
         ret_status = timerWaitUs_irq(STD_DELAY);
@@ -125,49 +211,54 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
 
     case BME280_READ_STATUS:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
-          LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+        LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
 #if DEBUG_1
-          LOG_INFO("BME280_READ_STATUS\r");
+        LOG_INFO("BME280_READ_STATUS\r");
 #endif
-          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-          bme280_wr_buff[0] = BME280_REGISTER_STATUS;
-          I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 1);
-          nextState = BME280_READ_STATUS_RESPONSE;
+        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+        bme280_wr_buff[0] = BME280_REGISTER_STATUS;
+        I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 1);
+        nextState = BME280_READ_STATUS_RESPONSE;
       }
       break;
     }
     case BME280_READ_STATUS_RESPONSE:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if DEBUG_1
           LOG_INFO("BME280_READ_STATUS_RESPONSE\r");
 #endif
-          if((bme280_rd_buff[0] & (1<<0)) != 0)
+        if((bme280_rd_buff[0] & (1<<0)) != 0)
+        {
+          ret_status = timerWaitUs_irq(STD_DELAY);
+          if(ret_status == ERROR)
           {
-              ret_status = timerWaitUs_irq(STD_DELAY);
-              if(ret_status == ERROR)
-              {
-                  LOG_ERROR("The value is more than the routine can provide\r");
-              }
-              else
-              {
-                  nextState = BME280_READ_STATUS;
-              }
+            LOG_ERROR("The value is more than the routine can provide\r");
           }
           else
           {
-              //go to next state
-              nextState = BME280_READ_CALIB_1;
+            nextState = BME280_READ_STATUS;
           }
+        }
+        else
+        {
+          nextState = BME280_READ_CALIB_1;
+        }
       }
       break;
     }
 
     case BME280_READ_CALIB_1:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_READ_CALIB_1\r");
 #endif
@@ -184,197 +275,178 @@ BME280_state_t init_bme280_machine(sl_bt_msg_t *evt)
       LOG_INFO("BME280_READ_CALIB_1_RESPONSE\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          parse_temp_press_calib_data(&bme280_rd_buff[0]);
-          nextState = BME280_READ_CALIB_2;
-        }
+      {
+        parse_temp_press_calib_data(&bme280_rd_buff[0]);
+        nextState = BME280_READ_CALIB_2;
+      }
       break;
     }
 
     case BME280_READ_CALIB_2:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_READ_CALIB_2\r");
 #endif
-        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-        bme280_wr_buff[0] = BME280_HUMIDITY_CALIB1_DATA_ADDR;
-        I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 1);
-        nextState = BME280_READ_CALIB_2_RESPONSE;
-        break;
+      memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+      bme280_wr_buff[0] = BME280_HUMIDITY_CALIB1_DATA_ADDR;
+      I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], 1);
+      nextState = BME280_READ_CALIB_2_RESPONSE;
+      break;
     }
 
     case BME280_READ_CALIB_2_RESPONSE:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_READ_CALIB_2_RESPONSE\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          calib_data.dig_h1 = bme280_rd_buff[0];
-          nextState = BME280_READ_CALIB_3;
-        }
+      {
+        calib_data.dig_h1 = bme280_rd_buff[0];
+        nextState = BME280_READ_CALIB_3;
+      }
       break;
     }
 
     case BME280_READ_CALIB_3:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_READ_CALIB_3\r");
 #endif
-        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-        bme280_wr_buff[0] = BME280_HUMIDITY_CALIB_DATA_ADDR;
-        I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], BME280_HUMIDITY_CALIB_DATA_LEN);
-        nextState = BME280_READ_CALIB_3_RESPONSE;
-        break;
+      memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+      bme280_wr_buff[0] = BME280_HUMIDITY_CALIB_DATA_ADDR;
+      I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], BME280_HUMIDITY_CALIB_DATA_LEN);
+      nextState = BME280_READ_CALIB_3_RESPONSE;
+      break;
     }
 
     case BME280_READ_CALIB_3_RESPONSE:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_READ_CALIB_3_RESPONSE\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          parse_humidity_calib_data(&bme280_rd_buff[0]);
-          nextState = BME280_SLEEP_MODE_SET;
-        }
+      {
+        parse_humidity_calib_data(&bme280_rd_buff[0]);
+        nextState = BME280_SLEEP_MODE_SET;
+      }
       break;
     }
 
     case BME280_SLEEP_MODE_SET:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_SLEEP_MODE_SET\r");
 #endif
-        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-        bme280_wr_buff[0] = BME280_CTRL_MEAS_ADDR;
-        bme280_wr_buff[1] = BME280_SLEEP_MODE_SEL;
-        I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
-        nextState = BME280_CONFIG_SET;
-        break;
+      memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+      bme280_wr_buff[0] = BME280_CTRL_MEAS_ADDR;
+      bme280_wr_buff[1] = BME280_SLEEP_MODE_SEL;
+      I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
+      nextState = BME280_CONFIG_SET;
+      break;
     }
 
     case BME280_CONFIG_SET:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_CONFIG_SET\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-          bme280_wr_buff[0] = BME280_CONFIG_ADDR;
-          bme280_wr_buff[1] = BME280_CON_1SEC_FILT_OFF;
-          I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
-          nextState = BME280_HUM_CTRL_SET;
-        }
-        break;
+      {
+        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+        bme280_wr_buff[0] = BME280_CONFIG_ADDR;
+        bme280_wr_buff[1] = BME280_CON_1SEC_FILT_OFF;
+        I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
+        nextState = BME280_HUM_CTRL_SET;
+      }
+      break;
     }
 
     case BME280_HUM_CTRL_SET:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_HUM_CTRL_SET\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-          bme280_wr_buff[0] = BME280_CTRL_HUM_ADDR;
-          bme280_wr_buff[1] = BME280_HUM_SAMP_ON;
-          I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
-          nextState = BME280_MEAS_CTRL_SET;
-        }
-        break;
+      {
+        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+        bme280_wr_buff[0] = BME280_CTRL_HUM_ADDR;
+        bme280_wr_buff[1] = BME280_HUM_SAMP_ON;
+        I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
+        nextState = BME280_MEAS_CTRL_SET;
+      }
+      break;
     }
 
     case BME280_MEAS_CTRL_SET:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_MEAS_CTRL_SET\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-          bme280_wr_buff[0] = BME280_CTRL_MEAS_ADDR;
-          bme280_wr_buff[1] = BME280_TEMP_ON_PRS_OFF;
-          I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
-          nextState = BME280_AFTER_SET_DELAY_2;
-        }
-        break;
+      {
+        memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
+        bme280_wr_buff[0] = BME280_CTRL_MEAS_ADDR;
+        bme280_wr_buff[1] = BME280_TEMP_ON_PRS_OFF;
+        I2C0_Write(BME280_ADDRESS, &bme280_wr_buff[0], 2);
+        nextState = BME280_AFTER_SET_DELAY_2;
+      }
+      break;
     }
 
     case BME280_AFTER_SET_DELAY_2:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_AFTER_SET_DELAY_2\r");
 #endif
       if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          timerWaitUs_irq(STD_DELAY);
-          nextState = BME280_AFTER_INIT_DONE;
-        }
-        break;
+      {
+        timerWaitUs_irq(STD_DELAY);
+        nextState = BME280_AFTER_INIT_DONE;
+      }
+      break;
     }
 
     case BME280_AFTER_INIT_DONE:
     {
+      //default state
+      return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BME280_AFTER_INIT_DONE\r");
 #endif
       if(event == ev_LETIMER0_COMP1)
-        {
-          nextState = BME280_READ_TRH_DATA;
-        }
-        break;
-    }
-
-    case BME280_READ_TRH_DATA:
-    {
-#if DEBUG_1
-      LOG_INFO("BME280_READ_TRH_DATA\r");
-#endif
-      if(event == ev_LETIMER0_UF)
-        {
-          memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
-          bme280_wr_buff[0] = BME280_DATA_ADDR;
-          I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], BME280_T_RH_DATA_LEN);
-          nextState = BME280_DISP_TRH_DATA;
-          gpioDebugLEDSetOn();
-        }
-        break;
-    }
-
-    case BME280_DISP_TRH_DATA:
-    {
-#if DEBUG_1
-      LOG_INFO("BME280_DISP_TRH_DATA\r");
-#endif
-      if(event == ev_I2C0_TRANSFER_DONE)
-        {
-          uncomp_temp = 0; uncomp_hum = 0;
-          /* Store the parsed register values for temperature data */
-          uncomp_temp = ((uint32_t)bme280_rd_buff[0] << 12) | ((uint32_t)bme280_rd_buff[1] << 4) | ((uint32_t)bme280_rd_buff[2] >> 4);
-
-          /* Store the parsed register values for humidity data */
-          uncomp_hum = (uint32_t)(BME280_CONCAT_BYTES(bme280_rd_buff[3], bme280_rd_buff[4]));
-          LOG_INFO("BME280 unT = %d  unRH = %d\r", uncomp_temp, uncomp_hum);
-
-          temperature = compensate_temperature(uncomp_temp);
-          humidity = compensate_humidity(uncomp_hum);
-          LOG_INFO("BME280 T = %f  RH = %f fine = %d\r", temperature, humidity, calib_data.t_fine);
-          //LOG_INFO("BME280 T1 = %d T2 = %d T3 = %d\r", calib_data.dig_t1, calib_data.dig_t2, calib_data.dig_t3);
-          //LOG_INFO("BME280 H1 = %d H2 = %d H3 = %d H4 = %d H5 = %d H6 = %d\r",
-          //         calib_data.dig_h1, calib_data.dig_h2, calib_data.dig_h3, calib_data.dig_h4, calib_data.dig_h5, calib_data.dig_h6);
-
-          gpioDebugLEDSetOff();
-          nextState = BME280_READ_TRH_DATA;
-        }
-        break;
+      {
+        //RESET state of the machine
+        nextState = BME280_ADD_VERIFN;
+        //next state to switch in Asset monitoring SM
+        return_state = BNO055_INIT_CONFIG;
+        LOG_INFO("BME280 - TRANSITIONED\r");
+      }
+      break;
     }
     default:
       break;
   }
   return return_state;
 }
+
 
 void BME280_write(uint8_t reg, uint8_t byte_val)
 {
@@ -389,11 +461,11 @@ bool BME280_VerifyIdentity(uint8_t* rd_buff)
   I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &rd_buff[0], 1);
   if(rd_buff[0] == BME280_ID)
   {
-      return true;
+    return true;
   }
   else
   {
-      return false;
+    return false;
   }
 }
 

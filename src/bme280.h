@@ -16,6 +16,7 @@
 #include "gpio.h"
 #include "ble.h"
 #include "scheduler.h"
+#include "asset_monitoring.h"
 
 #define BME280_ADDRESS            (0x76)
 #define BME280_ID                 (0x60)
@@ -82,6 +83,7 @@ typedef enum
   BME280_DEFAULT,
 }BME280_state_t;
 
-BME280_state_t init_bme280_machine(sl_bt_msg_t *evt);
+asset_monitoring_state_t init_bme280_machine(sl_bt_msg_t *evt);
+asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt);
 
 #endif /* SRC_BME280_H_ */

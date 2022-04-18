@@ -33,7 +33,7 @@ void BNO055_write(uint8_t reg, uint8_t byte_val);
  Function Definition
 *******************************************************************************/
 #if NO_BL
-BNO055_state_t init_bno055_machine(sl_bt_msg_t *evt)
+asset_monitoring_state_t bno055_read_machine(sl_bt_msg_t *evt)
 #else
 BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #endif
@@ -45,7 +45,102 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
   ble_ext_signal_event_t event = evt;
 #endif
   /* return state logic */
-  BNO055_state_t return_state = BNO055_DEFAULT;
+  asset_monitoring_state_t return_state = BNO055_READ;
+  /* current machine logic */
+  BNO055_state_t currentState;
+  static BNO055_state_t nextState = READ_XYZ_DATA;
+  int ret_status = 0;
+#if NO_BL
+  if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
+      return return_state;
+  }
+#endif
+  currentState = nextState;
+
+  switch(currentState)
+  {
+    case READ_XYZ_DATA:
+    {
+      //default state
+      return_state = BNO055_READ;
+      if(event == ev_LETIMER0_COMP1)
+      {
+        gpioDebugLEDSetOn();
+        LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if DEBUG_1
+        LOG_INFO("READ_XYZ_DATA\r");
+#endif
+        memset(bno055_rd_buff,0,sizeof(bno055_rd_buff));
+        bno055_wr_buff[0] = BNO055_EULER_H_LSB_ADDR;
+#if POWER_MANAGEMENT
+        //Enter EM1 mode
+        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+        I2C0_WriteRead(BNO055_ADDRESS_A, &bno055_wr_buff[0], 1, &bno055_rd_buff[0], 6);
+        nextState = READ_XYZ_DATA_DELAY;
+      }
+      break;
+    }
+    case READ_XYZ_DATA_DELAY:
+    {
+      //default state
+      return_state = BNO055_READ;
+      if(event == ev_I2C0_TRANSFER_DONE)
+      {
+#if POWER_MANAGEMENT
+        //Enter EM2 mode
+        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+        gpioDebugLEDSetOff();
+        //processing
+        int16_t x = 0,y = 0, z= 0;
+        x = ((int16_t)(bno055_rd_buff[0]) | (int16_t)(bno055_rd_buff[1] << 8));
+        y = ((int16_t)(bno055_rd_buff[2]) | (int16_t)(bno055_rd_buff[3] << 8));
+        z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
+
+        LOG_INFO("X= %d::Y=%d::Z=%d\r",x,y,z);
+#if NO_BL
+        if(ble_data->s_AccelIndication && ble_data->s_ClientConnected)
+        {
+          LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
+          BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
+        }
+#endif
+        ret_status = timerWaitUs_irq(BNO055_DATA_POLL);
+        if(ret_status == -1)
+        {
+          LOG_ERROR("The value is more than the routine can provide \r");
+        }
+        else
+        {
+          //reset the state of the current machine
+          nextState = READ_XYZ_DATA;
+          //next state to switch in Asset SM
+          return_state = BME280_READ;
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  return return_state;
+}
+
+#if NO_BL
+asset_monitoring_state_t init_bno055_machine(sl_bt_msg_t *evt)
+#else
+BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
+#endif
+{
+  ble_data_struct_t* ble_data = BLE_GetDataStruct();
+#if NO_BL
+  ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
+#else
+  ble_ext_signal_event_t event = evt;
+#endif
+  /* return state logic */
+  asset_monitoring_state_t return_state = BNO055_INIT_CONFIG;
   /* current machine logic */
   BNO055_state_t currentState;
   static BNO055_state_t nextState = BNO055_SETMODE;
@@ -85,6 +180,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_SETMODE:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
 #if DEBUG_1
       LOG_INFO("BNO055_SETMODE\r");
 #endif
@@ -109,6 +206,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_SETMODE_DELAY_1:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
@@ -129,6 +228,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_RESET:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -142,6 +243,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_RESET_DELAY_2:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
@@ -162,6 +265,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_READ_POST_RESET:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -207,6 +312,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_READ_POST_RESET_DELAY_3:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         ret_status = timerWaitUs_irq(POWER_MODE_DELAY);
@@ -223,6 +330,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_POWER_MODE_SET:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -236,6 +345,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_POWER_MODE_SET_DELAY_4:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
@@ -256,6 +367,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_PAGE_ADDR:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -269,6 +382,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_PAGE_ADDR_DELAY_5:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
@@ -289,6 +404,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_SYS_TRIGGER:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -302,6 +419,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_SYS_TRIGGER_DELAY_6:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
@@ -322,6 +441,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
      }
     case BNO055_SET_REQ_MODE:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_LETIMER0_COMP1)
       {
         LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
@@ -335,6 +456,8 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     }
     case BNO055_SET_REQ_MODE_DELAY_7:
     {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
 #if POWER_MANAGEMENT
@@ -348,67 +471,14 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         }
         else
         {
-          nextState = READ_XYZ_DATA;
+          //RESET the status of the machine
+          nextState = BNO055_SETMODE;
+          //next state to switch in Asset SM
+          return_state = BME280_READ;
         }
       }
       break;
      }
-    case READ_XYZ_DATA:
-    {
-      if(event == ev_LETIMER0_COMP1)
-      {
-        gpioDebugLEDSetOn();
-        LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
-#if DEBUG_1
-        LOG_INFO("READ_XYZ_DATA\r");
-#endif
-        memset(bno055_rd_buff,0,sizeof(bno055_rd_buff));
-        bno055_wr_buff[0] = BNO055_EULER_H_LSB_ADDR;
-#if POWER_MANAGEMENT
-        //Enter EM1 mode
-        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
-#endif
-        I2C0_WriteRead(BNO055_ADDRESS_A, &bno055_wr_buff[0], 1, &bno055_rd_buff[0], 6);
-        nextState = READ_XYZ_DATA_DELAY;
-      }
-      break;
-    }
-    case READ_XYZ_DATA_DELAY:
-    {
-      if(event == ev_I2C0_TRANSFER_DONE)
-      {
-#if POWER_MANAGEMENT
-        //Enter EM2 mode
-        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
-#endif
-        gpioDebugLEDSetOff();
-        //processing
-        int16_t x = 0,y = 0, z= 0;
-        x = ((int16_t)(bno055_rd_buff[0]) | (int16_t)(bno055_rd_buff[1] << 8));
-        y = ((int16_t)(bno055_rd_buff[2]) | (int16_t)(bno055_rd_buff[3] << 8));
-        z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
-
-        LOG_INFO("X= %d::Y=%d::Z=%d\r",x,y,z);
-#if NO_BL
-        if(ble_data->s_AccelIndication && ble_data->s_ClientConnected)
-        {
-          LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
-          BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
-        }
-#endif
-        ret_status = timerWaitUs_irq(BNO055_DATA_POLL);
-        if(ret_status == -1)
-        {
-          LOG_ERROR("The value is more than the routine can provide \r");
-        }
-        else
-        {
-          nextState = READ_XYZ_DATA;
-        }
-      }
-      break;
-    }
-
     default:
       break;
   }

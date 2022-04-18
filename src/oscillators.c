@@ -9,7 +9,6 @@
 
 void Osc_InitLETIMER0(void) {
 
-#if 1
     if (LOWEST_ENERGY_LEVEL == EM3) {
         CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
         CMU_ClockDivSet(cmuClock_LETIMER0, cmuClkDiv_1);
@@ -40,5 +39,4 @@ void Osc_InitLETIMER0(void) {
 
     CMU_ClockEnable(cmuClock_GPIO,true);
 
-#endif
 }

@@ -16,11 +16,11 @@
 #include "timers.h"
 #include "irq.h"
 #include "app.h"
+#include "asset_monitoring.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
 #include "pulse_oxymeter.h"
 #include "MMA8452Q.h"
-#include "activity_monitoring.h"
 
 
 /*

@@ -364,14 +364,11 @@ activity_monitoring_state_t heartbeat_machine_running(sl_bt_msg_t *evt)
               nextState = HB_RUN_STATE_0;
           }
       }
-
       break;
     }
-
     default:
       break;
   }
-
   return return_state;
 }
 

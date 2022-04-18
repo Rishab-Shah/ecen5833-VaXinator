@@ -38,8 +38,8 @@ void MMA8452Q_SetActive(uint8_t* wr_buff, uint8_t ctrl_reg1);
 void MMA8452Q_CheckDataAvailable(uint8_t* rd_buff);
 void MMA8452Q_ReadXYZ(uint8_t* rd_buff);
 
-activity_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
-    activity_monitoring_state_t return_state = ACCEL_INIT;
+asset_monitoring_state_t MMA8452Q_InitStateMachine(sl_bt_msg_t* event) {
+    asset_monitoring_state_t return_state = ACCEL_INIT;
     mma8452q_init_state_t current_state;
     static mma8452q_init_state_t next_state = VERIFY_IDENTITY;
 
