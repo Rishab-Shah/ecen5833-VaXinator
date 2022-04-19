@@ -2,7 +2,7 @@
  * oscillators.h - Oscillator functions
  *
  *  Created on: Sep 5, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  */
 
 #ifndef SRC_OSCILLATORS_H_

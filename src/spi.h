@@ -2,7 +2,7 @@
  * spi.h
  *
  *  Created on: Mar 4, 2022
- *      Author: risha
+ *      Author: rishab
  */
 
 #ifndef SRC_SPI_H_

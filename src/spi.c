@@ -178,7 +178,6 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
   /* current machine logic */
   FLASH_state_t currentState;
   static FLASH_state_t nextState = FLASH_ADD_VERIFN;
-  //bool address_verification = false;
 
   int ret_status = 0;
   if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {

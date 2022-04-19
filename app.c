@@ -85,24 +85,14 @@ SL_WEAK void app_init(void)
 #if (LOWEST_ENERGY_LEVEL == EM1 || LOWEST_ENERGY_LEVEL == EM2)
             sl_power_manager_add_em_requirement(LOWEST_ENERGY_LEVEL);
 #endif
-
-
     Osc_InitLETIMER0();
-
     LETIMER0_Init();
-
     LETIMER0_Start();
-
 #if 1
     BLE_Init();
-
     I2C0_Init();
-
-
-
     //LEUART0_Init();
     //sl_uartdrv_init_instances();
-
 #endif
     LOG_INFO("Hey print - after spi\r");
 }
@@ -151,7 +141,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // Some events require responses from our application code,
     // and don’t necessarily advance our state machines.
     // For assignment 5 uncomment the next 2 function calls
- // put this code in ble.c/.h
+    // put this code in ble.c/.h
 #if 0
     uint8_t databuf[200] = {0};
     UARTDRV_ForceReceive(sl_uartdrv_get_default(), databuf, 200);

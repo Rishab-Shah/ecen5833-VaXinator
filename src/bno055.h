@@ -2,7 +2,7 @@
  * bno055.h
  *
  *  Created on: Feb 17, 2022
- *      Author: risha
+ *      Author: rishab
  *      Reference: Adafruit BNO055 library
  */
 

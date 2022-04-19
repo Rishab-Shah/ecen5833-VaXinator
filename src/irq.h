@@ -2,7 +2,7 @@
  * irq.h - Interrupt service routines
  *
  *  Created on: Sep 5, 2021
- *      Author: vishnu
+ *      Author: vishnu and rishab
  */
 
 #ifndef SRC_IRQ_H_
