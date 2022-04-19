@@ -164,7 +164,7 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
  *   call the dispatcher passing the flags which triggered the interrupt.
  *
  ******************************************************************************/
-#if 0
+#if 1
 void GPIO_EVEN_IRQHandler(void)
 {
   uint32_t iflags;
@@ -173,18 +173,11 @@ void GPIO_EVEN_IRQHandler(void)
   iflags = GPIO_IntGetEnabled() & _GPIOINT_IF_EVEN_MASK;
 
   uint32_t interrupt_flags = GPIO_IntGet();
-  GPIO->IFC = 0xFFFF;
-  static uint8_t pressed = 1; // Button press is first time we enter ISR
 
   if (interrupt_flags & (0x01 << PB0_pin)) {
-      if (!pressed) {
+      if(GPIO_PinInGet(PB0_port, PB0_pin) == 0) {
           Scheduler_SetEvent_PB0_RELEASED();
       }
-      else {
-          Scheduler_SetEvent_PB0_PRESSED();
-      }
-
-      pressed ^= 1;
   }
 
   /* Clean only even interrupts. */

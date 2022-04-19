@@ -36,6 +36,9 @@
 #define RX_BUFFER_SIZE              (TX_BUFFER_SIZE)
 #define SANITY_DELAY                ((0.5)*(MSEC_TO_USEC))
 
+#define READ_20MHz_CMD              (0x03)
+#define WRITE_ENABLE_CMD            (0x06)
+//#define
 /*******************************************************************************
  Global
 *******************************************************************************/
@@ -246,10 +249,10 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_COMP1)
       {
-          trigger_CE_high_to_low_transition();
-          uint8_t tx_sequence[TX_BUFFER_SIZE] = {0x00, 0x00, 0x80, 0x55, 0x55};
-          update_write_params(0x05,0,tx_sequence,SEND_AS_DATA);
-          start_ldma_transfer(TX_DMA_CHANNEL);
+        trigger_CE_high_to_low_transition();
+        uint8_t tx_sequence[TX_BUFFER_SIZE] = {0x00, 0x00, 0x80, 0x55, 0x55};
+        update_write_params(0x05,0,tx_sequence,SEND_AS_DATA);
+        start_ldma_transfer(TX_DMA_CHANNEL);
       }
       else if(event == ev_SPI_TX)
       {
@@ -311,16 +314,16 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
       }
       else if(event == ev_SPI_TX)
       {
-          trigger_CE_low_to_high_transition();
-          ret_status = timerWaitUs_irq(SANITY_DELAY);
-          if(ret_status == ERROR)
-          {
-             LOG_ERROR("The value is more than the routine can provide\r");
-          }
-          else
-          {
-             nextState = FLASH_SETMODE_2;
-          }
+        trigger_CE_low_to_high_transition();
+        ret_status = timerWaitUs_irq(SANITY_DELAY);
+        if(ret_status == ERROR)
+        {
+           LOG_ERROR("The value is more than the routine can provide\r");
+        }
+        else
+        {
+           nextState = FLASH_SETMODE_2;
+        }
       }
       else
       {
@@ -363,7 +366,6 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         //flash_spi_init();
         trigger_CE_high_to_low_transition();
         uint8_t tx_sequence[TX_BUFFER_SIZE] = {0x00, 0x00, 0x80, 0xFF};
-        update_write_params(0x03,4,tx_sequence,SEND_AS_DATA);
 
         start_ldma_transfer(TX_DMA_CHANNEL);
 

@@ -49,11 +49,11 @@
 
 // <o SL_UARTDRV_LEUART_VCOM2_RX_BUFFER_SIZE> Size of the receive operation queue
 // <i> Default: 6
-#define SL_UARTDRV_LEUART_VCOM2_RX_BUFFER_SIZE 6
+#define SL_UARTDRV_LEUART_VCOM2_RX_BUFFER_SIZE 0
 
 // <o SL_UARTDRV_LEUART_VCOM2_TX_BUFFER_SIZE> Size of the transmit operation queue
 // <i> Default: 6
-#define SL_UARTDRV_LEUART_VCOM2_TX_BUFFER_SIZE 6
+#define SL_UARTDRV_LEUART_VCOM2_TX_BUFFER_SIZE 0
 // </h>
 // <<< end of configuration section >>>
 

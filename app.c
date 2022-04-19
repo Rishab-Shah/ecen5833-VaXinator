@@ -142,13 +142,6 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // and don’t necessarily advance our state machines.
     // For assignment 5 uncomment the next 2 function calls
     // put this code in ble.c/.h
-#if 0
-    uint8_t databuf[200] = {0};
-    UARTDRV_ForceReceive(sl_uartdrv_get_default(), databuf, 200);
-    LOG_INFO("GPS - %s\r\n", databuf);
-    UARTDRV_ReceiveB(sl_uartdrv_get_default(), databuf, 200);
-    LOG_INFO("GPS - %s\r\n", databuf);
-#endif
     // sequence through states driven by events
 #if DEVICE_IS_BLE_SERVER
 #if NO_BL
@@ -160,9 +153,9 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       gpioPMICSetOff();
     }
 
-    AssetMonitoringSystem_StateMachine(evt);
+    //AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
-    //init_flash_setup(evt);
+    init_flash_setup(evt);
 #else
     //nothing to write
 #endif
@@ -172,5 +165,21 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #endif
 
 
+#if 0
+    uint8_t databuf[200] = {0};//{"ABCDEFGH"};
+    //uint8_t rxbuf[10] = {"ABCDEFGH"};
+    UARTDRV_ReceiveB(sl_uartdrv_get_default(), databuf, 200);
+    LOG_INFO("GPS - %s\r", databuf);
+//    static int i = 0;
+//    while(i<8)
+//      {
+//          UARTDRV_TransmitB(sl_uartdrv_get_default(), &databuf[i], 1);
+//          LOG_INFO("GPS TX - %c\r\n", databuf[i]);
+//
+//          UARTDRV_ReceiveB(sl_uartdrv_get_default(), &rxbuf[i], 1);
+//          LOG_INFO("GPS RX - %c\r\n", rxbuf[i]);
+//          i++;
+//      }
+#endif
 } // sl_bt_on_event()
 

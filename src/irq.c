@@ -102,6 +102,7 @@ void LDMA_IRQHandler()
 #if 1
 void LDMA_IRQHandler()
 {
+#if 1
   uint32_t flags = LDMA_IntGet();
   if(flags & (1 << rx_dma_channel))
   {
@@ -115,10 +116,11 @@ void LDMA_IRQHandler()
     LDMA_StopTransfer(tx_dma_channel);
     Scheduler_SetEvent_SPI_TX();
   }
+#endif
 }
 #endif
 
-#if 1
+#if 0
 void GPIO_EVEN_IRQHandler(void) {
   uint32_t interrupt_flags = GPIO_IntGet();
   GPIO->IFC = 0xFFFF;
