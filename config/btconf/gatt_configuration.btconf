@@ -20,23 +20,22 @@
           <read authenticated="false" bonded="false" encrypted="false"/>
           <write authenticated="false" bonded="false" encrypted="false"/>
         </properties>
-        <value length="2" type="hex" variable_length="false">0000</value>
+        <value length="2" type="hex" variable_length="false">00</value>
         <informativeText/>
       </descriptor>
     </characteristic>
   </service>
   
-  <!--BioData Service-->
-  <service advertise="true" name="BioData Service" requirement="mandatory" sourceId="" type="primary" uuid="00000003-38c8-433e-87ec-652a2d136289">
+  <!--TRH Service-->
+  <service advertise="true" name="TRH Service" requirement="mandatory" sourceId="" type="primary" uuid="00000003-38c8-433e-87ec-652a2d136289">
     <informativeText/>
     
     <!--Heartbeat Characteristic-->
     <characteristic const="false" id="heartbeat_state" name="Heartbeat Characteristic" sourceId="" uuid="00000004-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="1" type="hex" variable_length="false">00</value>
+      <value length="17" type="hex" variable_length="false">00</value>
       <properties>
-        <read authenticated="false" bonded="true" encrypted="false"/>
-        <indicate authenticated="false" bonded="true" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>
       
       <!--Client Characteristic Configuration-->
@@ -45,7 +44,7 @@
           <read authenticated="false" bonded="false" encrypted="false"/>
           <write authenticated="false" bonded="false" encrypted="false"/>
         </properties>
-        <value length="1" type="hex" variable_length="false">00</value>
+        <value length="2" type="hex" variable_length="false">00</value>
         <informativeText/>
       </descriptor>
     </characteristic>

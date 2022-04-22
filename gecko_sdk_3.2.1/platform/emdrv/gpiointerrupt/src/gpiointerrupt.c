@@ -199,6 +199,14 @@ void GPIO_ODD_IRQHandler(void)
   /* Get all odd interrupts. */
   iflags = GPIO_IntGetEnabled() & _GPIOINT_IF_ODD_MASK;
 
+  uint32_t interrupt_flags = GPIO_IntGet();
+
+  if (interrupt_flags & (0x01 << BNOInt_pin)) {
+      if(GPIO_PinInGet(BNOInt_port, BNOInt_pin) == 0) {
+          Scheduler_SetEvent_BNO55_Int();
+      }
+  }
+
   /* Clean only odd interrupts. */
   GPIO_IntClear(iflags);
 

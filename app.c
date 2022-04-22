@@ -146,16 +146,37 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #if DEVICE_IS_BLE_SERVER
 #if NO_BL
     handle_ble_event(evt);
-    ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
 
+
+    if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
+        return;
+    }
+
+    ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
     if(event == ev_PB0_RELEASED)
     {
       gpioPMICSetOff();
     }
 
-    //AssetMonitoringSystem_StateMachine(evt);
+    static int z = 0;
+    if(event == ev_BNO055_Int)
+    {
+        if(z == 0)
+          {
+            gpioDebugLEDSetOn();
+            z= 1;
+          }
+        else
+          {
+            gpioDebugLEDSetOff();
+            z = 0;
+          }
+
+    }
+
+    AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
-    init_flash_setup(evt);
+    //init_flash_setup(evt);
 #else
     //nothing to write
 #endif

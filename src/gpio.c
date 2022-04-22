@@ -31,8 +31,16 @@ void gpioInit()
   gpioDebugLEDSetOff();
   gpioGPSLoadSwitchOff();
   PB0_Init();
+  gpioBNOInterrupt();
 
 } // gpioInit()
+
+void gpioBNOInterrupt()
+{
+  GPIO_PinModeSet(BNOInt_port, BNOInt_pin, gpioModeInputPullFilter, true);
+  GPIO_ExtIntConfig(BNOInt_port, BNOInt_pin, BNOInt_pin, true , true, true); //3rd last false for low only
+  NVIC_EnableIRQ(GPIO_ODD_IRQn);
+}
 
 void gpioDebugLEDSetOn()
 {

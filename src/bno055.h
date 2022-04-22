@@ -24,16 +24,23 @@
 #define BNO055_ID               (0xA0)
 
 #define BNO055_CHIP_ID_ADDR     (0x00)
-#define OPERATION_MODE_CONFIG   (0X00)
+#define OPERATION_MODE_CONFIG   (0X01) //ACC_ONLY
 #define BNO055_OPR_MODE_ADDR    (0X3D)
 #define BNO055_SYS_TRIGGER_ADDR (0X3F)
 #define BNO055_PWR_MODE_ADDR    (0X3E)
 #define POWER_MODE_NORMAL       (0X00)
 #define POWER_MODE_LOW_POWER    (0x01)
 #define BNO055_PAGE_ID_ADDR     (0X07)
-#define OPERATION_MODE_NDOF     (0X0C)
+#define OPERATION_MODE_NDOF     (0X0C) //0x0C //0x08
+
+#define BNO055_PAGE_1           (0x01)
+#define BNO055_PAGE_0           (0x00)
 
 #define BNO055_EULER_H_LSB_ADDR (0X1A)
+
+#define INT_STA                 (0x37)
+#define INT_MSK                 (0x0F)
+#define INT_EN                  (0x10)
 
 //Timer
 #define SETMODE_DELAY               ((30)*(MSEC_TO_USEC))
@@ -68,6 +75,15 @@ typedef enum
 
   BNO055_SET_REQ_MODE,
   BNO055_SET_REQ_MODE_DELAY_7,
+
+  BNO055_SET_PAGE_ADDR_1,
+  BNO055_PAGE_ADDR_1_DELAY_8,
+
+  BNO055_INT_MSK,
+  BNO055_INT_MSK_DELAY_9,
+
+  BNO055_INT_PIN_SET,
+  BNO055_INT_PIN_SET_DELAY_10,
 
   READ_XYZ_DATA,
   READ_XYZ_DATA_DELAY,

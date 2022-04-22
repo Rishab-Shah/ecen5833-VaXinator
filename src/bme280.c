@@ -62,6 +62,7 @@ static void parse_humidity_calib_data(const uint8_t *reg_data);
 *******************************************************************************/
 asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
 {
+  ble_data_struct_t* ble_data = BLE_GetDataStruct();
   ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
   /* return state logic */
   asset_monitoring_state_t return_state = BME280_READ;
@@ -112,10 +113,17 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
 
         temperature = compensate_temperature(uncomp_temp);
         humidity = compensate_humidity(uncomp_hum);
-        LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
+
         //LOG_INFO("BME280 T1 = %d T2 = %d T3 = %d\r", calib_data.dig_t1, calib_data.dig_t2, calib_data.dig_t3);
         //LOG_INFO("BME280 H1 = %d H2 = %d H3 = %d H4 = %d H5 = %d H6 = %d\r",
         //         calib_data.dig_h1, calib_data.dig_h2, calib_data.dig_h3, calib_data.dig_h4, calib_data.dig_h5, calib_data.dig_h6);
+
+        if(ble_data->s_HealthIndicating && ble_data->s_ClientConnected)
+        {
+         //LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
+          //LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
+          BleServer_SendTRHDataToClient(temperature,humidity);
+        }
 
         gpioDebugLEDSetOff();
 

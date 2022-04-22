@@ -187,7 +187,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #endif
       if(event == ev_LETIMER0_UF)
       {
-        setMode(OPERATION_MODE_CONFIG);
+        setMode(OPERATION_MODE_CONFIG); //Accelerometer only
 #if 0
         nextState = BNO055_SETMODE_DELAY_1;
 #else
@@ -375,7 +375,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #if DEBUG_1
         LOG_INFO("BNO055_PAGE_ADDR\r");
 #endif
-        BNO055_write(BNO055_PAGE_ID_ADDR,0x00);
+        BNO055_write(BNO055_PAGE_ID_ADDR,BNO055_PAGE_0);
         nextState = BNO055_PAGE_ADDR_DELAY_5;
       }
       break;
@@ -471,14 +471,137 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         }
         else
         {
+#if 1
           //RESET the status of the machine
           nextState = BNO055_SETMODE;
           //next state to switch in Asset SM
           return_state = BME280_READ;
+#endif
+          //nextState = BNO055_SET_PAGE_ADDR_1;
         }
       }
       break;
      }
+#if 0
+    case BNO055_SET_PAGE_ADDR_1:
+    {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
+      if(event == ev_LETIMER0_COMP1)
+      {
+        LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+#if DEBUG_1
+        LOG_INFO("BNO055_SET_PAGE_ADDR_1\r");
+#endif
+        BNO055_write(BNO055_PAGE_ID_ADDR,BNO055_PAGE_1);
+        nextState = BNO055_PAGE_ADDR_1_DELAY_8;
+      }
+      break;
+    }
+    case BNO055_PAGE_ADDR_1_DELAY_8:
+    {
+      //default state
+      return_state = BNO055_INIT_CONFIG;
+      if(event == ev_I2C0_TRANSFER_DONE)
+      {
+#if POWER_MANAGEMENT
+        //Enter EM2 mode
+        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+        ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
+        if(ret_status == -1)
+        {
+          LOG_ERROR("The value is more than the routine can provide \r");
+        }
+        else
+        {
+          nextState = BNO055_INT_MSK;
+        }
+      }
+      break;
+     }
+      case BNO055_INT_MSK:
+      {
+        //default state
+        return_state = BNO055_INIT_CONFIG;
+        if(event == ev_LETIMER0_COMP1)
+        {
+          LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+  #if DEBUG_1
+          LOG_INFO("BNO055_INT_MSK\r");
+  #endif
+          BNO055_write(INT_MSK,0x10);
+          nextState = BNO055_INT_MSK_DELAY_9;
+        }
+        break;
+      }
+      case BNO055_INT_MSK_DELAY_9:
+      {
+        //default state
+        return_state = BNO055_INIT_CONFIG;
+        if(event == ev_I2C0_TRANSFER_DONE)
+        {
+  #if POWER_MANAGEMENT
+          //Enter EM2 mode
+          sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+  #endif
+          ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
+          if(ret_status == -1)
+          {
+            LOG_ERROR("The value is more than the routine can provide \r");
+          }
+          else
+          {
+            nextState = BNO055_INT_PIN_SET;
+          }
+        }
+        break;
+      }
+      case BNO055_INT_PIN_SET:
+      {
+        //default state
+        return_state = BNO055_INIT_CONFIG;
+        if(event == ev_LETIMER0_COMP1)
+        {
+          LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+  #if DEBUG_1
+          LOG_INFO("BNO055_INT_PIN_SET\r");
+  #endif
+          BNO055_write(INT_EN,0x40);
+          nextState = BNO055_INT_PIN_SET_DELAY_10;
+        }
+        break;
+      }
+  case BNO055_INT_PIN_SET_DELAY_10:
+  {
+    //default state
+    return_state = BNO055_INIT_CONFIG;
+    if(event == ev_I2C0_TRANSFER_DONE)
+    {
+#if POWER_MANAGEMENT
+      //Enter EM2 mode
+      sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+      ret_status = timerWaitUs_irq(BNO055_STD_DELAY);
+      if(ret_status == -1)
+      {
+        LOG_ERROR("The value is more than the routine can provide \r");
+      }
+      else
+      {
+        //nextState = BNO055_INT_PIN_SET;
+#if 0
+          //RESET the status of the machine
+          nextState = BNO055_SETMODE;
+          //next state to switch in Asset SM
+          return_state = BME280_READ;
+#endif
+      }
+    }
+    break;
+  }
+
+#endif
     default:
       break;
   }

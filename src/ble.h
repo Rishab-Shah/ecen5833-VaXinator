@@ -20,28 +20,37 @@
 #include "ble_device_type.h"
 
 
-#define INDICATION_QUEUE_SIZE  (16)
-#define INDICATION_QUEUE_SIZE_MASK  (15)
+#define INDICATION_QUEUE_SIZE             (16)
+#define INDICATION_QUEUE_SIZE_MASK        (15)
 
-#define INDICATION_QUEUE_TIMER_HANDLE  (4)
-#define INDICATION_QUEUE_TIMER_INTERVAL  (6554)
-
-
-#define BUTTON_BUFF_LEN   (2)
-#define TEMP_BUFF_LEN     (5)
-
-#define BUTTON_STATE_PRESSED  (0x01)
-#define BUTTON_STATE_RELEASED (0x00)
+#define INDICATION_QUEUE_TIMER_HANDLE     (4)
+#define INDICATION_QUEUE_TIMER_INTERVAL   (6554)
 
 
-#define IND_SEQ_PB0_PRESSED  (0x01)
-#define IND_SEQ_PB1_PRESSED  (0x02)
-#define IND_SEQ_PB1_RELEASED (0x04)
-#define IND_SEQ_PB0_RELEASED (0x08)
+#define BUTTON_BUFF_LEN                   (2)
+#define TEMP_BUFF_LEN                     (5)
 
-#define UINT8_TO_BITSTREAM(p, n) { *(p)++ = (uint8_t)(n); }
+#define BUTTON_STATE_PRESSED              (0x01)
+#define BUTTON_STATE_RELEASED             (0x00)
+
+
+#define IND_SEQ_PB0_PRESSED               (0x01)
+#define IND_SEQ_PB1_PRESSED               (0x02)
+#define IND_SEQ_PB1_RELEASED              (0x04)
+#define IND_SEQ_PB0_RELEASED              (0x08)
+
+#define UINT8_TO_BITSTREAM(p,n)        { *(p)++ = (uint8_t)(n); }
+
+#define UINT32_TO_BITSTREAM(p, n)      { *(p)++ = (uint8_t)(n);           \
+                                        *(p)++ = (uint8_t)((n) >> 8);     \
+                                        *(p)++ = (uint8_t)((n) >> 16);    \
+                                        *(p)++ = (uint8_t)((n) >> 24); }
+
+#define UINT32_TO_FLOAT(m, e)         (((uint32_t)(m) & 0x00FFFFFFU) | ((uint32_t)((int32_t)(e) << 24)))
+
 #define HEALTH_SIZE                        (16)
 #define ACCEL_SIZE                         (16)
+#define TRH_SIZE                           (16)
 
 typedef struct indication_struct_s {
     uint16_t characteristicHandle;
@@ -68,9 +77,22 @@ typedef struct ble_data_struct_s {
     bool s_HealthIndicating;
     uint8_t s_HealthService[HEALTH_SIZE];
     uint8_t s_HealthChar[HEALTH_SIZE];
+
     bool s_AccelIndication;
     uint8_t s_AccelService[ACCEL_SIZE];
     uint8_t s_AccelChar[ACCEL_SIZE];
+
+    bool s_TRHIndication;
+    uint8_t s_TRHService[ACCEL_SIZE];
+    uint8_t s_TRHChar[ACCEL_SIZE];
+
+
+
+
+
+
+
+
 
     // Values unique for client, prefixed with "c_"
     bd_addr c_DeviceAddress;
@@ -108,7 +130,8 @@ typedef enum {
     ev_PB1_RELEASED = 7,
     ev_SHUTDOWN = 8,
     ev_SPI_TX = 9,
-    ev_SPI_RX = 10
+    ev_SPI_RX = 10,
+    ev_BNO055_Int = 11,
 } ble_ext_signal_event_t;
 
 
@@ -199,7 +222,7 @@ ble_data_struct_t* BLE_GetDataStruct(void);
 /***************Server Functions*****************/
 /************************************************/
 
-void BleServer_SendHearbeatDataToClient(uint8_t heartbeat_value);
+void BleServer_SendTRHDataToClient(float temperature_data, float RH_data);
 
 
 void BleServer_SendAccelDataToClient(uint8_t* accel_buff);

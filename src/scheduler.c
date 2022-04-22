@@ -157,6 +157,19 @@ void Scheduler_SetEvent_SPI_RX(void) {
     CORE_EXIT_CRITICAL();
 }
 
+void Scheduler_SetEvent_BNO55_Int()
+{
+  CORE_DECLARE_IRQ_STATE;
+
+  CORE_ENTER_CRITICAL();
+  //EventQ_EnqueueEvent(ev_BNO055_Int);
+#if NO_BL
+  sl_bt_external_signal(ev_BNO055_Int);
+#else
+  event_requested = ev_BNO055_Int;
+#endif
+  CORE_EXIT_CRITICAL();
+}
 /************************************************/
 /***************Client Functions*****************/
 /************************************************/

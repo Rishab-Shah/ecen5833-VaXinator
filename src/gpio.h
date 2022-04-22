@@ -37,7 +37,8 @@
 #define PB0_port            (gpioPortB)
 #define PB0_pin             (12)
 
-
+#define BNOInt_port         (gpioPortC)
+#define BNOInt_pin          (7)
 
 #define PB1_port            (gpioPortF)
 #define PB1_pin             (7)
@@ -72,7 +73,7 @@ void gpioPMICSetOff();
 
 void PB0_Init(void);
 void PB1_Init(void);
-
+void gpioBNOInterrupt();
 
 
 //PROJECT::MAX30101 - GPIO Configurations
