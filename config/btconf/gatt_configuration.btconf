@@ -33,7 +33,7 @@
     <!--TRH Characteristic-->
     <characteristic const="false" id="trh_state" name="TRH Characteristic" sourceId="" uuid="00000004-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="3" type="hex" variable_length="false">00</value>
+      <value length="12" type="utf-8" variable_length="false">00</value>
       <properties>
         <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>

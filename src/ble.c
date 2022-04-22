@@ -1154,9 +1154,12 @@ void BleServer_SendTRHDataToClient(float temperature_data, float RH_data)
     LOG_INFO("Value rx::%lf - %lf\r", temperature_data,RH_data);
     sl_status_t sc = 0;
 
-    uint8_t heartbeat_buffer[10] = {0};
-    heartbeat_buffer[0] = (int)temperature_data;
-    heartbeat_buffer[2] = (int)RH_data;
+    uint8_t heartbeat_buffer[12] = {0};
+    //heartbeat_buffer[0] = (int)temperature_data;
+    //heartbeat_buffer[2] = (int)RH_data;
+
+    sprintf(heartbeat_buffer,"%.2f %.2f",temperature_data,RH_data);
+    LOG_INFO("%s\r", heartbeat_buffer);
     //uint8_t *p = &heartbeat_buffer[0];
 
     //uint32_t temp_float = UINT32_TO_FLOAT(temperature_data*1000,-3);
@@ -1170,7 +1173,7 @@ void BleServer_SendTRHDataToClient(float temperature_data, float RH_data)
     if((ble_data.s_IndicationInFlight == false))
     {
         sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_trh_state,
-                                               3,&heartbeat_buffer[0]); //slcp
+                                               12,&heartbeat_buffer[0]); //slcp
 
         if(sc != SL_STATUS_OK)
         {
@@ -1184,8 +1187,8 @@ void BleServer_SendTRHDataToClient(float temperature_data, float RH_data)
     else
     {
         indication.characteristicHandle = gattdb_trh_state;
-        memcpy(&indication.buff[0], &heartbeat_buffer[0], 3);
-        indication.bufferLen = 3;
+        memcpy(&indication.buff[0], &heartbeat_buffer[0], 12);
+        indication.bufferLen = 12;
         IndicationQ_Enqueue(indication);
     }
 }
