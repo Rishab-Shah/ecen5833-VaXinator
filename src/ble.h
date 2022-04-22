@@ -74,9 +74,9 @@ typedef struct ble_data_struct_s {
     bool s_IndicationInFlight;
     bool s_Bonded;
     //Server - Services
-    bool s_HealthIndicating;
-    uint8_t s_HealthService[HEALTH_SIZE];
-    uint8_t s_HealthChar[HEALTH_SIZE];
+    //bool s_HealthIndicating;
+    //uint8_t s_HealthService[HEALTH_SIZE];
+    //uint8_t s_HealthChar[HEALTH_SIZE];
 
     bool s_AccelIndication;
     uint8_t s_AccelService[ACCEL_SIZE];

@@ -26,14 +26,14 @@
     </characteristic>
   </service>
   
-  <!--TRH Service-->
-  <service advertise="true" name="TRH Service" requirement="mandatory" sourceId="" type="primary" uuid="00000003-38c8-433e-87ec-652a2d136289">
+  <!--Temperature Humidity Service-->
+  <service advertise="true" name="Temperature Humidity Service" requirement="mandatory" sourceId="" type="primary" uuid="00000003-38c8-433e-87ec-652a2d136289">
     <informativeText/>
     
-    <!--Heartbeat Characteristic-->
-    <characteristic const="false" id="heartbeat_state" name="Heartbeat Characteristic" sourceId="" uuid="00000004-38c8-433e-87ec-652a2d136289">
+    <!--TRH Characteristic-->
+    <characteristic const="false" id="trh_state" name="TRH Characteristic" sourceId="" uuid="00000004-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="17" type="hex" variable_length="false">00</value>
+      <value length="3" type="hex" variable_length="false">00</value>
       <properties>
         <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>
