@@ -87,6 +87,10 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
       {
         memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
         bme280_wr_buff[0] = BME280_DATA_ADDR;
+#if PWR_MGMT_RUN_MODE
+        //Enter EM1 mode
+        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
         I2C0_WriteRead(BME280_ADDRESS, &bme280_wr_buff[0], 1, &bme280_rd_buff[0], BME280_T_RH_DATA_LEN);
         nextState = BME280_DISP_TRH_DATA;
         gpioDebugLEDSetOn();
@@ -117,16 +121,29 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
         //LOG_INFO("BME280 T1 = %d T2 = %d T3 = %d\r", calib_data.dig_t1, calib_data.dig_t2, calib_data.dig_t3);
         //LOG_INFO("BME280 H1 = %d H2 = %d H3 = %d H4 = %d H5 = %d H6 = %d\r",
         //         calib_data.dig_h1, calib_data.dig_h2, calib_data.dig_h3, calib_data.dig_h4, calib_data.dig_h5, calib_data.dig_h6);
-
+#if 0
         if(ble_data->s_TRHIndication && ble_data->s_ClientConnected)
         {
          //LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
           //LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
+          //BleServer_SendTRHDataToClient(temperature,humidity);
           BleServer_SendTRHDataToClient(temperature,humidity);
         }
-
+#endif
+#if 1
+        if(ble_data->s_GPSIndication && ble_data->s_ClientConnected)
+        {
+          char gps_data[100]; memset(gps_data,0,sizeof(gps_data));
+          strcpy(gps_data,"-104.23");
+          BleServer_SendLatLongToClient(gps_data);
+        }
+#endif
         gpioDebugLEDSetOff();
 
+#if PWR_MGMT_RUN_MODE
+        //Enter EM2 mode
+        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
         ret_status = timerWaitUs_irq(STD_DELAY);
         if(ret_status == ERROR)
         {
@@ -169,6 +186,10 @@ asset_monitoring_state_t init_bme280_machine(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_UF)
       {
+#if PWR_MGMT_RUN_MODE
+        //Enter EM1 mode
+        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
         //default state
         return_state = BME280_INIT_CONFIG;
 #if DEBUG_1
@@ -525,9 +546,9 @@ static double compensate_temperature(const uint32_t temp_data)
 static double compensate_humidity(const uint32_t hum_data)
 {
   double hum;
-  double humidity_min = 0.0;
-  double humidity_max = 100.0;
-  int32_t var1, var2, var3, var4, var5, var6;
+  //double humidity_min = 0.0;
+  //double humidity_max = 100.0;
+  int32_t var1, var2, var3, var4, var5; //var6
 
   //    var1 = ((double)calib_data.t_fine) - 76800.0;
   //    var2 = (((double)calib_data.dig_h4) * 64.0 + (((double)calib_data.dig_h5) / 16384.0) * var1);
@@ -537,6 +558,7 @@ static double compensate_humidity(const uint32_t hum_data)
   //    var6 = 1.0 + (((double)calib_data.dig_h6) / 67108864.0) * var1 * var5;
   //    var6 = var3 * var4 * (var5 * var6);
   //    hum = var6 * (1.0 - ((double)calib_data.dig_h1) * var6 / 524288.0);
+
 
   var1 = calib_data.t_fine - ((int32_t)76800);
   var2 = (int32_t)(hum_data * 16384);

@@ -65,3 +65,47 @@ int timerWaitUs_irq(uint32_t us_wait) {
 
   return 0;
 }
+
+/*
+* @Function name: timerWaitUs_polled
+* @Description: provides a delay for the requested usec for upto 3 seconds.
+* i.e in general the amount of period requested in LETIMER_PERIOD_MS (app.h)
+* @input param: takes timer value in usec
+* @return: success/failure status
+    */
+int timerWaitUs_polled(uint32_t us_wait)
+{
+  uint32_t refTickValue = 0;
+  uint32_t reqWaitTime = 0;
+  uint32_t calWaitTime = 0;
+  //Calculate the value - us_wait into equivalent no of ticks wait time
+  us_wait = (uint32_t)(us_wait/1000);
+  reqWaitTime = (( (us_wait*ACTUAL_CLK_FREQ) /1000) + 1); //(+1 for handling at least condition)
+  if((reqWaitTime > VALUE_TO_LOAD_FOR_PERIOD ))
+  {
+      return -1;
+  }
+  //Take reference value of clock (Latest)
+  refTickValue = LETIMER_CounterGet(LETIMER0);
+  if(refTickValue > reqWaitTime)
+  {
+      calWaitTime = refTickValue - reqWaitTime;
+      do
+      {
+          refTickValue = LETIMER_CounterGet(LETIMER0);
+      }while(refTickValue > calWaitTime);
+  }
+  else
+  {
+      do
+      {
+        //Combining is required in one otherwise the system is free to process
+        //any interrupt
+        //next time the value which will be loaded may not be accurate
+        //could cause a miss. Using reftick value
+          ;
+      }while(LETIMER_CounterGet(LETIMER0) != VALUE_TO_LOAD_FOR_PERIOD+refTickValue-reqWaitTime);
+  }
+  return 0;
+}
+

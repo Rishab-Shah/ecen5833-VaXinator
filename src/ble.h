@@ -26,13 +26,11 @@
 #define INDICATION_QUEUE_TIMER_HANDLE     (4)
 #define INDICATION_QUEUE_TIMER_INTERVAL   (6554)
 
-
 #define BUTTON_BUFF_LEN                   (2)
 #define TEMP_BUFF_LEN                     (5)
 
 #define BUTTON_STATE_PRESSED              (0x01)
 #define BUTTON_STATE_RELEASED             (0x00)
-
 
 #define IND_SEQ_PB0_PRESSED               (0x01)
 #define IND_SEQ_PB1_PRESSED               (0x02)
@@ -51,6 +49,7 @@
 #define HEALTH_SIZE                        (16)
 #define ACCEL_SIZE                         (16)
 #define TRH_SIZE                           (16)
+#define GPS_SIZE                           (16)
 
 typedef struct indication_struct_s {
     uint16_t characteristicHandle;
@@ -74,17 +73,17 @@ typedef struct ble_data_struct_s {
     bool s_IndicationInFlight;
     bool s_Bonded;
     //Server - Services
-    //bool s_HealthIndicating;
-    //uint8_t s_HealthService[HEALTH_SIZE];
-    //uint8_t s_HealthChar[HEALTH_SIZE];
-
     bool s_AccelIndication;
     uint8_t s_AccelService[ACCEL_SIZE];
     uint8_t s_AccelChar[ACCEL_SIZE];
 
     bool s_TRHIndication;
-    uint8_t s_TRHService[ACCEL_SIZE];
-    uint8_t s_TRHChar[ACCEL_SIZE];
+    uint8_t s_TRHService[TRH_SIZE];
+    uint8_t s_TRHChar[TRH_SIZE];
+
+    bool s_GPSIndication;
+    uint8_t s_GPSService[GPS_SIZE];
+    uint8_t s_GPSChar[GPS_SIZE];
 
 
 
@@ -223,7 +222,7 @@ ble_data_struct_t* BLE_GetDataStruct(void);
 /************************************************/
 
 void BleServer_SendTRHDataToClient(float temperature_data, float RH_data);
-
+void BleServer_SendLatLongToClient(char *gps_data);
 
 void BleServer_SendAccelDataToClient(uint8_t* accel_buff);
 

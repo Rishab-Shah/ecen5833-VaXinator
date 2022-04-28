@@ -12,11 +12,13 @@
 
 uint32_t g_systickCounter = 0;
 
+#if 0
 extern LDMA_Descriptor_t ldmaTXDescriptor;
 extern LDMA_TransferCfg_t ldmaTXConfig;
 
 extern LDMA_Descriptor_t ldmaRXDescriptor;
 extern LDMA_TransferCfg_t ldmaRXConfig;
+#endif
 
 void LETIMER0_IRQHandler(void) {
   uint32_t flags;

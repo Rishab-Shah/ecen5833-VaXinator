@@ -62,8 +62,10 @@
 #include "src/bno055.h"
 #include "src/bme280.h"
 #include "src/leuart.h"
+#include "src/GNSS.h"
 #include "src/spi.h"
 #include "sl_uartdrv_instances.h"
+
 
 #define EM0                           (0)
 #define EM1                           (1)
@@ -81,19 +83,23 @@
 #define PSEUDO_TRIGGER                ((1)*(MSEC_TO_USEC))
 
 #if (LOWEST_ENERGY_LEVEL == EM0)
- #define POWER_MANAGEMENT             (0)
+ #define PWR_MGMT_COMP                (0)
+ #define PWR_MGMT_RUN_MODE            (0)
  #define LFACLK_FREQ_HZ               (LFXO_FREQ)
  #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
 #elif (LOWEST_ENERGY_LEVEL == EM1)
- #define POWER_MANAGEMENT             (0)
+ #define PWR_MGMT_COMP                (0)
+ #define PWR_MGMT_RUN_MODE            (0)
  #define LFACLK_FREQ_HZ               (LFXO_FREQ)
  #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
 #elif (LOWEST_ENERGY_LEVEL == EM2)
- #define POWER_MANAGEMENT             (1)
+ #define PWR_MGMT_COMP                (0)
+ #define PWR_MGMT_RUN_MODE            (1)
  #define LFACLK_FREQ_HZ               (LFXO_FREQ)
  #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_4)
 #elif (LOWEST_ENERGY_LEVEL == EM3)
- #define POWER_MANAGEMENT             (1)
+ #define PWR_MGMT_COMP                (0)
+ #define PWR_MGMT_RUN_MODE            (1)
  #define LFACLK_FREQ_HZ               (ULFRCO_FREQ)
  #define LFACLK_PRESCALER_DIV_RATIO   (cmuClkDiv_1)
 #endif

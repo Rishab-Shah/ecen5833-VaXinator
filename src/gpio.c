@@ -29,7 +29,7 @@ void gpioInit()
 
   gpioPMICSetOn();
   gpioDebugLEDSetOff();
-  gpioGPSLoadSwitchOff();
+  gpioGPSLoadSwitchOn();
   PB0_Init();
   gpioBNOInterrupt();
 

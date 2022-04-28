@@ -36,7 +36,7 @@ typedef enum {
 
 
 
-
+void AssetMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 /************************************************/
 /****************Event Handlers******************/
 /************************************************/

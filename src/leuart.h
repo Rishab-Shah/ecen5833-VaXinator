@@ -1,8 +1,8 @@
 /*
- * uart.h
+ * leuart.h
  *
  *  Created on: Feb 25, 2022
- *      Author: rishab
+ *      Author: rishab and mukta
  */
 
 #ifndef SRC_LEUART_H_
@@ -11,21 +11,12 @@
 
 #if 1
 #include <em_usart.h>
+#include <stdbool.h>
 #include "em_gpio.h"
 #include "em_cmu.h"
 #include "em_usart.h"
-#include "sl_i2cspm.h"
-#include "sl_i2cspm_sensor_config.h"
-
 
 #include "sl_status.h"
-#include "em_usart.h"
-#include "em_cmu.h"
-
-
-#include "em_gpio.h"
-#include "sl_i2cspm.h"
-#include "sl_i2cspm_sensor_config.h"
 #include "src/timers.h"
 
 #include "sl_uartdrv_leuart_vcom2_config.h"
@@ -64,6 +55,11 @@ sl_status_t sli_gps_uart_rx(sli_gps_uart_handle_t *handle, const void *data, uns
 void LEUART0_Init();
 void LEUART_rx_callback(UARTDRV_Handle_t handle, Ecode_t transferStatus, uint8_t *data,
                              UARTDRV_Count_t transferCount);
+
+void initLeuart(void);
+int echo_test(void);
+void LEUART_Transmit(uint8_t * buf, int size, int rx_size);
+void LEUART_Receive(uint8_t * buf, int size);
 
 #endif
 

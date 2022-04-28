@@ -45,7 +45,7 @@ void LETIMER0_Start(void);
  *
  * @return None
  */
-void timerWaitUs_polled(uint32_t us_wait);
+int timerWaitUs_polled(uint32_t us_wait);
 
 
 /*

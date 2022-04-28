@@ -164,7 +164,6 @@ static void GPIOINT_IRQDispatcher(uint32_t iflags)
  *   call the dispatcher passing the flags which triggered the interrupt.
  *
  ******************************************************************************/
-#if 1
 void GPIO_EVEN_IRQHandler(void)
 {
   uint32_t iflags;
@@ -185,7 +184,7 @@ void GPIO_EVEN_IRQHandler(void)
 
   GPIOINT_IRQDispatcher(iflags);
 }
-#endif
+
 /***************************************************************************//**
  * @brief
  *   GPIO ODD interrupt handler. Interrupt handler clears all IF odd flags and

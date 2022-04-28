@@ -72,7 +72,12 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #endif
         memset(bno055_rd_buff,0,sizeof(bno055_rd_buff));
         bno055_wr_buff[0] = BNO055_EULER_H_LSB_ADDR;
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
+        //Enter EM1 mode
+        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+
+#if PWR_MGMT_RUN_MODE
         //Enter EM1 mode
         sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -87,10 +92,12 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_READ;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
+
+
         gpioDebugLEDSetOff();
         //processing
         int16_t x = 0,y = 0, z= 0;
@@ -102,9 +109,14 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
 #if NO_BL
         if(ble_data->s_AccelIndication && ble_data->s_ClientConnected)
         {
-          LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
+          //LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
           BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
         }
+#endif
+
+#if PWR_MGMT_RUN_MODE
+        //Enter EM2 mode
+        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
         ret_status = timerWaitUs_irq(BNO055_DATA_POLL);
         if(ret_status == -1)
@@ -210,7 +222,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -247,7 +259,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -277,7 +289,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         address_verification = BNO055_VerifyIdentity(&bno055_rd_buff[0]);
         if(address_verification == true)
         {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
           //Enter EM2 mode
           sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -293,7 +305,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         }
         else
         {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
           //Enter EM2 mode
           sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -349,7 +361,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -386,7 +398,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -423,7 +435,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -460,7 +472,12 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
+        //Enter EM2 mode
+        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+
+#if PWR_MGMT_RUN_MODE
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -504,7 +521,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
       return_state = BNO055_INIT_CONFIG;
       if(event == ev_I2C0_TRANSFER_DONE)
       {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -541,7 +558,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         return_state = BNO055_INIT_CONFIG;
         if(event == ev_I2C0_TRANSFER_DONE)
         {
-  #if POWER_MANAGEMENT
+  #if PWR_MGMT_COMP
           //Enter EM2 mode
           sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
   #endif
@@ -578,7 +595,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
     return_state = BNO055_INIT_CONFIG;
     if(event == ev_I2C0_TRANSFER_DONE)
     {
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
       //Enter EM2 mode
       sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -612,7 +629,7 @@ void BNO055_write(uint8_t reg, uint8_t byte_val)
 {
   bno055_wr_buff[0] = reg;
   bno055_wr_buff[1] = byte_val;
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
   //Enter EM1 mode
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -623,7 +640,7 @@ void setMode(uint8_t set_mode)
 {
   bno055_wr_buff[0] = BNO055_OPR_MODE_ADDR;
   bno055_wr_buff[1] = set_mode;
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
   //Enter EM1 mode
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
@@ -633,7 +650,7 @@ void setMode(uint8_t set_mode)
 bool BNO055_VerifyIdentity(uint8_t* rd_buff)
 {
   bno055_wr_buff[0] = BNO055_CHIP_ID_ADDR;
-#if POWER_MANAGEMENT
+#if PWR_MGMT_COMP
   //Enter EM1 mode
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 #endif

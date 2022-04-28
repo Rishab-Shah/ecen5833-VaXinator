@@ -91,10 +91,17 @@ SL_WEAK void app_init(void)
 #if 1
     BLE_Init();
     I2C0_Init();
-    //LEUART0_Init();
-    //sl_uartdrv_init_instances();
 #endif
     LOG_INFO("Hey print - after spi\r");
+    initLeuart();
+    GNSS_Init(&GNSS_Handle);
+    timerWaitUs_polled(1000000);
+    GNSS_LoadConfig(&GNSS_Handle);
+    for (int i=0; i<40; i++)
+      timerWaitUs_polled(1000000);
+
+    LOG_INFO("Done with Init\r");
+
 }
 
 /**************************************************************************//**
@@ -146,8 +153,6 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 #if DEVICE_IS_BLE_SERVER
 #if NO_BL
     handle_ble_event(evt);
-
-
     if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
         return;
     }
@@ -158,23 +163,40 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       gpioPMICSetOff();
     }
 
+    gpioDebugLEDSetOn();
+    LOG_INFO("see this works or not\r");
+    timerWaitUs_polled(1000000);
+    timerWaitUs_polled(1000000);
+    timerWaitUs_polled(1000000);
+    GNSS_GetNavDataDump(&GNSS_Handle);
+    LOG_INFO("GPS - %s\r\n", GNSS_Handle.uartNavData);
+    gpioDebugLEDSetOff();
+
+
+    ble_data_struct_t* ble_data = BLE_GetDataStruct();
+    if(ble_data->s_GPSIndication && ble_data->s_ClientConnected)
+    {
+      char gps_data[100]; memset(gps_data,0,sizeof(gps_data));
+      strncpy(gps_data,GNSS_Handle.uartNavData,50);
+      BleServer_SendLatLongToClient(gps_data);
+    }
+#if 0
     static int z = 0;
     if(event == ev_BNO055_Int)
     {
-        if(z == 0)
-          {
-            gpioDebugLEDSetOn();
-            z= 1;
-          }
-        else
-          {
-            gpioDebugLEDSetOff();
-            z = 0;
-          }
-
+      if(z == 0)
+      {
+        gpioDebugLEDSetOn();
+        z= 1;
+      }
+      else
+      {
+        gpioDebugLEDSetOff();
+        z = 0;
+      }
     }
-
-    AssetMonitoringSystem_StateMachine(evt);
+#endif
+    //AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
     //init_flash_setup(evt);
 #else

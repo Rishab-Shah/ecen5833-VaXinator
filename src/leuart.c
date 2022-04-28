@@ -2,7 +2,7 @@
  * uart.c
  *
  *  Created on: Feb 25, 2022
- *      Author: rishab
+ *      Author: rishab and mukta
  */
 
 #include <src/leuart.h>
@@ -10,7 +10,7 @@
 #define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 
-#if 1
+#if 0
 #define packetLength 66
 uint8_t leuartbuffer[100];
 char gnssarray[100];
@@ -130,3 +130,182 @@ sl_status_t sli_gps_uart_init(sli_gps_uart_handle_t *handle, int baudrate, USART
   return SL_STATUS_OK;
 }
 #endif
+
+#include "em_device.h"
+#include "em_cmu.h"
+#include "em_emu.h"
+#include "em_gpio.h"
+#include "em_leuart.h"
+#include "em_chip.h"
+
+#define RX_BUFFER_SIZE 200             // Software receive buffer size
+
+static bool rxDataReady = 0, txInProcess = 0;      // Flag indicating receiver does not have data
+static volatile char rxBuffer[RX_BUFFER_SIZE]; // Software receive buffer
+static char txBuffer[RX_BUFFER_SIZE]; // Software transmit buffer
+static uint32_t txSize = 0, rxSize = 0;
+
+/**************************************************************************//**
+ * @brief
+ *    Initialize the LEUART module
+ *****************************************************************************/
+void initLeuart(void)
+{
+
+  // GPIO clock
+  CMU_ClockEnable(cmuClock_GPIO, true);
+
+  // Initialize LEUART0 TX and RX pins
+  GPIO_PinModeSet(gpioPortC, 11, gpioModePushPull, 1); // TX
+  GPIO_PinModeSet(gpioPortC, 10, gpioModeInput, 0);    // RX
+
+  // Enable LE (low energy) clocks
+  CMU_ClockEnable(cmuClock_HFLE, true); // Necessary for accessing LE modules
+  CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO); // Set a reference clock
+
+  // Enable clocks for LEUART0
+  CMU_ClockEnable(cmuClock_LEUART0, true);
+  CMU_ClockDivSet(cmuClock_LEUART0, cmuClkDiv_1); // Don't prescale LEUART clock
+
+  // Initialize the LEUART0 module
+  LEUART_Init_TypeDef init = LEUART_INIT_DEFAULT;
+  LEUART_Init(LEUART0, &init);
+
+  // Enable LEUART0 RX/TX pins on PD[11:10] (see readme.txt for details)
+  LEUART0->ROUTEPEN  = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
+  LEUART0->ROUTELOC0 = LEUART_ROUTELOC0_RXLOC_LOC14 | LEUART_ROUTELOC0_TXLOC_LOC16;
+
+  // Enable LEUART0 RX/TX interrupts
+  LEUART_IntEnable(LEUART0, LEUART_IEN_RXDATAV | LEUART_IEN_TXC);
+  NVIC_EnableIRQ(LEUART0_IRQn);
+}
+
+/**************************************************************************//**
+ * @brief
+ *    LEUART0 interrupt service routine
+ *
+ * @details
+ *    Keep receiving data while there is still data left in the hardware RX buffer.
+ *    Store incoming data into rxBuffer and set rxDataReady when a linefeed '\n' is
+ *    sent or if there is no more room in the buffer.
+ *****************************************************************************/
+void LEUART0_IRQHandler(void)
+{
+  // Note: These are static because the handler will exit/enter
+  //       multiple times to fully transmit a message.
+  static uint32_t rxIndex = 0;
+  static uint32_t txIndex = 0;
+
+  // Acknowledge the interrupt
+  uint32_t flags = LEUART_IntGet(LEUART0);
+  LEUART_IntClear(LEUART0, flags);
+
+  // RX portion of the interrupt handler
+  if (flags & LEUART_IF_RXDATAV) {
+    while (LEUART0->STATUS & LEUART_STATUS_RXDATAV) { // While there is still incoming data
+      char data = LEUART_Rx(LEUART0);
+      if ((rxIndex < RX_BUFFER_SIZE - 2) && (rxIndex < rxSize)) { // Save two spots for '\n' and '\0'
+        rxBuffer[rxIndex++] = data;
+      } else { // Done receiving
+        rxBuffer[rxIndex++] = '\r';
+        rxBuffer[rxIndex++] = '\n';
+        rxBuffer[rxIndex++] = '\0';
+        rxDataReady = 1;
+        //rxSize = rxIndex;
+        rxIndex = 0;
+        break;
+      }
+    }
+  }
+
+  // TX portion of the interrupt handler
+  if (flags & LEUART_IF_TXC) {
+    if ((txIndex < RX_BUFFER_SIZE) && (txIndex < txSize)) {
+      LEUART_Tx(LEUART0, txBuffer[txIndex++]); // Send the data
+    } else { // Done transmitting
+      txIndex = 0;
+      txInProcess = 0;
+      LEUART_IntDisable(LEUART0, LEUART_IEN_TXC); // Disable interrupts
+    }
+  }
+}
+
+int echo_test(void)
+{
+  uint32_t i;
+  // Print the welcome message
+  char welcomeString[] = "LEUART echo code example\r\n";
+  for (i = 0 ; welcomeString[i] != 0; i++) {
+    txBuffer[i] = welcomeString[i];
+  }
+  txBuffer[i] = '\0';
+  LEUART_IntSet(LEUART0, LEUART_IFS_TXC);
+
+  while (1) {
+
+      if(rxDataReady)
+        {
+          LEUART_IntDisable(LEUART0, LEUART_IEN_RXDATAV | LEUART_IEN_TXC); // Disable interrupts
+          rxDataReady=0;
+
+          LOG_INFO("RX - %s\r\n", rxBuffer);
+          memset(rxBuffer, 0, RX_BUFFER_SIZE);
+          LEUART_IntEnable(LEUART0, LEUART_IEN_RXDATAV | LEUART_IEN_TXC); // Re-enable interrupts
+          txInProcess = 1;
+          LEUART_IntSet(LEUART0, LEUART_IFS_TXC);
+        }
+    // Wait for incoming data in EM2 to save energy
+    //EMU_EnterEM2(false);
+  }
+}
+
+void LEUART_Transmit(uint8_t * buf, int size, int rx_size)
+{
+  int i = 0;
+
+  while(txInProcess);
+
+  LEUART_IntDisable(LEUART0, LEUART_IEN_RXDATAV | LEUART_IEN_TXC); // Disable interrupts
+
+  rxDataReady=0;
+
+  memset(txBuffer, 0, RX_BUFFER_SIZE);
+
+  for (i = 0 ; i < size; i++) {
+    txBuffer[i] = buf[i];
+  }
+
+  txSize = size;
+  rxSize = rx_size;
+  LEUART_IntEnable(LEUART0, LEUART_IEN_RXDATAV | LEUART_IEN_TXC); // Re-enable interrupts
+  txInProcess = 1;
+  LEUART_IntSet(LEUART0, LEUART_IFS_TXC);
+
+}
+
+void LEUART_Receive(uint8_t * buf, int size)
+{
+  int i = 0;
+
+  while(!rxDataReady || txInProcess)
+    {
+      timerWaitUs_polled(100000);
+      i++;
+      if(i>20)
+        break;
+    }
+
+  LEUART_IntDisable(LEUART0, LEUART_IEN_RXDATAV | LEUART_IEN_TXC); // Disable interrupts
+
+  rxDataReady=0;
+
+//  if ((size != rxSize) || (size != (rxSize+2)))
+//    return;
+
+  for (i = 0 ; i < rxSize; i++) {
+      buf[i] = rxBuffer[i];
+  }
+  rxSize = 0;
+  memset(rxBuffer, 0, RX_BUFFER_SIZE);
+}
+
