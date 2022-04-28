@@ -121,7 +121,7 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
         //LOG_INFO("BME280 T1 = %d T2 = %d T3 = %d\r", calib_data.dig_t1, calib_data.dig_t2, calib_data.dig_t3);
         //LOG_INFO("BME280 H1 = %d H2 = %d H3 = %d H4 = %d H5 = %d H6 = %d\r",
         //         calib_data.dig_h1, calib_data.dig_h2, calib_data.dig_h3, calib_data.dig_h4, calib_data.dig_h5, calib_data.dig_h6);
-#if 0
+#if 1
         if(ble_data->s_TRHIndication && ble_data->s_ClientConnected)
         {
          //LOG_INFO("%x %x %x %x %x %x\r", bno055_rd_buff[0], bno055_rd_buff[1], bno055_rd_buff[2], bno055_rd_buff[3], bno055_rd_buff[4], bno055_rd_buff[5]);
@@ -131,6 +131,29 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
         }
 #endif
 #if 1
+        LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
+        int current_temp = 0, current_hum = 0;
+        current_temp = (int)temperature;
+        current_hum = (int)humidity;
+
+        if((current_temp > ble_data->high_temp_threshold))
+        {
+            //strncpy();
+        }
+        else if((current_temp < ble_data->low_temp_threshold))
+        {
+            //strncpy();
+        }
+        else if((current_temp > ble_data->high_hum_threshold))
+        {
+            //strncpy();
+        }
+        else if((current_temp < ble_data->low_hum_threshold))
+        {
+
+        }
+#endif
+#if 0
         if(ble_data->s_GPSIndication && ble_data->s_ClientConnected)
         {
           char gps_data[100]; memset(gps_data,0,sizeof(gps_data));

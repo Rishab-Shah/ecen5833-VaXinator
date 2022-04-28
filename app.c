@@ -93,6 +93,7 @@ SL_WEAK void app_init(void)
     I2C0_Init();
 #endif
     LOG_INFO("Hey print - after spi\r");
+#if 0
     initLeuart();
     GNSS_Init(&GNSS_Handle);
     timerWaitUs_polled(1000000);
@@ -101,6 +102,7 @@ SL_WEAK void app_init(void)
       timerWaitUs_polled(1000000);
 
     LOG_INFO("Done with Init\r");
+#endif
 
 }
 
@@ -163,6 +165,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       gpioPMICSetOff();
     }
 
+#if 0
     gpioDebugLEDSetOn();
     LOG_INFO("see this works or not\r");
     timerWaitUs_polled(1000000);
@@ -172,7 +175,6 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     LOG_INFO("GPS - %s\r\n", GNSS_Handle.uartNavData);
     gpioDebugLEDSetOff();
 
-
     ble_data_struct_t* ble_data = BLE_GetDataStruct();
     if(ble_data->s_GPSIndication && ble_data->s_ClientConnected)
     {
@@ -180,7 +182,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       strncpy(gps_data,GNSS_Handle.uartNavData,50);
       BleServer_SendLatLongToClient(gps_data);
     }
-#if 0
+
     static int z = 0;
     if(event == ev_BNO055_Int)
     {
@@ -196,7 +198,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       }
     }
 #endif
-    //AssetMonitoringSystem_StateMachine(evt);
+    AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
     //init_flash_setup(evt);
 #else

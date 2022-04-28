@@ -579,6 +579,24 @@ void BleServer_HandleBootEvent(void) {
     }
 
 #if 0
+#define DEFAULT_HIGH_TEMP_THESHOLD         (20)
+#define DEFAULT_LOW_TEMP_THESHOLD          (5)
+#define DEFAULT_HIGH_HUM_THESHOLD          (20)
+#define DEFAULT_LOW_HUM_THESHOLD           (15)
+#endif
+
+#if 0
+    ble_data.high_temp_threshold = DEFAULT_HIGH_TEMP_THESHOLD;
+    ble_data.low_temp_threshold = DEFAULT_LOW_TEMP_THESHOLD;
+    ble_data.high_hum_threshold = DEFAULT_HIGH_HUM_THESHOLD;
+    ble_data.low_hum_threshold = DEFAULT_LOW_HUM_THESHOLD;
+
+    ble_data.ignore_accl_threshold = THRESHOLD_IGNORE;
+    ble_data->low_accl_threshold = THRESHOLD_LOW;
+    ble_data->high_accl_threshold = THRESHOLD_HIGH;
+#endif
+
+#if 0
     displayInit();
 
     displayPrintf(DISPLAY_ROW_NAME, BLE_DEVICE_TYPE_STRING);
@@ -651,7 +669,7 @@ void BleServer_HandleConnectionClosedEvent(void) {
 #if DISP
     displayPrintf(DISPLAY_ROW_CONNECTION, "Advertising");
 #endif
-    gpioDebugLEDSetOff();
+    //gpioDebugLEDSetOff();
 }
 
 void BleServer_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
@@ -795,7 +813,7 @@ void BleServer_HandleBondedEvent(void) {
     displayPrintf(DISPLAY_ROW_ACTION, "");
 #endif
     ble_data.s_Bonded = true;
-    gpioDebugLEDSetOff();
+    //gpioDebugLEDSetOff();
 }
 
 void BleServer_HandleBondingFailedEvent(sl_bt_msg_t* event) {
@@ -969,7 +987,7 @@ void BleClient_HandleConnectionClosedEvent(void) {
     displayPrintf(DISPLAY_ROW_ACTIVITY_STATE, "");
 #endif
 
-    gpioDebugLEDSetOff();
+    //gpioDebugLEDSetOff();
 }
 
 void BleClient_HandleConnectionParametersEvent(sl_bt_msg_t* event) {
@@ -1162,7 +1180,7 @@ void BleClient_HandleBondedEvent(void) {
     displayPrintf(DISPLAY_ROW_ACTION, "");
 #endif
     ble_data.c_Bonded = true;
-    gpioDebugLEDSetOff();
+    //gpioDebugLEDSetOff();
 }
 
 void BleClient_HandleBondingFailedEvent(sl_bt_msg_t* event) {

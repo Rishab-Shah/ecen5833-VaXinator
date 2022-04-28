@@ -104,7 +104,7 @@
     <!--Device Name-->
     <characteristic const="false" id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
       <informativeText/>
-      <value length="10" type="utf-8" variable_length="false">VaXinator</value>
+      <value length="7" type="utf-8" variable_length="false">Nexus</value>
       <properties>
         <read authenticated="false" bonded="false" encrypted="false"/>
         <write authenticated="false" bonded="false" encrypted="false"/>

@@ -37,19 +37,33 @@
 #define IND_SEQ_PB1_RELEASED              (0x04)
 #define IND_SEQ_PB0_RELEASED              (0x08)
 
-#define UINT8_TO_BITSTREAM(p,n)        { *(p)++ = (uint8_t)(n); }
+#define UINT8_TO_BITSTREAM(p,n)           { *(p)++ = (uint8_t)(n); }
 
-#define UINT32_TO_BITSTREAM(p, n)      { *(p)++ = (uint8_t)(n);           \
-                                        *(p)++ = (uint8_t)((n) >> 8);     \
-                                        *(p)++ = (uint8_t)((n) >> 16);    \
-                                        *(p)++ = (uint8_t)((n) >> 24); }
+#define UINT32_TO_BITSTREAM(p, n)         { *(p)++ = (uint8_t)(n);           \
+                                            *(p)++ = (uint8_t)((n) >> 8);     \
+                                            *(p)++ = (uint8_t)((n) >> 16);    \
+                                            *(p)++ = (uint8_t)((n) >> 24); }
 
-#define UINT32_TO_FLOAT(m, e)         (((uint32_t)(m) & 0x00FFFFFFU) | ((uint32_t)((int32_t)(e) << 24)))
+#define UINT32_TO_FLOAT(m, e)             (((uint32_t)(m) & 0x00FFFFFFU) | ((uint32_t)((int32_t)(e) << 24)))
 
-#define HEALTH_SIZE                        (16)
-#define ACCEL_SIZE                         (16)
-#define TRH_SIZE                           (16)
-#define GPS_SIZE                           (16)
+#define HEALTH_SIZE                       (16)
+#define ACCEL_SIZE                        (16)
+#define TRH_SIZE                          (16)
+#define GPS_SIZE                          (16)
+
+#define XYZ_STORE_SIZE                    (100)
+#define TRH_STORE_SIZE                    (100)
+#define GPS_STORE_SIZE                    (100)
+
+
+#define DEFAULT_HIGH_TEMP_THESHOLD         (20)
+#define DEFAULT_LOW_TEMP_THESHOLD          (5)
+#define DEFAULT_HIGH_HUM_THESHOLD          (20)
+#define DEFAULT_LOW_HUM_THESHOLD           (15)
+
+#define THRESHOLD_IGNORE                    (10)
+#define THRESHOLD_LOW                       (50)
+#define THRESHOLD_HIGH                       (100)
 
 typedef struct indication_struct_s {
     uint16_t characteristicHandle;
@@ -85,12 +99,26 @@ typedef struct ble_data_struct_s {
     uint8_t s_GPSService[GPS_SIZE];
     uint8_t s_GPSChar[GPS_SIZE];
 
+    uint8_t xyz_array[XYZ_STORE_SIZE];
+    uint8_t gps_array[TRH_STORE_SIZE];
+    uint8_t trh_array[GPS_STORE_SIZE];
 
+    int16_t prev_AccelX;
+    int16_t prev_AccelY;
+    int16_t prev_AccelZ;
 
+    int16_t prev_temp;
+    int16_t prev_hum;
 
+    int16_t high_temp_threshold;
+    int16_t low_temp_threshold;
 
+    int16_t high_hum_threshold;
+    int16_t low_hum_threshold;
 
-
+    int16_t ignore_accl_threshold;
+    int16_t low_accl_threshold;
+    int16_t high_accl_threshold;
 
 
     // Values unique for client, prefixed with "c_"

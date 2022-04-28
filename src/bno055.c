@@ -96,16 +96,14 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
-
-
         gpioDebugLEDSetOff();
         //processing
-        int16_t x = 0,y = 0, z= 0;
-        x = ((int16_t)(bno055_rd_buff[0]) | (int16_t)(bno055_rd_buff[1] << 8));
-        y = ((int16_t)(bno055_rd_buff[2]) | (int16_t)(bno055_rd_buff[3] << 8));
-        z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
+        int16_t current_X = 0, current_Y = 0, current_Z = 0;
+        current_X = ((int16_t)(bno055_rd_buff[0]) | (int16_t)(bno055_rd_buff[1] << 8));
+        current_Y = ((int16_t)(bno055_rd_buff[2]) | (int16_t)(bno055_rd_buff[3] << 8));
+        current_Z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
 
-        LOG_INFO("X= %d::Y=%d::Z=%d\r",x,y,z);
+        LOG_INFO("X= %d::Y=%d::Z=%d\r",current_X,current_Y,current_Z);
 #if NO_BL
         if(ble_data->s_AccelIndication && ble_data->s_ClientConnected)
         {
@@ -113,7 +111,34 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
           BleServer_SendAccelDataToClient(&bno055_rd_buff[0]);
         }
 #endif
-
+        static running_status = 0;
+        if(((current_X > ble_data->prev_AccelX - THRESHOLD_IGNORE) && ( current_X < ble_data->prev_AccelX + THRESHOLD_IGNORE))
+            && ((current_Y > ble_data->prev_AccelY - THRESHOLD_IGNORE) && (current_Y < ble_data->prev_AccelY + THRESHOLD_IGNORE))
+            && ((current_Z > ble_data->prev_AccelZ - THRESHOLD_IGNORE) && (current_Z < ble_data->prev_AccelZ + THRESHOLD_IGNORE)))
+        {
+          LOG_INFO("0\r");
+          if(running_status == 1)
+          {
+            strncpy(ble_data->xyz_array,"0",1);
+            running_status = 0;
+          }
+        }
+        else if(((current_X > ble_data->prev_AccelX - THRESHOLD_LOW) && ( current_X < ble_data->prev_AccelX + THRESHOLD_LOW))
+            || ((current_Y > ble_data->prev_AccelY - THRESHOLD_LOW) && (current_Y < ble_data->prev_AccelY + THRESHOLD_LOW))
+            || ((current_Z > ble_data->prev_AccelZ - THRESHOLD_LOW) && (current_Z < ble_data->prev_AccelZ + THRESHOLD_LOW)))
+        {
+          LOG_INFO("1\r");
+          running_status = 1;
+          strncpy(ble_data->xyz_array,"1",1);
+        }
+        else if(((current_X > ble_data->prev_AccelX - THRESHOLD_HIGH) && ( current_X < ble_data->prev_AccelX + THRESHOLD_HIGH))
+            || ((current_Y > ble_data->prev_AccelY - THRESHOLD_HIGH) && (current_Y < ble_data->prev_AccelY + THRESHOLD_HIGH))
+            || ((current_Z > ble_data->prev_AccelZ - THRESHOLD_HIGH) && (current_Z < ble_data->prev_AccelZ + THRESHOLD_HIGH)))
+        {
+          LOG_INFO("2\r");
+          running_status = 1;
+          strncpy(ble_data->xyz_array,"2",1);
+        }
 #if PWR_MGMT_RUN_MODE
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
