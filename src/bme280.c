@@ -117,7 +117,6 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
 
         temperature = compensate_temperature(uncomp_temp);
         humidity = compensate_humidity(uncomp_hum);
-
         //LOG_INFO("BME280 T1 = %d T2 = %d T3 = %d\r", calib_data.dig_t1, calib_data.dig_t2, calib_data.dig_t3);
         //LOG_INFO("BME280 H1 = %d H2 = %d H3 = %d H4 = %d H5 = %d H6 = %d\r",
         //         calib_data.dig_h1, calib_data.dig_h2, calib_data.dig_h3, calib_data.dig_h4, calib_data.dig_h5, calib_data.dig_h6);
@@ -132,26 +131,19 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
 #endif
 #if 1
         LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
-        int current_temp = 0, current_hum = 0;
-        current_temp = (int)temperature;
-        current_hum = (int)humidity;
+        int16_t current_temp = 0, current_hum = 0;
+        char temp = 0;
+        current_temp = (int16_t)temperature;
+        current_hum = (int16_t)humidity;
 
-        if((current_temp > ble_data->high_temp_threshold))
+        if((current_temp > ble_data->high_temp_threshold)
+            || (current_temp < ble_data->low_temp_threshold)
+            || (current_hum > ble_data->high_hum_threshold)
+            || (current_hum < ble_data->low_hum_threshold))
         {
-            //strncpy();
+          sprintf(ble_data->trh_array,"%d %d",current_temp,current_hum);
         }
-        else if((current_temp < ble_data->low_temp_threshold))
-        {
-            //strncpy();
-        }
-        else if((current_temp > ble_data->high_hum_threshold))
-        {
-            //strncpy();
-        }
-        else if((current_temp < ble_data->low_hum_threshold))
-        {
 
-        }
 #endif
 #if 0
         if(ble_data->s_GPSIndication && ble_data->s_ClientConnected)

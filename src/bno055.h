@@ -99,4 +99,6 @@ typedef enum
 
 asset_monitoring_state_t bno055_read_machine(sl_bt_msg_t *evt);
 asset_monitoring_state_t init_bno055_machine(sl_bt_msg_t *evt);
+asset_monitoring_state_t debug_machine(sl_bt_msg_t *evt);
+
 #endif /* SRC_BNO055_H_ */

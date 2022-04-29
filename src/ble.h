@@ -50,20 +50,21 @@
 #define ACCEL_SIZE                        (16)
 #define TRH_SIZE                          (16)
 #define GPS_SIZE                          (16)
+#define DBG_SIZE                          (16)
 
 #define XYZ_STORE_SIZE                    (100)
 #define TRH_STORE_SIZE                    (100)
 #define GPS_STORE_SIZE                    (100)
-
+#define DBG_SIZE                          (XYZ_STORE_SIZE+TRH_STORE_SIZE+GPS_STORE_SIZE)
 
 #define DEFAULT_HIGH_TEMP_THESHOLD         (20)
 #define DEFAULT_LOW_TEMP_THESHOLD          (5)
-#define DEFAULT_HIGH_HUM_THESHOLD          (20)
+#define DEFAULT_HIGH_HUM_THESHOLD          (25)
 #define DEFAULT_LOW_HUM_THESHOLD           (15)
 
-#define THRESHOLD_IGNORE                    (10)
-#define THRESHOLD_LOW                       (50)
-#define THRESHOLD_HIGH                       (100)
+#define THRESHOLD_IGNORE                   (10)
+#define THRESHOLD_LOW                      (50)
+#define THRESHOLD_HIGH                     (100)
 
 typedef struct indication_struct_s {
     uint16_t characteristicHandle;
@@ -99,9 +100,15 @@ typedef struct ble_data_struct_s {
     uint8_t s_GPSService[GPS_SIZE];
     uint8_t s_GPSChar[GPS_SIZE];
 
+    bool s_DbgIndication;
+    uint8_t s_DbgService[GPS_SIZE];
+    uint8_t s_DbgChar[GPS_SIZE];
+
+
     uint8_t xyz_array[XYZ_STORE_SIZE];
     uint8_t gps_array[TRH_STORE_SIZE];
     uint8_t trh_array[GPS_STORE_SIZE];
+    uint8_t dbg_array[DBG_SIZE];
 
     int16_t prev_AccelX;
     int16_t prev_AccelY;

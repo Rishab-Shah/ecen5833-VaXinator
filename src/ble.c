@@ -73,6 +73,18 @@ static const uint8_t GPS_char[GPS_SIZE] = {
     0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
 };
 
+// GPS service UUID defined by Bluetooth SIG
+static const uint8_t Dbg_service[DBG_SIZE] = {
+    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
+    0x3e, 0x43, 0xc8, 0x38, 0x01, 0x00, 0x00, 0x00
+};
+
+// GPSs characteristic UUID defined by Bluetooth SIG
+static const uint8_t Dbg_char[DBG_SIZE] = {
+    0x89, 0x62, 0x13, 0x2d, 0x2a, 0x65, 0xec, 0x87,
+    0x3e, 0x43, 0xc8, 0x38, 0x02, 0x00, 0x00, 0x00
+};
+
 ble_data_struct_t ble_data = { 0 };
 
 static indication_struct_t indication_q[INDICATION_QUEUE_SIZE];
@@ -585,15 +597,21 @@ void BleServer_HandleBootEvent(void) {
 #define DEFAULT_LOW_HUM_THESHOLD           (15)
 #endif
 
-#if 0
+#if 1
+    memset(ble_data.xyz_array,0,sizeof(ble_data.xyz_array));
+    memset(ble_data.trh_array,0,sizeof(ble_data.xyz_array));
+    memset(ble_data.gps_array,0,sizeof(ble_data.xyz_array));
+    memset(ble_data.dbg_array,0,sizeof(ble_data.xyz_array));
+
     ble_data.high_temp_threshold = DEFAULT_HIGH_TEMP_THESHOLD;
     ble_data.low_temp_threshold = DEFAULT_LOW_TEMP_THESHOLD;
     ble_data.high_hum_threshold = DEFAULT_HIGH_HUM_THESHOLD;
     ble_data.low_hum_threshold = DEFAULT_LOW_HUM_THESHOLD;
 
     ble_data.ignore_accl_threshold = THRESHOLD_IGNORE;
-    ble_data->low_accl_threshold = THRESHOLD_LOW;
-    ble_data->high_accl_threshold = THRESHOLD_HIGH;
+    ble_data.low_accl_threshold = THRESHOLD_LOW;
+    ble_data.high_accl_threshold = THRESHOLD_HIGH;
+
 #endif
 
 #if 0
@@ -653,6 +671,7 @@ void BleServer_HandleConnectionClosedEvent(void) {
     ble_data.s_TRHIndication = false;
     ble_data.s_AccelIndication = false;
     ble_data.s_GPSIndication = false;
+    ble_data.s_DbgIndication = false;
 
     IndicationQ_Reset();
 
@@ -712,7 +731,28 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
     status_flags = event->data.evt_gatt_server_characteristic_status.status_flags;
     client_flags = event->data.evt_gatt_server_characteristic_status.client_config_flags;
 
-    if(characteristic_flags == gattdb_trh_state)
+    if (characteristic_flags == gattdb_xyz_accel_state)
+    {
+        if(status_flags == sl_bt_gatt_server_client_config)
+        {
+            if(client_flags == gatt_disable)
+            {
+                /* app gave disable indication */
+                ble_data.s_AccelIndication = false;
+            }
+            if(client_flags == gatt_indication)
+            {
+                /* app gave enable indication */
+                ble_data.s_AccelIndication = true;
+                //gpioDebugLEDSetOn();
+            }
+        }
+        if(status_flags == sl_bt_gatt_server_confirmation)
+        {
+            ble_data.s_IndicationInFlight = false;
+        }
+    }
+    else if(characteristic_flags == gattdb_trh_state)
     {
         if(status_flags == sl_bt_gatt_server_client_config)
         {
@@ -752,20 +792,19 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             ble_data.s_IndicationInFlight = false;
         }
     }
-    else if (characteristic_flags == gattdb_xyz_accel_state)
+    else if(characteristic_flags == gattdb_debug_info_state)
     {
         if(status_flags == sl_bt_gatt_server_client_config)
         {
             if(client_flags == gatt_disable)
             {
                 /* app gave disable indication */
-                ble_data.s_AccelIndication = false;
+                ble_data.s_DbgIndication = false;
             }
             if(client_flags == gatt_indication)
             {
                 /* app gave enable indication */
-                ble_data.s_AccelIndication = true;
-                //gpioDebugLEDSetOn();
+                ble_data.s_DbgIndication = true;
             }
         }
         if(status_flags == sl_bt_gatt_server_confirmation)
@@ -773,6 +812,7 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             ble_data.s_IndicationInFlight = false;
         }
     }
+
 }
 
 void BleServer_HandleIndicationTimeoutEvent(void) {
@@ -928,6 +968,9 @@ void BleClient_HandleBootEvent(void) {
 
     memcpy(ble_data.s_GPSService, GPS_service, GPS_SIZE);
     memcpy(ble_data.s_GPSChar, GPS_char, GPS_SIZE);
+
+    memcpy(ble_data.s_DbgService, Dbg_service, GPS_SIZE);
+    memcpy(ble_data.s_DbgChar, Dbg_char, GPS_SIZE);
 }
 
 void BleClient_HandleScanReportEvent(sl_bt_msg_t* event) {
@@ -1049,6 +1092,10 @@ void BleClient_HandleGattCharacteristicEvent(sl_bt_msg_t* event) {
         ble_data.c_AccelCharacteristicHandle = event->data.evt_gatt_characteristic.characteristic;
     }
     else if(!(memcmp(event->data.evt_gatt_characteristic.uuid.data, ble_data.s_GPSChar, sizeof(ble_data.s_GPSChar))))
+    {
+        ble_data.c_AccelCharacteristicHandle = event->data.evt_gatt_characteristic.characteristic;
+    }
+    else if(!(memcmp(event->data.evt_gatt_characteristic.uuid.data, ble_data.s_DbgChar, sizeof(ble_data.s_DbgChar))))
     {
         ble_data.c_AccelCharacteristicHandle = event->data.evt_gatt_characteristic.characteristic;
     }
@@ -1198,6 +1245,51 @@ void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event) {
     }
 }
 
+
+void BleServer_SendDebugDataToClient(char *dbg_data)
+{
+  sl_status_t sc = 0;
+  uint8_t dbg_buffer[DBG_SIZE] = {0}; memset(dbg_buffer,0,sizeof(dbg_buffer));
+
+#if 0
+  if(strlen(gps_data) < 99)
+  {
+    strncpy(gps_buffer,gps_data,strlen(gps_data));
+    LOG_INFO("%s %d\r", gps_buffer,strlen(gps_buffer));
+  }
+  else
+  {
+    strncpy(gps_buffer,gps_data,50);
+    LOG_INFO("%s %d\r", gps_buffer,strlen(gps_buffer));
+  }
+  //sprintf((char *)gps_buffer,"Lat:%s Long:%s",latitude,longitude);
+#endif
+  indication_struct_t indication;
+
+  strncpy(dbg_buffer,dbg_data,strlen(dbg_data));
+
+  if((ble_data.s_IndicationInFlight == false))
+  {
+    sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_debug_info_state,
+                                           strlen(dbg_buffer),&dbg_buffer[0]); //slcp
+
+    if(sc != SL_STATUS_OK)
+    {
+        LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int) sc);
+    }
+    else
+    {
+        ble_data.s_IndicationInFlight = true;
+    }
+  }
+  else
+  {
+    indication.characteristicHandle = gattdb_trh_state;
+    memcpy(&indication.buff[0], &dbg_buffer[0], strlen(dbg_buffer));
+    indication.bufferLen = strlen(dbg_buffer);
+    IndicationQ_Enqueue(indication);
+  }
+}
 void BleServer_SendLatLongToClient(char *gps_data)
 {
   sl_status_t sc = 0;

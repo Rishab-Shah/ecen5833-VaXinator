@@ -19,6 +19,7 @@
 #include "asset_monitoring.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
+#include "asset_monitoring.h"
 
 /*
  * Client Discovery FSM states enum
@@ -35,7 +36,14 @@ typedef enum {
 } disc_fsm_state_t;
 
 
+typedef enum
+{
+  DEBUG_STATE = 0,
+  DEBUG_DEFAULT,
+}debug_state_t;
 
+#define ERROR     (-1)
+#define NEXT_ITERATION_DELAY                   ((1500)*(MSEC_TO_USEC))
 void AssetMonitoringSystem_StateMachine(sl_bt_msg_t* event);
 /************************************************/
 /****************Event Handlers******************/

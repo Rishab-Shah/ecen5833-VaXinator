@@ -2,6 +2,30 @@
 <!--Custom BLE GATT-->
 <gatt gatt_caching="true" generic_attribute_service="true" header="gatt_db.h" name="Custom BLE GATT" out="gatt_db.c" prefix="gattdb_">
   
+  <!--Debug Service-->
+  <service advertise="true" name="Debug Service" requirement="mandatory" sourceId="" type="primary" uuid="00000007-38c8-433e-87ec-652a2d136289">
+    <informativeText>Debug Service</informativeText>
+    
+    <!--Debug Info-->
+    <characteristic const="false" id="debug_info_state" name="Debug Info" sourceId="" uuid="00000008-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="50" type="hex" variable_length="false">00</value>
+      <properties>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_8" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+  </service>
+  
   <!--Accelerometer Service-->
   <service advertise="true" name="Accelerometer Service" requirement="mandatory" sourceId="" type="primary" uuid="00000001-38c8-433e-87ec-652a2d136289">
     <informativeText/>
@@ -44,7 +68,7 @@
           <read authenticated="false" bonded="false" encrypted="false"/>
           <write authenticated="false" bonded="false" encrypted="false"/>
         </properties>
-        <value length="2" type="utf-8" variable_length="false">00</value>
+        <value length="2" type="hex" variable_length="false">00</value>
         <informativeText/>
       </descriptor>
     </characteristic>
@@ -57,7 +81,7 @@
     <!--Coordinate Characteristic-->
     <characteristic const="false" id="gps_lat_long_state" name="Coordinate Characteristic" sourceId="" uuid="00000006-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="100" type="utf-8" variable_length="false">0</value>
+      <value length="100" type="utf-8" variable_length="false">00</value>
       <properties>
         <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>
@@ -68,7 +92,7 @@
           <read authenticated="false" bonded="false" encrypted="false"/>
           <write authenticated="false" bonded="false" encrypted="false"/>
         </properties>
-        <value length="2" type="utf-8" variable_length="false">00</value>
+        <value length="2" type="hex" variable_length="false">00</value>
         <informativeText/>
       </descriptor>
     </characteristic>
@@ -104,7 +128,7 @@
     <!--Device Name-->
     <characteristic const="false" id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
       <informativeText/>
-      <value length="7" type="utf-8" variable_length="false">Nexus</value>
+      <value length="5" type="utf-8" variable_length="false">Nexus</value>
       <properties>
         <read authenticated="false" bonded="false" encrypted="false"/>
         <write authenticated="false" bonded="false" encrypted="false"/>

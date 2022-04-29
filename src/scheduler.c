@@ -7,9 +7,115 @@
 
 #include "scheduler.h"
 
-#define INCLUDE_LOG_DEBUG 0
+#define INCLUDE_LOG_DEBUG 1
 #include "src/log.h"
 uint32_t event_requested;
+
+/************************************************/
+/***************Client Functions*****************/
+/************************************************/
+void AssetMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
+  asset_monitoring_state_t current_state;
+  //static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
+  static asset_monitoring_state_t next_state = BME280_INIT_CONFIG;
+  if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
+      return;
+  }
+
+  current_state = next_state;
+
+  switch (current_state) {
+    case BME280_INIT_CONFIG:
+        next_state = init_bme280_machine(event);
+        //LOG_INFO("BME280_INIT_CONFIG\r");
+        break;
+
+    case BNO055_INIT_CONFIG:
+        next_state = init_bno055_machine(event);
+        //LOG_INFO("BNO055_INIT_CONFIG\r");
+        break;
+
+    case BME280_READ:
+        next_state = bme280_read_machine(event);
+        //LOG_INFO("BME280_READ\r");
+        break;
+
+    case BNO055_READ:
+        next_state = bno055_read_machine(event);
+        //LOG_INFO("BNO055_READ\r");
+        break;
+
+    case DEBUG_READ:
+        next_state = debug_machine(event);
+        //LOG_INFO("DEBUG_READ\r");
+        break;
+
+    default:
+      break;
+  }
+}
+
+asset_monitoring_state_t debug_machine(sl_bt_msg_t *evt)
+{
+  ble_data_struct_t* ble_data = BLE_GetDataStruct();
+#if NO_BL
+  ble_ext_signal_event_t event = evt->data.evt_system_external_signal.extsignals;
+#else
+  ble_ext_signal_event_t event = evt;
+#endif
+  /* return state logic */
+  asset_monitoring_state_t return_state = DEBUG_READ;
+  /* current machine logic */
+  debug_state_t currentState;
+  static debug_state_t nextState = DEBUG_STATE;
+  int ret_status = 0;
+#if NO_BL
+  if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
+      return return_state;
+  }
+#endif
+  currentState = nextState;
+
+  switch(currentState)
+  {
+    case DEBUG_STATE:
+    {
+      //LOG_INFO("HEY\r");
+      //default state
+      return_state = DEBUG_READ;
+      if(event == ev_LETIMER0_COMP1)
+      {
+        if(ble_data->s_DbgIndication && ble_data->s_ClientConnected)
+        {
+          sprintf(ble_data->dbg_array,"%s %s",ble_data->xyz_array,ble_data->trh_array);
+          LOG_INFO("%s\r",ble_data->dbg_array);
+          BleServer_SendDebugDataToClient(ble_data->dbg_array);
+        }
+
+        ret_status = timerWaitUs_irq(NEXT_ITERATION_DELAY);
+        if(ret_status == ERROR)
+        {
+          LOG_ERROR("The value is more than the routine can provide\r");
+        }
+        else
+        {
+          //update return state for next iteration
+          nextState = DEBUG_STATE;
+          //next state to switch in Asset SM
+          return_state = BME280_READ;
+        }
+      }
+      nextState = DEBUG_STATE;
+      break;
+    }
+    default:
+      break;
+  }
+
+  return return_state;
+}
+
+
 /************************************************/
 /****************Event Handlers******************/
 /************************************************/
@@ -170,44 +276,7 @@ void Scheduler_SetEvent_BNO55_Int()
 #endif
   CORE_EXIT_CRITICAL();
 }
-/************************************************/
-/***************Client Functions*****************/
-/************************************************/
-void AssetMonitoringSystem_StateMachine(sl_bt_msg_t* event) {
-  asset_monitoring_state_t current_state;
-  //static activity_monitoring_state_t next_state = HEARTBEAT_INIT;
-  static asset_monitoring_state_t next_state = BME280_INIT_CONFIG;
-  if (SL_BT_MSG_ID(event->header) != sl_bt_evt_system_external_signal_id) {
-      return;
-  }
 
-  current_state = next_state;
-
-  switch (current_state) {
-    case BME280_INIT_CONFIG:
-        next_state = init_bme280_machine(event);
-        LOG_INFO("BME280_INIT_CONFIG\r");
-        break;
-
-    case BNO055_INIT_CONFIG:
-        next_state = init_bno055_machine(event);
-        LOG_INFO("BNO055_INIT_CONFIG\r");
-        break;
-
-    case BME280_READ:
-        next_state = bme280_read_machine(event);
-        LOG_INFO("BME280_READ\r");
-        break;
-
-    case BNO055_READ:
-        next_state = bno055_read_machine(event);
-        LOG_INFO("BNO055_READ\r");
-        break;
-
-    default:
-      break;
-  }
-}
 
 #if 0
 void BleClient_DiscoveryStateMachine(sl_bt_msg_t* event) {

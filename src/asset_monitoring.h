@@ -17,6 +17,7 @@ typedef enum {
   BNO055_INIT_CONFIG,
   BME280_READ,
   BNO055_READ,
+  DEBUG_READ,
 } asset_monitoring_state_t;
 
 #endif /* SRC_ASSET_MONITORING_H_ */

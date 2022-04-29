@@ -112,9 +112,9 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         }
 #endif
         static running_status = 0;
-        if(((current_X > ble_data->prev_AccelX - THRESHOLD_IGNORE) && ( current_X < ble_data->prev_AccelX + THRESHOLD_IGNORE))
-            && ((current_Y > ble_data->prev_AccelY - THRESHOLD_IGNORE) && (current_Y < ble_data->prev_AccelY + THRESHOLD_IGNORE))
-            && ((current_Z > ble_data->prev_AccelZ - THRESHOLD_IGNORE) && (current_Z < ble_data->prev_AccelZ + THRESHOLD_IGNORE)))
+        if(((current_X > ble_data->prev_AccelX - ble_data->ignore_accl_threshold) && ( current_X < ble_data->prev_AccelX + ble_data->ignore_accl_threshold))
+            && ((current_Y > ble_data->prev_AccelY - ble_data->ignore_accl_threshold) && (current_Y < ble_data->prev_AccelY + ble_data->ignore_accl_threshold))
+            && ((current_Z > ble_data->prev_AccelZ - ble_data->ignore_accl_threshold) && (current_Z < ble_data->prev_AccelZ + ble_data->ignore_accl_threshold)))
         {
           LOG_INFO("0\r");
           if(running_status == 1)
@@ -123,22 +123,25 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
             running_status = 0;
           }
         }
-        else if(((current_X > ble_data->prev_AccelX - THRESHOLD_LOW) && ( current_X < ble_data->prev_AccelX + THRESHOLD_LOW))
-            || ((current_Y > ble_data->prev_AccelY - THRESHOLD_LOW) && (current_Y < ble_data->prev_AccelY + THRESHOLD_LOW))
-            || ((current_Z > ble_data->prev_AccelZ - THRESHOLD_LOW) && (current_Z < ble_data->prev_AccelZ + THRESHOLD_LOW)))
+        else if(((current_X > ble_data->prev_AccelX - ble_data->low_accl_threshold) && ( current_X < ble_data->prev_AccelX + ble_data->low_accl_threshold))
+            || ((current_Y > ble_data->prev_AccelY - ble_data->low_accl_threshold) && (current_Y < ble_data->prev_AccelY + ble_data->low_accl_threshold))
+            || ((current_Z > ble_data->prev_AccelZ - ble_data->low_accl_threshold) && (current_Z < ble_data->prev_AccelZ + ble_data->low_accl_threshold)))
         {
           LOG_INFO("1\r");
           running_status = 1;
           strncpy(ble_data->xyz_array,"1",1);
         }
-        else if(((current_X > ble_data->prev_AccelX - THRESHOLD_HIGH) && ( current_X < ble_data->prev_AccelX + THRESHOLD_HIGH))
-            || ((current_Y > ble_data->prev_AccelY - THRESHOLD_HIGH) && (current_Y < ble_data->prev_AccelY + THRESHOLD_HIGH))
-            || ((current_Z > ble_data->prev_AccelZ - THRESHOLD_HIGH) && (current_Z < ble_data->prev_AccelZ + THRESHOLD_HIGH)))
+#if 0
+        else if(((current_X > ble_data->prev_AccelX - ble_data->high_accl_threshold) && ( current_X < ble_data->prev_AccelX + ble_data->high_accl_threshold))
+            || ((current_Y > ble_data->prev_AccelY - ble_data->high_accl_threshold) && (current_Y < ble_data->prev_AccelY + ble_data->high_accl_threshold))
+            || ((current_Z > ble_data->prev_AccelZ - ble_data->high_accl_threshold) && (current_Z < ble_data->prev_AccelZ + ble_data->high_accl_threshold)))
         {
           LOG_INFO("2\r");
           running_status = 1;
           strncpy(ble_data->xyz_array,"2",1);
         }
+#endif
+
 #if PWR_MGMT_RUN_MODE
         //Enter EM2 mode
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
@@ -153,7 +156,7 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
           //reset the state of the current machine
           nextState = READ_XYZ_DATA;
           //next state to switch in Asset SM
-          return_state = BME280_READ;
+          return_state = DEBUG_READ;
         }
       }
       break;
