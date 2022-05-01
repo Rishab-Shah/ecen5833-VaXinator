@@ -63,7 +63,7 @@ typedef enum
 #include "sl_status.h"
 #include "em_usart.h"
 #include "em_cmu.h"
-
+#if 0
 #define SL_SPIDRV_FLASH_MEM_PERIPHERAL           (USART1)
 #define SL_SPIDRV_FLASH_MEM_PERIPHERAL_NO        (1)
 
@@ -86,6 +86,7 @@ typedef enum
 #define SL_SPIDRV_FLASH_MEM_CS_PORT              (gpioPortF)
 #define SL_SPIDRV_FLASH_MEM_CS_PIN               (7)
 #define SL_SPIDRV_FLASH_MEM_CS_LOC               (28)
+#endif
 
 #define RX_DMA_CHANNEL                           (0)
 #define TX_DMA_CHANNEL                           (1)

@@ -139,9 +139,19 @@ void Scheduler_SetEvent_SPI_TX(void);
  */
 void Scheduler_SetEvent_SPI_RX(void);
 
+/*
+ * Sets BNO055_INT event
+ *
+ * @param None
+ *
+ * @return None
+ */
+void Scheduler_SetEvent_BNO55_Int();
+
 /************************************************/
 /***************Server Functions*****************/
 /************************************************/
+
 
 
 /*

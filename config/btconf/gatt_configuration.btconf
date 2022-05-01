@@ -33,7 +33,7 @@
     <!--XYZ Characteristic-->
     <characteristic const="false" id="xyz_accel_state" name="XYZ Characteristic" sourceId="" uuid="00000002-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="6" type="hex" variable_length="false">000000000000</value>
+      <value length="50" type="utf-8" variable_length="false">0</value>
       <properties>
         <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>

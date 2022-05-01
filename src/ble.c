@@ -1249,21 +1249,7 @@ void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event) {
 void BleServer_SendDebugDataToClient(char *dbg_data)
 {
   sl_status_t sc = 0;
-  uint8_t dbg_buffer[DBG_SIZE] = {0}; memset(dbg_buffer,0,sizeof(dbg_buffer));
-
-#if 0
-  if(strlen(gps_data) < 99)
-  {
-    strncpy(gps_buffer,gps_data,strlen(gps_data));
-    LOG_INFO("%s %d\r", gps_buffer,strlen(gps_buffer));
-  }
-  else
-  {
-    strncpy(gps_buffer,gps_data,50);
-    LOG_INFO("%s %d\r", gps_buffer,strlen(gps_buffer));
-  }
-  //sprintf((char *)gps_buffer,"Lat:%s Long:%s",latitude,longitude);
-#endif
+  char dbg_buffer[DBG_SIZE] = {0}; memset(dbg_buffer,0,sizeof(dbg_buffer));
   indication_struct_t indication;
 
   strncpy(dbg_buffer,dbg_data,strlen(dbg_data));
@@ -1293,9 +1279,7 @@ void BleServer_SendDebugDataToClient(char *dbg_data)
 void BleServer_SendLatLongToClient(char *gps_data)
 {
   sl_status_t sc = 0;
-
-
-  uint8_t gps_buffer[100] = {0}; memset(gps_buffer,0,sizeof(gps_buffer));
+  char gps_buffer[100] = {0}; memset(gps_buffer,0,sizeof(gps_buffer));
 
   if(strlen(gps_data) < 99)
   {
@@ -1307,7 +1291,6 @@ void BleServer_SendLatLongToClient(char *gps_data)
     strncpy(gps_buffer,gps_data,50);
     LOG_INFO("%s %d\r", gps_buffer,strlen(gps_buffer));
   }
-  //sprintf((char *)gps_buffer,"Lat:%s Long:%s",latitude,longitude);
 
   indication_struct_t indication;
 
@@ -1354,18 +1337,9 @@ void BleServer_SendTRHDataToClient(float temperature_data, float RH_data)
     sl_status_t sc = 0;
 
     uint8_t heartbeat_buffer[12] = {0};
-    //heartbeat_buffer[0] = (int)temperature_data;
-    //heartbeat_buffer[2] = (int)RH_data;
 
     sprintf((char *)heartbeat_buffer,"%.2f %.2f",temperature_data,RH_data);
     LOG_INFO("%s\r", heartbeat_buffer);
-    //uint8_t *p = &heartbeat_buffer[0];
-
-    //uint32_t temp_float = UINT32_TO_FLOAT(temperature_data*1000,-3);
-    //UINT32_TO_BITSTREAM(p,temp_float);
-
-    //uint32_t RH_float = UINT32_TO_FLOAT(RH_data*1000,-3);
-    //UINT32_TO_BITSTREAM(p,RH_float);
 
     indication_struct_t indication;
 
@@ -1396,11 +1370,12 @@ void BleServer_SendAccelDataToClient(uint8_t* accel_buff) {
     sl_status_t ble_status;
     indication_struct_t indication;
 
-    LOG_INFO("accel_buff = %s\r",accel_buff);
+    char xyz_bl_buf[100] = {0}; memset(xyz_bl_buf,0,sizeof(xyz_bl_buf));
+    strncpy(xyz_bl_buf,accel_buff,strlen(accel_buff));
 
     if (!(ble_data.s_IndicationInFlight)) {
         ble_status = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle, gattdb_xyz_accel_state,
-                                                       6, accel_buff);
+                                                       strlen(xyz_bl_buf), xyz_bl_buf);
         if (ble_status != SL_STATUS_OK) {
             LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int)ble_status);
         }
@@ -1410,8 +1385,8 @@ void BleServer_SendAccelDataToClient(uint8_t* accel_buff) {
     }
     else {
         indication.characteristicHandle = gattdb_xyz_accel_state;
-        memcpy(&indication.buff[0], &accel_buff[0], 6);
-        indication.bufferLen = 6;
+        memcpy(&indication.buff[0], &xyz_bl_buf[0], strlen(xyz_bl_buf));
+        indication.bufferLen = strlen(xyz_bl_buf);
         IndicationQ_Enqueue(indication);
     }
 }

@@ -55,7 +55,7 @@
 #define XYZ_STORE_SIZE                    (100)
 #define TRH_STORE_SIZE                    (100)
 #define GPS_STORE_SIZE                    (100)
-#define DBG_SIZE                          (XYZ_STORE_SIZE+TRH_STORE_SIZE+GPS_STORE_SIZE)
+#define DBG_STORE_SIZE                    (XYZ_STORE_SIZE+TRH_STORE_SIZE+GPS_STORE_SIZE)
 
 #define DEFAULT_HIGH_TEMP_THESHOLD         (20)
 #define DEFAULT_LOW_TEMP_THESHOLD          (5)
@@ -105,10 +105,10 @@ typedef struct ble_data_struct_s {
     uint8_t s_DbgChar[GPS_SIZE];
 
 
-    uint8_t xyz_array[XYZ_STORE_SIZE];
-    uint8_t gps_array[TRH_STORE_SIZE];
-    uint8_t trh_array[GPS_STORE_SIZE];
-    uint8_t dbg_array[DBG_SIZE];
+    char xyz_array[XYZ_STORE_SIZE];
+    char gps_array[TRH_STORE_SIZE];
+    char trh_array[GPS_STORE_SIZE];
+    char dbg_array[DBG_STORE_SIZE];
 
     int16_t prev_AccelX;
     int16_t prev_AccelY;
