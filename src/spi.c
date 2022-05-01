@@ -199,10 +199,10 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
 #endif
         flash_spi_init();
         trigger_CE_high_to_low_transition();
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {0};
-        update_write_params(0x06,0,tx_sequence,SEND_AS_DATA);
+        uint8_t tx_sequence[TX_BUFFER_SIZE] = {0}; //0x06
+        update_write_params(0x90,3,tx_sequence,SEND_AS_DATA);
         start_ldma_transfer(TX_DMA_CHANNEL);
-        //update_read_params(1);
+
         //LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
       }
       else if(event == ev_SPI_TX)
@@ -216,7 +216,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
           else
           {
              nextState = FLASH_SETMODE;
-              //nextState = FLASH_READ_STATUS_REGISTER;
+             //nextState = FLASH_READ_STATUS_REGISTER;
           }
       }
       else
@@ -245,6 +245,30 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         }
 #endif
     }
+#if 0
+    case FLASH_SETMODE:
+    {
+      update_read_params(2);
+      start_ldma_transfer(RX_DMA_CHANNEL);
+      if(event == ev_SPI_RX)
+      {
+#if 0
+        LOG_INFO("ev_SPI_RX\r");
+#endif
+        //LOG_ERROR("Determine the cause for this\r");
+        //trigger_CE_low_to_high_transition();
+        //memset(RxBuffer,0,sizeof(RxBuffer));
+
+        for(int i = 0; i<RX_BUFFER_SIZE;i++)
+        {
+          //LOG_INFO("TxBuffer[%d] = %x\r",i,TxBuffer[i]);
+          LOG_INFO("RxBuffer[%d] = %x\r",i,RxBuffer[i]);
+        }
+        nextState = FLASH_ADD_VERIFN;
+      }
+      break;
+    }
+#endif
     case FLASH_READ_STATUS_REGISTER:
     {
       if(event == ev_LETIMER0_COMP1)
@@ -676,6 +700,7 @@ void flash_spi_usart_configuration()
   GPIO_PinModeSet(SL_SPIDRV_FLASH_MEM_RX_PORT, SL_SPIDRV_FLASH_MEM_RX_PIN, gpioModeInput, true);    // US1_RX (MISO) is input
 
   // Start with default config, then modify as necessary
+  //USART_Reset(USART1);
   USART_InitSync_TypeDef config = USART_INITSYNC_DEFAULT;
   config.master       = true;            // master mode
   config.baudrate     = FLASH_OPERATING_FREQUENCY;         // CLK freq is 1 MHz
@@ -685,6 +710,7 @@ void flash_spi_usart_configuration()
   config.enable       = usartDisable;    // making sure USART isn't enabled until we set it up
   //LOG_INFO("Hy - here before spi_init\r");
   USART_InitSync(USART1, &config);
+  USART_BaudrateSyncSet(USART1, 0, 4000000);
 #if 0
   // Set USART pin locations
   USART1->ROUTELOC0 = (USART_ROUTELOC0_CLKLOC_LOC11) | // US1_CLK       on location 11 = PC8 per datasheet section 6.4 = EXP Header pin 8

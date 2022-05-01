@@ -198,9 +198,9 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       }
     }
 #endif
-    AssetMonitoringSystem_StateMachine(evt);
+    //AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
-    //init_flash_setup(evt);
+    init_flash_setup(evt);
 #else
     //nothing to write
 #endif
