@@ -4,8 +4,8 @@
     <properties key="projectCommon.sdkId" value="com.silabs.sdk.stack.super:3.2.1._640221276"/>
     <properties key="universalConfig.generationDirectory" value="C:\Users\risha\SimplicityStudio\v5_workspace\ecen5833-VaXinator_custom_board"/>
     <properties key="universalConfig.toolchainCompatibility" value="iar gcc"/>
-    <properties key="projectCommon.boardIds" value="brd4104a:0.0.0.A00 brd4001a:0.0.0.A01"/>
-    <properties key="projectCommon.partId" value="mcu.arm.efr32.bg13.efr32bg13p632f512gm48"/>
+    <properties key="projectCommon.boardIds" value="com.silabs.board.none:0.0.0"/>
+    <properties key="projectCommon.partId" value="mcu.arm.efr32.bg13.efr32bg13p732f512gm48"/>
     <properties key="projectCommon.toolchainId" value="com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt:10.2.1.20201103"/>
     <properties key="universalConfig.projectTypeIds" value="com.silabs.ss.framework.ide.project.core.cdtMbsProjectType"/>
     <properties key="projectCommon.importModeId" value="COPY"/>

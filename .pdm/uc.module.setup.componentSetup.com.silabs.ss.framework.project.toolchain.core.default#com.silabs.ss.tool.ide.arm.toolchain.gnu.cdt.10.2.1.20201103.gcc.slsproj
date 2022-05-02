@@ -12,7 +12,7 @@
               <file name="system_efr32bg13p.c" linked="false" uri="studio:/sdk/platform/Device/SiliconLabs/EFR32BG13P/Source/system_efr32bg13p.c"/>
             </folder>
             <folder name="Include">
-              <file name="efr32bg13p632f512gm48.h" linked="false" uri="studio:/sdk/platform/Device/SiliconLabs/EFR32BG13P/Include/efr32bg13p632f512gm48.h"/>
+              <file name="efr32bg13p732f512gm48.h" linked="false" uri="studio:/sdk/platform/Device/SiliconLabs/EFR32BG13P/Include/efr32bg13p732f512gm48.h"/>
               <file name="efr32bg13p_acmp.h" linked="false" uri="studio:/sdk/platform/Device/SiliconLabs/EFR32BG13P/Include/efr32bg13p_acmp.h"/>
               <file name="efr32bg13p_adc.h" linked="false" uri="studio:/sdk/platform/Device/SiliconLabs/EFR32BG13P/Include/efr32bg13p_adc.h"/>
               <file name="efr32bg13p_af_pins.h" linked="false" uri="studio:/sdk/platform/Device/SiliconLabs/EFR32BG13P/Include/efr32bg13p_af_pins.h"/>
@@ -122,14 +122,12 @@
             <file name="sl_device_init_dcdc.h" linked="false" uri="studio:/sdk/platform/service/device_init/inc/sl_device_init_dcdc.h"/>
             <file name="sl_device_init_emu.h" linked="false" uri="studio:/sdk/platform/service/device_init/inc/sl_device_init_emu.h"/>
             <file name="sl_device_init_hfxo.h" linked="false" uri="studio:/sdk/platform/service/device_init/inc/sl_device_init_hfxo.h"/>
-            <file name="sl_device_init_lfxo.h" linked="false" uri="studio:/sdk/platform/service/device_init/inc/sl_device_init_lfxo.h"/>
             <file name="sl_device_init_nvic.h" linked="false" uri="studio:/sdk/platform/service/device_init/inc/sl_device_init_nvic.h"/>
           </folder>
           <folder name="src">
             <file name="sl_device_init_dcdc_s1.c" linked="false" uri="studio:/sdk/platform/service/device_init/src/sl_device_init_dcdc_s1.c"/>
             <file name="sl_device_init_emu_s1.c" linked="false" uri="studio:/sdk/platform/service/device_init/src/sl_device_init_emu_s1.c"/>
             <file name="sl_device_init_hfxo_s1.c" linked="false" uri="studio:/sdk/platform/service/device_init/src/sl_device_init_hfxo_s1.c"/>
-            <file name="sl_device_init_lfxo_s1.c" linked="false" uri="studio:/sdk/platform/service/device_init/src/sl_device_init_lfxo_s1.c"/>
             <file name="sl_device_init_nvic.c" linked="false" uri="studio:/sdk/platform/service/device_init/src/sl_device_init_nvic.c"/>
           </folder>
         </folder>
@@ -429,16 +427,6 @@
       </folder>
     </folder>
     <folder name="hardware">
-      <folder name="board">
-        <folder name="src">
-          <file name="sl_board_init.c" linked="false" uri="studio:/sdk/hardware/board/src/sl_board_init.c"/>
-          <file name="sl_board_control_gpio.c" linked="false" uri="studio:/sdk/hardware/board/src/sl_board_control_gpio.c"/>
-        </folder>
-        <folder name="inc">
-          <file name="sl_board_control.h" linked="false" uri="studio:/sdk/hardware/board/inc/sl_board_control.h"/>
-          <file name="sl_board_init.h" linked="false" uri="studio:/sdk/hardware/board/inc/sl_board_init.h"/>
-        </folder>
-      </folder>
       <folder name="driver">
         <folder name="memlcd">
           <folder name="src">
@@ -693,7 +681,6 @@
   <includePath uri="studio:/project/gecko_sdk_3.2.1/app/common/util/app_log"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/common/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/protocol/bluetooth/inc"/>
-  <includePath uri="studio:/project/gecko_sdk_3.2.1/hardware/board/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/bootloader"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/bootloader/api"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/CMSIS/Include"/>
@@ -737,7 +724,7 @@
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/spidrv/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/emdrv/uartdrv/inc"/>
   <includePath uri="studio:/project/gecko_sdk_3.2.1/platform/service/udelay/inc"/>
-  <macroDefinition name="EFR32BG13P632F512GM48"/>
+  <macroDefinition name="EFR32BG13P732F512GM48"/>
   <macroDefinition name="SL_COMPONENT_CATALOG_PRESENT"/>
   <macroDefinition name="MBEDTLS_CONFIG_FILE" value="&lt;mbedtls_config.h>"/>
   <macroDefinition name="MBEDTLS_PSA_CRYPTO_CLIENT"/>
@@ -824,7 +811,7 @@
   <toolOption builtin="true" toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.clibs" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.nanospec"/>
   <toolOption builtin="true" toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.map" value="true"/>
   <toolOption builtin="true" toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.map" value="true"/>
-  <toolOption toolId="studio.ide.project" optionId="device_opn" value="efr32bg13p632f512gm48"/>
+  <toolOption toolId="studio.ide.project" optionId="device_opn" value="efr32bg13p732f512gm48"/>
   <toolOption toolId="makefile.arm.gcc.linker" optionId="misc">
     <toolListOption value="-Wl,--gc-sections"/>
   </toolOption>

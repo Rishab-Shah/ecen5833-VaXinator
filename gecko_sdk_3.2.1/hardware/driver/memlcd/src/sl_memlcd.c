@@ -27,6 +27,7 @@
 /* Concatenate preprocessor tokens A and B. */
 #define SL_CONCAT(A, B) A ## B
 
+#if 0
 /* Generate the cmu clock symbol based on instance. */
 #if defined(SL_MEMLCD_USE_USART)
 #define SL_MEMLCD_SPI_CLOCK(N) SL_CONCAT(cmuClock_USART, N)
@@ -284,4 +285,5 @@ static uint8_t reverse_bits(uint8_t data)
     return data;
 }
 #endif // SL_MEMLCD_LPM013M126A
+#endif
 #endif

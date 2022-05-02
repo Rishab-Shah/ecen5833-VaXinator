@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define SL_MEMLCD_USE_USART         1
+//#define SL_MEMLCD_USE_USART         0
 
 #define SL_MEMLCD_SPI_VALUE_NONE 0xFF
 

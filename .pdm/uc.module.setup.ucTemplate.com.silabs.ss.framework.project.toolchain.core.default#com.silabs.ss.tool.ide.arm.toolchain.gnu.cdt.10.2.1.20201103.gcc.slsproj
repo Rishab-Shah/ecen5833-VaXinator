@@ -3,7 +3,6 @@
   <folder name="autogen">
     <file name="sl_bluetooth.c" builtin="true" generated="true" uri="studio:/project/autogen/sl_bluetooth.c"/>
     <file name="sl_bluetooth.h" builtin="true" generated="true" uri="studio:/project/autogen/sl_bluetooth.h"/>
-    <file name="sl_board_default_init.c" builtin="true" generated="true" uri="studio:/project/autogen/sl_board_default_init.c"/>
     <file name="RTE_Components.h" builtin="true" generated="true" uri="studio:/project/autogen/RTE_Components.h"/>
     <file name="sl_component_catalog.h" builtin="true" generated="true" uri="studio:/project/autogen/sl_component_catalog.h"/>
     <file name="sl_device_init_clocks.c" builtin="true" generated="true" uri="studio:/project/autogen/sl_device_init_clocks.c"/>

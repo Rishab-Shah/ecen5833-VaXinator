@@ -219,7 +219,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         for (uint32_t i=0; i<2; i++)
         {
             rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
-            //LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
+            LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
         }
         trigger_CE_low_to_high_transition();
 
@@ -314,7 +314,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
         trigger_CE_high_to_low_transition();
 
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_BYTE_PROG_CMD,0xFF,0xFF,0xFF,0x63};
+        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_BYTE_PROG_CMD,0xFF,0xFF,0xFE,0xAA};
         USART_SpiTransfer(USART1, tx_sequence[0]);
         for (uint32_t i=1; i<5; i++)
         {
@@ -347,7 +347,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
         trigger_CE_high_to_low_transition();
 
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_READ_20MHZ_CMD,0xFF,0xFF,0xFF};
+        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_READ_20MHZ_CMD,0xFF,0xFF,0xFE};
         USART_SpiTransfer(USART1, tx_sequence[0]);
         for (uint32_t i=1; i<4; i++)
         {
@@ -524,12 +524,17 @@ void flash_spi_usart_configuration()
   USART_BaudrateSyncSet(USART1, 0,FLASH_OPERATING_FREQUENCY );
   USART_InitSync(USART1, &config);
 
-#if 1
+#if 0
   USART1->ROUTELOC0 = USART_ROUTELOC0_CLKLOC_LOC31  |
                       USART_ROUTELOC0_CSLOC_LOC0   |
                       USART_ROUTELOC0_TXLOC_LOC0   |
                       USART_ROUTELOC0_RXLOC_LOC1;
 #endif
+  USART1->ROUTELOC0 = (USART1->ROUTELOC0 & ~(_USART_ROUTELOC0_TXLOC_MASK
+                        | _USART_ROUTELOC0_RXLOC_MASK | _USART_ROUTELOC0_CLKLOC_MASK))
+                        | (SL_SPIDRV_FLASH_MEM_TX_LOC << _USART_ROUTELOC0_TXLOC_SHIFT)
+                        | (SL_SPIDRV_FLASH_MEM_RX_LOC << _USART_ROUTELOC0_RXLOC_SHIFT)
+                        | (SL_SPIDRV_FLASH_MEM_CLK_LOC << _USART_ROUTELOC0_CLKLOC_SHIFT);
   // Enable USART pins
   USART1->ROUTEPEN = USART_ROUTEPEN_CLKPEN  | USART_ROUTEPEN_TXPEN | USART_ROUTEPEN_RXPEN;
 //USART_ROUTEPEN_CSPEN
