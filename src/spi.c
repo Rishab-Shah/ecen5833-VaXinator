@@ -33,27 +33,21 @@
 #define FLASH_OPERATING_FREQUENCY   ((4)*(MHZ_1))
 
 #define TX_BUFFER_SIZE              (10)
-#define RX_BUFFER_SIZE              (TX_BUFFER_SIZE)
+#define RX_BUFFER_SIZE              (30)
 #define SANITY_DELAY                ((0.5)*(MSEC_TO_USEC))
+
+#define BYTE_0                      (0x000000ff)
+#define BYTE_1                      (0x0000ff00)
+#define BYTE_2                      (0x00ff0000)
 
 /*******************************************************************************
  Global
 *******************************************************************************/
-uint8_t TxBuffer[TX_BUFFER_SIZE];// = {0x03, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-uint8_t RxBuffer[RX_BUFFER_SIZE];
-LDMA_Descriptor_t ldmaTXDescriptor;
-LDMA_TransferCfg_t ldmaTXConfig;
-
-LDMA_Descriptor_t ldmaRXDescriptor;
-LDMA_TransferCfg_t ldmaRXConfig;
-
-uint8_t rx_dma_channel;
-uint8_t tx_dma_channel;
+uint8_t g_rx_sequence[RX_BUFFER_SIZE];
 /*******************************************************************************
  Function Prototypes
 *******************************************************************************/
-void initTransferLDMA(void);
-void init_ldma_params();
+uint8_t poll_read_status_reg();
 /*******************************************************************************
  Function Definition
 *******************************************************************************/
@@ -62,120 +56,225 @@ void flash_spi_init()
   // Configure GPIO mode
   flash_spi_usart_configuration();
 
-  //init_ldma_params();
+  poll_read_status_reg();
+
+  read_chip_address();
+
+  enable_write_to_status_register(FLASH_BPL_NONE);
 }
 
-void init_ldma_params()
+unsigned createMask(unsigned a, unsigned b)
 {
-  CMU_ClockEnable(cmuClock_LDMA, true);
+   unsigned r = 0;
+   for (unsigned i=a; i<=b; i++)
+       r |= 1 << i;
 
-  rx_dma_channel = RX_DMA_CHANNEL;
-  tx_dma_channel = TX_DMA_CHANNEL;
-
-  // Initializing the DMA
-  LDMA_Init_t ldmaInit = LDMA_INIT_DEFAULT;
-  LDMA_Init(&ldmaInit);
-
-  //initTransferLDMA();
+   return r;
 }
 
 
-void update_write_params(uint8_t command, uint16_t write_count, uint8_t tempbuffer[],uint8_t data_or_address)//int8_t TxBuffer,uint16_t write_count
+void byte_write(uint32_t complete_address, uint8_t data_to_be_written)
+{
+  //a incrmented adress from teh user will come in a multi-write scenario
+  write_command(FLASH_WR_EN_CMD);
+
+  //LOG_INFO("byte_write::complete_address = 0x%.8X\r",complete_address);
+
+  //extract address from the array - bit operations - future
+  uint8_t address1 = 0,address2 = 0,address3= 0;
+  get_memory_address(complete_address,&address1,&address2,&address3);
+
+  //write a byte to the memory
+  write_byte_data(address1,address2,address3,data_to_be_written);
+
+  #if 1
+  this:
+  if(1 == poll_read_status_reg())
+  {
+    goto this;
+  };
+  #endif
+}
+
+void write_byte_data(uint8_t address1, uint8_t address2,uint8_t address3, uint8_t data_to_be_written)
 {
   USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-
-  TxBuffer[0] = command;
-
-  uint16_t iterator = 0;
-  if(data_or_address == SEND_AS_DATA)
-  {
-    for(iterator = 1; iterator < (write_count+1); iterator++)
-    {
-        TxBuffer[iterator] = tempbuffer[iterator-1];
-    }
-  }
-#if 0
-  // LDMA descriptor and config for transferring TxBuffer
-  // Source: TxBuffer, Destination: USART1->TXDATA, Bytes to send: 10
-  ldmaTXDescriptor = (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(TxBuffer, &(USART1->TXDATA),(write_count+1));
-  // Setting the transfer to trigger once there is room in the USART1_TXDATA buffer
-  ldmaTXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(ldmaPeripheralSignal_USART1_TXBL);
-
-#endif
-}
-
-void update_read_params(uint16_t read_count)//int8_t TxBuffer,uint16_t write_count
-{
-  memset(RxBuffer,0,sizeof(RxBuffer));
-#if 0
-  // LDMA descriptor and config for receiving data from the slave
-  // Source: USART1->RXDATA, Destination: RxBuffer, Bytes to receive: 10
-  ldmaRXDescriptor = (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(USART1->RXDATA),RxBuffer,read_count);
-  // Setting the transfer to trigger whenever data comes into USART1_RXDATAV
-  ldmaRXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(ldmaPeripheralSignal_USART1_RXDATAV);
-#endif
-}
-
-void start_ldma_transfer(uint8_t tx_rx_channel_selection)
-{
-  if(tx_rx_channel_selection == TX_DMA_CHANNEL)
-  {
-     LDMA_StartTransfer(TX_DMA_CHANNEL, &ldmaTXConfig, &ldmaTXDescriptor);
-  }
-  else if(tx_rx_channel_selection == RX_DMA_CHANNEL)
-  {
-     LDMA_StartTransfer(RX_DMA_CHANNEL, &ldmaRXConfig, &ldmaRXDescriptor);
-  }
-  else
-  {
-      /* Do nothing */
-  }
-}
-
-void stop_ldma_transfer(uint8_t tx_rx_channel_selection)
-{
-  if(tx_rx_channel_selection == TX_DMA_CHANNEL)
-  {
-     LDMA_StartTransfer(TX_DMA_CHANNEL, &ldmaTXConfig, &ldmaTXDescriptor);
-  }
-  else if(tx_rx_channel_selection == RX_DMA_CHANNEL)
-  {
-     LDMA_StartTransfer(RX_DMA_CHANNEL, &ldmaRXConfig, &ldmaRXDescriptor);
-  }
-  else
-  {
-      /* Do nothing */
-  }
-}
-
-void initTransferLDMA(void)
-{
   trigger_CE_high_to_low_transition();
+
+  uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_BYTE_PROG_CMD,address3,address2,address1,data_to_be_written};
+  USART_SpiTransfer(USART1, tx_sequence[0]);
+  for (uint32_t i=1; i<5; i++)
+  {
+    USART_SpiTransfer(USART1,tx_sequence[i]);
+  }
+
+  trigger_CE_low_to_high_transition();
+}
+
+void block_erase(uint32_t complete_address, uint8_t region_to_protect)
+{
+  //any memory to be protected - update status register
+
+
+
+
+
+
+  //
+  write_command(FLASH_WR_EN_CMD);
+
+  LOG_INFO("block_erase::complete_address = 0x%.8X\r",complete_address);
+  //extract address from the array - bit operations - future
+  uint8_t address1 = 0,address2 = 0,address3= 0;
+  get_memory_address(complete_address,&address1,&address2,&address3);
+
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  trigger_CE_high_to_low_transition();
+
+  uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_BLOCK_ERASE_CMD,address3,address2,address1};
+  USART_SpiTransfer(USART1, tx_sequence[0]);
+  for (uint32_t i=1; i<4; i++)
+  {
+    USART_SpiTransfer(USART1,tx_sequence[i]);
+  }
+
+  trigger_CE_low_to_high_transition();
+
 #if 1
-  //update_write_params(4);
-
-  update_read_params(2);
-  //LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
-
-  start_ldma_transfer(TX_DMA_CHANNEL);
-
-#endif
-
-#if 0
-  // LDMA descriptor and config for transferring TxBuffer
-  ldmaTXDescriptor = (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(TxBuffer, &(USART1->TXDATA), 4); // Source: TxBuffer, Destination: USART1->TXDATA, Bytes to send: 10
-  ldmaTXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(ldmaPeripheralSignal_USART1_TXBL);                  // Setting the transfer to trigger once there is room in the USART1_TXDATA buffer
-
-  // LDMA descriptor and config for receiving data from the slave
-  ldmaRXDescriptor = (LDMA_Descriptor_t)LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(&(USART1->RXDATA), RxBuffer,5); // Source: USART1->RXDATA, Destination: RxBuffer, Bytes to receive: 10
-  ldmaRXConfig = (LDMA_TransferCfg_t)LDMA_TRANSFER_CFG_PERIPHERAL(ldmaPeripheralSignal_USART1_RXDATAV);         // Setting the transfer to trigger whenever data comes into USART1_RXDATAV
-
-  // Starting both transfers
-  LDMA_StartTransfer(TX_DMA_CHANNEL, &ldmaTXConfig, &ldmaTXDescriptor);
-  //LDMA_StartTransfer(RX_DMA_CHANNEL, &ldmaRXConfig, &ldmaRXDescriptor);
+  this:
+  if(1 == poll_read_status_reg())
+  {
+      goto this;
+  };
 #endif
 }
 
+uint8_t poll_read_status_reg()
+{
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  trigger_CE_high_to_low_transition();
+
+  //write command for read status register
+  uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_READ_STATUS_REG_CMD};
+  USART_SpiTransfer(USART1, tx_sequence[0]);
+
+  //Read start
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  uint8_t rx_sequence[RX_BUFFER_SIZE]; memset(rx_sequence,0,sizeof(rx_sequence));
+  rx_sequence[0] = USART_SpiTransfer(USART1, 0xFF);
+
+  trigger_CE_low_to_high_transition();
+
+
+  uint8_t busy_bit = 0;
+  busy_bit = rx_sequence[0] & (1<<0);
+  LOG_INFO("rx_sequence[0] = %d\r",rx_sequence[0]);
+  LOG_INFO("busy_bit = %d\r",busy_bit);
+  return busy_bit;
+}
+
+void write_command(uint8_t cmd)
+{
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  trigger_CE_high_to_low_transition();
+
+  uint8_t cmd_sequence[TX_BUFFER_SIZE] = {0};
+  cmd_sequence[0] = cmd;
+  USART_SpiTransfer(USART1, cmd_sequence[0]);
+
+  trigger_CE_low_to_high_transition();
+}
+
+void enable_write_to_status_register(uint8_t blp_setup)
+{
+  write_command(FLASH_EN_WR_STATUS_REG_CMD);
+
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  trigger_CE_high_to_low_transition();
+
+  uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_WR_STATUS_REG_CMD,blp_setup};
+  USART_SpiTransfer(USART1, tx_sequence[0]);
+  USART_SpiTransfer(USART1, tx_sequence[1]);
+
+  trigger_CE_low_to_high_transition();
+}
+
+
+void read_chip_address()
+{
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  trigger_CE_high_to_low_transition();
+
+  uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_ADDRESS,0x00,0x00,0x00};
+  USART_SpiTransfer(USART1, tx_sequence[0]);
+  for (uint32_t i=1; i<4; i++)
+  {
+    USART_SpiTransfer(USART1,tx_sequence[i]);
+  }
+
+  //Read start
+  uint8_t rx_sequence[RX_BUFFER_SIZE]; memset(rx_sequence,0,sizeof(rx_sequence));
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  for (uint32_t i=0; i<2; i++)
+  {
+      rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
+      LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
+  }
+  trigger_CE_low_to_high_transition();
+}
+
+void get_memory_address(uint32_t complete_address,uint8_t *add1,uint8_t *add2,uint8_t *add3)
+{
+  *add1 = complete_address & BYTE_0;
+
+  unsigned r =0;
+  r = createMask(8,15);
+  unsigned address2 = r & complete_address;
+  *add2 = address2 >> 8;
+
+  r =0;
+  r = createMask(16,23);
+  unsigned address3 = r & complete_address;
+  *add3 = address3 >> 16;
+  //LOG_INFO("address1 = 0x%.8X - address2 = 0x%.8X -------address3 = 0x%.8X\r",*add1,*add2,*add3);
+
+}
+uint8_t byte_read(uint32_t complete_address, uint32_t no_of_bytes_requested)
+{
+#if 1
+  if(no_of_bytes_requested > RX_BUFFER_SIZE)
+  {
+    LOG_ERROR("Bytes requested more than buffer size\r");
+    return 0;
+  }
+#endif
+  //LOG_INFO("byte_read::complete_address = 0x%.8X\r",complete_address);
+
+  //extract address from the array - bit operations - future
+  uint8_t address1 = 0,address2 = 0,address3= 0;
+  get_memory_address(complete_address,&address1,&address2,&address3);
+
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  trigger_CE_high_to_low_transition();
+
+  uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_READ_20MHZ_CMD,address3,address2,address1};
+  USART_SpiTransfer(USART1, tx_sequence[0]);
+  for (uint32_t i=1; i<4; i++)
+  {
+    USART_SpiTransfer(USART1,tx_sequence[i]);
+  }
+
+  //Read start
+  memset(g_rx_sequence,0,sizeof(g_rx_sequence));
+  USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+  for (uint32_t i=0; i<no_of_bytes_requested; i++)
+  {
+    g_rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
+    LOG_INFO("INSIDE::g_rx_sequence[%d] = %x\r",i,g_rx_sequence[i]);
+    //LOG_INFO("%x \r",USART_SpiTransfer(USART1, 0xFF));
+  }
+  trigger_CE_low_to_high_transition();
+}
 
 FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
 {
@@ -185,7 +284,6 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
   /* current machine logic */
   FLASH_state_t currentState;
   static FLASH_state_t nextState = FLASH_ADD_VERIFN;
-  //bool address_verification = false;
 
   int ret_status = 0;
   if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
@@ -199,29 +297,31 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_UF)
       {
-#if DEBUG_1
+#if 0
         LOG_INFO("FLASH_ADD_VERIFN\r");
 #endif
-        flash_spi_init();
-        USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-        trigger_CE_high_to_low_transition();
+        poll_read_status_reg();
 
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_ADDRESS,0x00,0x00,0x00};
-        USART_SpiTransfer(USART1, tx_sequence[0]);
-        for (uint32_t i=1; i<4; i++)
+        block_erase(0x00,0x00);
+        char check_data[100] = {0};
+        const char* temp = "1 -23 45 Y\n";
+        strncpy(check_data,temp,strlen(temp));
+        int z = strlen(temp);
+
+        for(uint32_t x = 0;x < z;x++)
         {
-          USART_SpiTransfer(USART1,tx_sequence[i]);
+          byte_write(x,check_data[x]);
         }
 
-        //Read start
-        uint8_t rx_sequence[RX_BUFFER_SIZE]; memset(rx_sequence,0,sizeof(rx_sequence));
-        USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-        for (uint32_t i=0; i<2; i++)
+        byte_read(0x00,20);
+
+        for(uint32_t q = 0;q < z;q++)
         {
-            rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
-            LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
+          LOG_INFO("OUT:g_rx_sequence[%d] = %c\r",q,g_rx_sequence[q]);
         }
-        trigger_CE_low_to_high_transition();
+
+        LOG_INFO("COMPLETED\r");
+        poll_read_status_reg();
 
         ret_status = timerWaitUs_irq(SANITY_DELAY);
         if(ret_status == ERROR)
@@ -230,23 +330,16 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         }
         else
         {
-           nextState =  FLASH_EN_WR_BP_PROG_STATUS_REG;
+           //nextState =  FLASH_READ_BYTE;
         }
-        //start_ldma_transfer(TX_DMA_CHANNEL);
-        //update_read_params(1);
-        //LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
       }
       break;
-
-
-
-
-
     }
     case FLASH_EN_WR_BP_PROG_STATUS_REG:
     {
       if(event == ev_LETIMER0_COMP1)
       {
+#if 0
         USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
         trigger_CE_high_to_low_transition();
 
@@ -267,7 +360,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         USART_SpiTransfer(USART1, tx_sequence[1]);
 
         trigger_CE_low_to_high_transition();
-
+#endif
         ret_status = timerWaitUs_irq(SANITY_DELAY);
         if(ret_status == ERROR)
         {
@@ -344,26 +437,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
     {
       if(event == ev_LETIMER0_COMP1)
       {
-        USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-        trigger_CE_high_to_low_transition();
 
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_READ_20MHZ_CMD,0xFF,0xFF,0xFE};
-        USART_SpiTransfer(USART1, tx_sequence[0]);
-        for (uint32_t i=1; i<4; i++)
-        {
-          USART_SpiTransfer(USART1,tx_sequence[i]);
-        }
-
-        //Read start
-        uint8_t rx_sequence[RX_BUFFER_SIZE]; memset(rx_sequence,0,sizeof(rx_sequence));
-        USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-        for (uint32_t i=0; i<1; i++)
-        {
-            rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
-            LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
-        }
-
-        trigger_CE_low_to_high_transition();
 
         ret_status = timerWaitUs_irq(SANITY_DELAY);
         if(ret_status == ERROR)
@@ -396,7 +470,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         {
             //rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
            // LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
-            LOG_INFO(" = %x\r",USART_SpiTransfer(USART1, 0xFF));
+            //LOG_INFO(" = %x\r",USART_SpiTransfer(USART1, 0xFF));
         }
 
         trigger_CE_low_to_high_transition();
@@ -408,84 +482,44 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
         }
         else
         {
-           LOG_INFO("H\r");
+           //LOG_INFO("H\r");
            nextState = FLASH_WR_ENABLE;
         }
       }
       break;
     }
-    case FLASH_SETMODE:
-    {
-#if DEBUG_1
-      LOG_INFO("FLASH_SETMODE\r");
-#endif
-      if(event == ev_LETIMER0_COMP1)
-      {
-#if DEBUG_1
-        LOG_INFO("FLASH_ADD_VERIFN\r");
-#endif
-        //flash_spi_init();
-        trigger_CE_high_to_low_transition();
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {0x00, 0x00, 0x80, 0x55, 0x55};
-        update_write_params(0x02,5,tx_sequence,SEND_AS_DATA);
-        start_ldma_transfer(TX_DMA_CHANNEL);
-      }
-      else if(event == ev_SPI_TX)
-      {
-          trigger_CE_low_to_high_transition();
-          ret_status = timerWaitUs_irq(SANITY_DELAY);
-          if(ret_status == ERROR)
-          {
-             LOG_ERROR("The value is more than the routine can provide\r");
-          }
-          else
-          {
-             nextState = FLASH_SETMODE_2;
-          }
-      }
-      else
-      {
-
-      }
-      break;
-    }
-    case FLASH_SETMODE_2:
+    case FLASH_BLOCK_ERASE:
     {
       if(event == ev_LETIMER0_COMP1)
       {
-        #if DEBUG_1
-        LOG_INFO("FLASH_ADD_VERIFN\r");
-        #endif
-        //flash_spi_init();
+        USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
         trigger_CE_high_to_low_transition();
-        uint8_t tx_sequence[TX_BUFFER_SIZE] = {0x00, 0x00, 0x80, 0xFF};
-        update_write_params(0x03,4,tx_sequence,SEND_AS_DATA);
 
-        start_ldma_transfer(TX_DMA_CHANNEL);
+        uint8_t tx_sequence[TX_BUFFER_SIZE] = {FLASH_READ_STATUS_REG_CMD,0x00,0x00,0x00};
+        USART_SpiTransfer(USART1, tx_sequence[0]);
 
+        //Read start
+        uint8_t rx_sequence[RX_BUFFER_SIZE]; memset(rx_sequence,0,sizeof(rx_sequence));
+        USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
+        for (uint32_t i=0; i<1; i++)
+        {
+            //rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
+           // LOG_INFO("rx_sequence[%d] = %x\r",i,rx_sequence[i]);
+           // LOG_INFO(" = %x\r",USART_SpiTransfer(USART1, 0xFF));
+        }
 
-      }
-      if(event == ev_SPI_TX)
-      {        update_read_params(1);
-        start_ldma_transfer(RX_DMA_CHANNEL);
-          //uint8_t tx2_sequence[TX_BUFFER_SIZE] = {0x00, 0x00, 0x80, 0xFF};
-          //update_write_params(0x03,4,tx2_sequence,SEND_AS_DATA);
-          //start_ldma_transfer(TX_DMA_CHANNEL);
-
-
-        LOG_INFO("ev_SPI_TX\r");
-      }
-      if(event == ev_SPI_RX)
-      {
-        //LOG_ERROR("Determine the cause for this\r");
         trigger_CE_low_to_high_transition();
 
-        for(int i = 0; i<RX_BUFFER_SIZE;i++)
+        ret_status = timerWaitUs_irq(SANITY_DELAY);
+        if(ret_status == ERROR)
         {
-          //LOG_INFO("TxBuffer[%d] = %x\r",i,TxBuffer[i]);
-          LOG_INFO("RxBuffer[%d] = %x\r",i,RxBuffer[i]);
+           LOG_ERROR("The value is more than the routine can provide\r");
         }
-        nextState = FLASH_ADD_VERIFN;
+        else
+        {
+           //LOG_INFO("H\r");
+           nextState = FLASH_WR_ENABLE;
+        }
       }
       break;
     }
@@ -500,7 +534,6 @@ void flash_spi_usart_configuration()
   CMU_ClockEnable(cmuClock_HFPER, true);
   CMU_ClockEnable(cmuClock_GPIO, true);
   CMU_ClockEnable(cmuClock_USART1, true);
-
 
   GPIO_PinModeSet(SL_SPIDRV_FLASH_MEM_CLK_PORT, SL_SPIDRV_FLASH_MEM_CLK_PIN, gpioModePushPull, false); // US1_CLK is push pull
 
@@ -520,16 +553,10 @@ void flash_spi_usart_configuration()
   config.clockMode    = usartClockMode0; // clock idle low, sample on rising/first edge
   config.msbf         = true;            // send MSB first
   config.enable       = usartDisable;    // making sure USART isn't enabled until we set it up
-  //LOG_INFO("Hy - here before spi_init\r");
+
   USART_BaudrateSyncSet(USART1, 0,FLASH_OPERATING_FREQUENCY );
   USART_InitSync(USART1, &config);
 
-#if 0
-  USART1->ROUTELOC0 = USART_ROUTELOC0_CLKLOC_LOC31  |
-                      USART_ROUTELOC0_CSLOC_LOC0   |
-                      USART_ROUTELOC0_TXLOC_LOC0   |
-                      USART_ROUTELOC0_RXLOC_LOC1;
-#endif
   USART1->ROUTELOC0 = (USART1->ROUTELOC0 & ~(_USART_ROUTELOC0_TXLOC_MASK
                         | _USART_ROUTELOC0_RXLOC_MASK | _USART_ROUTELOC0_CLKLOC_MASK))
                         | (SL_SPIDRV_FLASH_MEM_TX_LOC << _USART_ROUTELOC0_TXLOC_SHIFT)

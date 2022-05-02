@@ -52,75 +52,9 @@ void I2C0_IRQHandler(void) {
   }
 }
 
-extern uint8_t rx_dma_channel;
-extern uint8_t tx_dma_channel;
 
-uint8_t counter_rx = 0;
-uint8_t counter_tx = 0;
 
-#if 0
-void LDMA_IRQHandler()
-{
-  uint32_t flags = LDMA_IntGet();
 
-  if(flags & (1 << rx_dma_channel))
-  {
-      //LDMA_StartTransfer(RX_DMA_CHANNEL, &ldmaRXConfig, &ldmaRXDescriptor);
-      Scheduler_SetEvent_SPI_RX();
-      counter_rx++;
-      if(counter_rx == 1)
-      {
-          trigger_CE_low_to_high_transition();
-
-          LDMA_StopTransfer(tx_dma_channel);
-          LDMA_StopTransfer(rx_dma_channel);
-          counter_rx = 0;
-      }
-
-      LDMA_IntClear(1 << rx_dma_channel);
-  }
-  else
-  {
-      counter_tx++;
-      Scheduler_SetEvent_SPI_TX();
-#if 1
-      if(counter_tx == 1)
-      {
-          //LDMA_StartTransfer(tx_dma_channel, &ldmaTXConfig, &ldmaTXDescriptor);
-          //LDMA_StartTransfer(rx_dma_channel, &ldmaRXConfig, &ldmaRXDescriptor);
-          counter_tx = 0;
-         // trigger_CE_low_to_high_transition();
-      }
-      else
-      {
-
-      }
-#endif
-      LDMA_IntClear(1 << tx_dma_channel);
-  }
-}
-#endif
-
-#if 1
-void LDMA_IRQHandler()
-{
-#if 1
-  uint32_t flags = LDMA_IntGet();
-  if(flags & (1 << rx_dma_channel))
-  {
-    LDMA_IntClear(1 << rx_dma_channel);
-    LDMA_StopTransfer(rx_dma_channel);
-    Scheduler_SetEvent_SPI_RX();
-  }
-  else
-  {
-    LDMA_IntClear(1 << tx_dma_channel);
-    LDMA_StopTransfer(tx_dma_channel);
-    Scheduler_SetEvent_SPI_TX();
-  }
-#endif
-}
-#endif
 
 #if 0
 void GPIO_EVEN_IRQHandler(void) {

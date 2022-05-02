@@ -91,6 +91,7 @@ SL_WEAK void app_init(void)
 #if 1
     BLE_Init();
     I2C0_Init();
+    flash_spi_init();
 #endif
     LOG_INFO("Hey print - after spi\r");
 #if 0
