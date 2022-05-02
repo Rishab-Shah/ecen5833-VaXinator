@@ -2,7 +2,7 @@
  * spi.h
  *
  *  Created on: Mar 4, 2022
- *      Author: rishab
+ *      Author: risha
  */
 
 #ifndef SRC_SPI_H_
@@ -23,9 +23,27 @@
 //#define STD_DELAY                   ((10)*(MSEC_TO_USEC))
 //#define POST_RESET_STARTUP_DELAY    ((500)*(MSEC_TO_USEC))
 
+
+
+#define FLASH_ADDRESS                   (0xAB)
+#define FLASH_WR_EN_CMD                 (0x06)
+#define FLASH_BYTE_PROG_CMD             (0x02)
+#define FLASH_READ_20MHZ_CMD            (0x03)
+#define FLASH_READ_STATUS_REG_CMD       (0x05)
+#define FLASH_EN_WR_STATUS_REG_CMD      (0x50)
+#define FLASH_WR_STATUS_REG_CMD         (0x01)
+#define FLASH_BLOCK_ERASE_CMD           (0x52)
+
 typedef enum
 {
   FLASH_ADD_VERIFN,
+
+  FLASH_WR_ENABLE,
+  FLASH_BYTE_PROG,
+  FLASH_READ_BYTE,
+  FLASH_READ_STATUS_REG,
+
+  FLASH_EN_WR_BP_PROG_STATUS_REG,
 
   FLASH_READ_STATUS_REGISTER,
   FLASH_SETMODE,
@@ -63,30 +81,6 @@ typedef enum
 #include "sl_status.h"
 #include "em_usart.h"
 #include "em_cmu.h"
-#if 0
-#define SL_SPIDRV_FLASH_MEM_PERIPHERAL           (USART1)
-#define SL_SPIDRV_FLASH_MEM_PERIPHERAL_NO        (1)
-
-// USART1 TX on PF5
-#define SL_SPIDRV_FLASH_MEM_TX_PORT              (gpioPortF)
-#define SL_SPIDRV_FLASH_MEM_TX_PIN               (5)
-#define SL_SPIDRV_FLASH_MEM_TX_LOC               (29)
-
-// USART1 RX on PF6
-#define SL_SPIDRV_FLASH_MEM_RX_PORT              (gpioPortF)
-#define SL_SPIDRV_FLASH_MEM_RX_PIN               (6)
-#define SL_SPIDRV_FLASH_MEM_RX_LOC               (29)
-
-// USART1 CLK on PF4
-#define SL_SPIDRV_FLASH_MEM_CLK_PORT             (gpioPortF)
-#define SL_SPIDRV_FLASH_MEM_CLK_PIN              (4)
-#define SL_SPIDRV_FLASH_MEM_CLK_LOC              (26)
-
-// USART1 CS on PF7
-#define SL_SPIDRV_FLASH_MEM_CS_PORT              (gpioPortF)
-#define SL_SPIDRV_FLASH_MEM_CS_PIN               (7)
-#define SL_SPIDRV_FLASH_MEM_CS_LOC               (28)
-#endif
 
 #define RX_DMA_CHANNEL                           (0)
 #define TX_DMA_CHANNEL                           (1)

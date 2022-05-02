@@ -47,7 +47,7 @@ void sl_driver_init(void)
 {
   GPIOINT_Init();
   sl_i2cspm_init_instances();
-  sl_spidrv_init_instances();
+  //sl_spidrv_init_instances();
   sl_uartdrv_init_instances();
 }
 
