@@ -92,6 +92,7 @@ SL_WEAK void app_init(void)
     BLE_Init();
     I2C0_Init();
     flash_spi_init();
+    block_erase(0x00,0x00);
 #endif
     LOG_INFO("Hey print - after spi\r");
 #if 0
@@ -199,9 +200,9 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       }
     }
 #endif
-    //AssetMonitoringSystem_StateMachine(evt);
+    AssetMonitoringSystem_StateMachine(evt);
     //init_bme280_machine(evt);
-    init_flash_setup(evt);
+    //init_flash_setup(evt);
 #else
     //nothing to write
 #endif

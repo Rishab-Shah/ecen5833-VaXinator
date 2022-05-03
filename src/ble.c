@@ -96,6 +96,12 @@ static uint8_t q_size = 0;
 /************************************************/
 /***************Server Functions*****************/
 /************************************************/
+void application_task();
+// Function:  void getUpdatedData(void)
+// Input:     None
+// Output:    None
+// Brief:     updates data from client
+void getUpdatedData(void);
 
 /*
  * Handles BLE Server boot event
@@ -423,6 +429,7 @@ void BLE_Init(void) {
     ble_data.serverAddress        = server_addr;
     ble_data.serverAddressType    = 0;
     ble_data.s_IndicationInFlight = false;
+    ble_data.memloc = 0x00;
 }
 
 void handle_ble_event(sl_bt_msg_t* event) {
@@ -446,9 +453,9 @@ void handle_ble_event(sl_bt_msg_t* event) {
 #endif
             break;
 
-        case sl_bt_evt_system_external_signal_id:
-            BleServer_HandleExternalSignalEvent(event);
-            break;
+//        case sl_bt_evt_system_external_signal_id:
+//            BleServer_HandleExternalSignalEvent(event);
+//            break;
 
         case sl_bt_evt_gatt_server_characteristic_status_id:
             BleServer_HandleCharacteristicStatusEvent(event);
@@ -458,21 +465,21 @@ void handle_ble_event(sl_bt_msg_t* event) {
             BleServer_HandleIndicationTimeoutEvent();
             break;
 
-        case sl_bt_evt_sm_confirm_bonding_id:
-            BleServer_HandleBondingConfirmEvent();
-            break;
+//        case sl_bt_evt_sm_confirm_bonding_id:
+//            BleServer_HandleBondingConfirmEvent();
+//            break;
 
-        case sl_bt_evt_sm_confirm_passkey_id:
-            BleServer_HandlePasskeyConfirmEvent(event);
-            break;
+//        case sl_bt_evt_sm_confirm_passkey_id:
+//            BleServer_HandlePasskeyConfirmEvent(event);
+//            break;
 
-        case sl_bt_evt_sm_bonded_id:
-            BleServer_HandleBondedEvent();
-            break;
+//        case sl_bt_evt_sm_bonded_id:
+//            BleServer_HandleBondedEvent();
+//            break;
 
-        case sl_bt_evt_sm_bonding_failed_id:
-            BleServer_HandleBondingFailedEvent(event);
-            break;
+//        case sl_bt_evt_sm_bonding_failed_id:
+//            BleServer_HandleBondingFailedEvent(event);
+//            break;
 
         case sl_bt_evt_system_soft_timer_id:
             BleServer_HandleSoftTimerEvent(event);
@@ -588,6 +595,16 @@ void BleServer_HandleBootEvent(void) {
     ble_status = sl_bt_system_set_soft_timer(INDICATION_QUEUE_TIMER_INTERVAL, INDICATION_QUEUE_TIMER_HANDLE, false);
     if (ble_status != SL_STATUS_OK) {
         LOG_ERROR("sl_system_set_soft_timer: %x\r", ble_status);
+    }
+
+    ble_status = sl_bt_system_set_soft_timer(TICKS_PER_SECOND, SEC_TIMER_HANDLE, false);
+    if (ble_status != SL_STATUS_OK) {
+        LOG_ERROR("sl_system_set_soft_timer: %x\r", ble_status);
+    }
+
+    ble_status = sl_bt_system_set_soft_timer(TICKS_PER_SECOND * 60, MINUTE_TIMER_HANDLE, false);
+    if (ble_status != SL_STATUS_OK) {
+      LOG_ERROR("sl_system_set_soft_timer: %x\r", ble_status);
     }
 
 #if 0
@@ -812,6 +829,68 @@ void BleServer_HandleCharacteristicStatusEvent(sl_bt_msg_t* event) {
             ble_data.s_IndicationInFlight = false;
         }
     }
+    else if(characteristic_flags == gattdb_en_error_log)
+    {
+        if(status_flags == sl_bt_gatt_server_client_config)
+        {
+            if(client_flags == gatt_disable)
+            {
+                /* app gave disable indication */
+                ble_data.s_LogIndication = false;
+            }
+            if(client_flags == gatt_indication)
+            {
+                /* app gave enable indication */
+                ble_data.s_LogIndication = true;
+            }
+        }
+        if(status_flags == sl_bt_gatt_server_confirmation)
+        {
+            ble_data.s_IndicationInFlight = false;
+        }
+    }
+    else if(characteristic_flags == gattdb_in_transit)
+    {
+        if(status_flags == sl_bt_gatt_server_client_config)
+        {
+            if(client_flags == gatt_disable)
+            {
+                /* app gave disable indication */
+                ble_data.s_TransitIndication = false;
+            }
+            if(client_flags == gatt_indication)
+            {
+                /* app gave enable indication */
+                ble_data.s_TransitIndication = true;
+            }
+        }
+        if(status_flags == sl_bt_gatt_server_confirmation)
+        {
+            ble_data.s_IndicationInFlight = false;
+        }
+    }
+    else if((characteristic_flags == gattdb_temp_high_limit) || (characteristic_flags == gattdb_temp_low_limit) ||
+        (characteristic_flags == gattdb_hum_high_limit) || (characteristic_flags == gattdb_hum_low_limit) ||
+        (characteristic_flags == gattdb_acc_limit))
+    {
+        if(status_flags == sl_bt_gatt_server_client_config)
+        {
+            if(client_flags == gatt_disable)
+            {
+                /* app gave disable indication */
+                ble_data.s_ThreshIndication = false;
+            }
+            if(client_flags == gatt_indication)
+            {
+                /* app gave enable indication */
+                ble_data.s_ThreshIndication = true;
+            }
+        }
+        if(status_flags == sl_bt_gatt_server_confirmation)
+        {
+            ble_data.s_IndicationInFlight = false;
+        }
+    }
 
 }
 
@@ -890,6 +969,23 @@ void BleServer_HandleSoftTimerEvent(sl_bt_msg_t* event) {
             ble_data.s_IndicationInFlight = true;
         }
     }
+    if(event->data.evt_system_soft_timer.handle == SEC_TIMER_HANDLE)
+    {
+        //LOG_INFO("PRINT TIME\r");
+        application_task();
+    }
+    if(event->data.evt_system_soft_timer.handle == MINUTE_TIMER_HANDLE)
+    {
+        //LOG_INFO("2.PRINT TIME\r");
+        updateCalendar();
+    }
+
+    getUpdatedData();
+    //LOG_INFO("Data: %x %x %d %d %d %d %d %d\r", ble_data.send_error_log, ble_data.transit_status,
+    //         ble_data.high_temp_threshold, ble_data.low_temp_threshold, ble_data.high_hum_threshold, ble_data.low_hum_threshold,
+    //         ble_data.ignore_accl_threshold, ble_data.low_accl_threshold);
+
+
 }
 
 
@@ -1249,13 +1345,21 @@ void BleClient_HandleSoftTimerEvent(sl_bt_msg_t* event) {
 void BleServer_SendDebugDataToClient(char *dbg_data)
 {
   sl_status_t sc = 0;
-  char dbg_buffer[DBG_SIZE] = {0}; memset(dbg_buffer,0,sizeof(dbg_buffer));
+  char dbg_buffer[DBG_STORE_SIZE] = {0}; memset(dbg_buffer,0,sizeof(dbg_buffer));
   indication_struct_t indication;
 
   strncpy(dbg_buffer,dbg_data,strlen(dbg_data));
 
   if((ble_data.s_IndicationInFlight == false))
   {
+    sc = sl_bt_gatt_server_write_attribute_value(gattdb_debug_info_state,
+                                                    0,
+                                                    strlen(dbg_buffer),
+                                                    &dbg_buffer[0]);
+    if (sc != SL_STATUS_OK)
+    {
+     LOG_ERROR("sl_bt_gatt_server_write_attribute_value() gattdb_debug_info_state returned != 0 status=0x%04x\r", (unsigned int) sc);
+    }
     sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_debug_info_state,
                                            strlen(dbg_buffer),&dbg_buffer[0]); //slcp
 
@@ -1270,7 +1374,7 @@ void BleServer_SendDebugDataToClient(char *dbg_data)
   }
   else
   {
-    indication.characteristicHandle = gattdb_trh_state;
+    indication.characteristicHandle = gattdb_debug_info_state;
     memcpy(&indication.buff[0], &dbg_buffer[0], strlen(dbg_buffer));
     indication.bufferLen = strlen(dbg_buffer);
     IndicationQ_Enqueue(indication);
@@ -1296,6 +1400,14 @@ void BleServer_SendLatLongToClient(char *gps_data)
 
   if((ble_data.s_IndicationInFlight == false))
   {
+      sc = sl_bt_gatt_server_write_attribute_value(gattdb_gps_lat_long_state,
+                                                      0,
+                                                      strlen(gps_buffer),
+                                                      &gps_buffer[0]);
+      if (sc != SL_STATUS_OK)
+      {
+       LOG_ERROR("sl_bt_gatt_server_write_attribute_value() gattdb_gps_lat_long_state returned != 0 status=0x%04x\r", (unsigned int) sc);
+      }
     sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_gps_lat_long_state,
                                            strlen(gps_buffer),&gps_buffer[0]); //slcp
 
@@ -1310,7 +1422,7 @@ void BleServer_SendLatLongToClient(char *gps_data)
   }
   else
   {
-    indication.characteristicHandle = gattdb_trh_state;
+    indication.characteristicHandle = gattdb_gps_lat_long_state;
     memcpy(&indication.buff[0], &gps_buffer[0], strlen(gps_buffer));
     indication.bufferLen = strlen(gps_buffer);
     IndicationQ_Enqueue(indication);
@@ -1336,17 +1448,26 @@ void BleServer_SendTRHDataToClient(float temperature_data, float RH_data)
     LOG_INFO("Value rx::%lf - %lf\r", temperature_data,RH_data);
     sl_status_t sc = 0;
 
-    uint8_t heartbeat_buffer[12] = {0};
+    uint8_t trhbuffer[15] = {0};
 
-    sprintf((char *)heartbeat_buffer,"%.2f %.2f",temperature_data,RH_data);
-    LOG_INFO("%s\r", heartbeat_buffer);
+    sprintf((char *)trhbuffer,"%.2fC %.2fR",temperature_data,RH_data);
+    LOG_INFO("%s\r", trhbuffer);
 
     indication_struct_t indication;
 
     if((ble_data.s_IndicationInFlight == false))
     {
+        sc = sl_bt_gatt_server_write_attribute_value(gattdb_trh_state,
+                                                           0,
+                                                           strlen(trhbuffer),
+                                                           &trhbuffer[0]);
+        if (sc != SL_STATUS_OK)
+        {
+            LOG_ERROR("sl_bt_gatt_server_write_attribute_value() gattdb_trh_state returned != 0 status=0x%04x\r", (unsigned int) sc);
+        }
+
         sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_trh_state,
-                                               strlen(heartbeat_buffer),&heartbeat_buffer[0]); //slcp
+                                               strlen(trhbuffer),&trhbuffer[0]); //slcp
 
         if(sc != SL_STATUS_OK)
         {
@@ -1360,24 +1481,32 @@ void BleServer_SendTRHDataToClient(float temperature_data, float RH_data)
     else
     {
         indication.characteristicHandle = gattdb_trh_state;
-        memcpy(&indication.buff[0], &heartbeat_buffer[0], strlen(heartbeat_buffer));
-        indication.bufferLen = strlen(heartbeat_buffer);
+        memcpy(&indication.buff[0], &trhbuffer[0], strlen(trhbuffer));
+        indication.bufferLen = strlen(trhbuffer);
         IndicationQ_Enqueue(indication);
     }
 }
 
 void BleServer_SendAccelDataToClient(uint8_t* accel_buff) {
-    sl_status_t ble_status;
+    sl_status_t sc;
     indication_struct_t indication;
 
     char xyz_bl_buf[100] = {0}; memset(xyz_bl_buf,0,sizeof(xyz_bl_buf));
     strncpy(xyz_bl_buf,accel_buff,strlen(accel_buff));
 
     if (!(ble_data.s_IndicationInFlight)) {
-        ble_status = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle, gattdb_xyz_accel_state,
+        sc = sl_bt_gatt_server_write_attribute_value(gattdb_xyz_accel_state,
+                                                        0,
+                                                        strlen(xyz_bl_buf),
+                                                        &xyz_bl_buf[0]);
+        if (sc != SL_STATUS_OK)
+        {
+         LOG_ERROR("sl_bt_gatt_server_write_attribute_value() gattdb_xyz_accel_state returned != 0 status=0x%04x\r", (unsigned int) sc);
+        }
+        sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle, gattdb_xyz_accel_state,
                                                        strlen(xyz_bl_buf), xyz_bl_buf);
-        if (ble_status != SL_STATUS_OK) {
-            LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int)ble_status);
+        if (sc != SL_STATUS_OK) {
+            LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int)sc);
         }
         else {
             ble_data.s_IndicationInFlight = true;
@@ -1390,3 +1519,268 @@ void BleServer_SendAccelDataToClient(uint8_t* accel_buff) {
         IndicationQ_Enqueue(indication);
     }
 }
+
+
+void BleServer_SendTransitStatus()
+{
+  sl_status_t sc = 0;
+  char buffer = {0};
+  indication_struct_t indication;
+
+  if(ble_data.transit_status)
+    buffer = 1;
+  else
+    buffer = 0;
+
+  if((ble_data.s_IndicationInFlight == false))
+  {
+    sc = sl_bt_gatt_server_write_attribute_value(gattdb_in_transit,
+                                                    0,
+                                                    1,
+                                                    &buffer);
+    if (sc != SL_STATUS_OK)
+    {
+     LOG_ERROR("sl_bt_gatt_server_write_attribute_value() gattdb_in_transit returned != 0 status=0x%04x\r", (unsigned int) sc);
+    }
+    sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_in_transit,
+                                           1,&buffer); //slcp
+
+    if(sc != SL_STATUS_OK)
+    {
+        LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int) sc);
+    }
+    else
+    {
+        ble_data.s_IndicationInFlight = true;
+    }
+  }
+  else
+  {
+    indication.characteristicHandle = gattdb_in_transit;
+    memcpy(&indication.buff[0], &buffer, 1);
+    indication.bufferLen = 1;
+    IndicationQ_Enqueue(indication);
+  }
+}
+
+
+void BleServer_SendErrorLog()
+{
+  sl_status_t sc = 0;
+  char buffer = {0};
+  indication_struct_t indication;
+
+  if(ble_data.send_error_log)
+    buffer = 1;
+  else
+    buffer = 0;
+
+  sc = sl_bt_gatt_server_write_attribute_value(gattdb_en_error_log,
+                                                  0,
+                                                  1,
+                                                  &buffer);
+  if (sc != SL_STATUS_OK)
+  {
+   LOG_ERROR("sl_bt_gatt_server_write_attribute_value() gattdb_en_error_log returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if((ble_data.s_IndicationInFlight == false))
+  {
+    if(ble_data.s_LogIndication)
+      {
+        sc = sl_bt_gatt_server_send_indication(ble_data.s_ConnectionHandle,gattdb_en_error_log,
+                                               1,&buffer); //slcp
+
+        if(sc != SL_STATUS_OK)
+        {
+            LOG_ERROR("sl_bt_gatt_server_send_indication returned != 0 status=0x%04x\r", (unsigned int) sc);
+        }
+        else
+        {
+            ble_data.s_IndicationInFlight = true;
+        }
+      }
+  }
+  else
+  {
+    indication.characteristicHandle = gattdb_en_error_log;
+    memcpy(&indication.buff[0], &buffer, 1);
+    indication.bufferLen = 1;
+    IndicationQ_Enqueue(indication);
+  }
+}
+
+// Function:  void getUpdatedData(void)
+// Input:     None
+// Output:    None
+// Brief:     updates data from client
+void getUpdatedData(void)
+{
+
+#if DEVICE_IS_BLE_SERVER
+
+  sl_status_t sc;
+  size_t value_len;
+  uint8_t getdata[5]={0};
+
+  //error log
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_en_error_log,
+                                              0,
+                                              1,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_en_error_log returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if(getdata[0])
+    ble_data.send_error_log = 1;
+  else
+    ble_data.send_error_log = 0;
+
+  //transit status
+  getdata[0] = 0;
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_in_transit,
+                                              0,
+                                              1,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_in_transit returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if(getdata[0])
+    ble_data.transit_status = 1;
+  else
+    ble_data.transit_status = 0;
+
+  //temp high
+  getdata[0] = 0; getdata[1] = 0; getdata[2] = 0; getdata[3] = 0; getdata[4] = 0;
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_temp_high_limit,
+                                              0,
+                                              3,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_temp_high_limit returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if(value_len == 3)
+    ble_data.high_temp_threshold = (getdata[0] - '0')*10 + (getdata[1] - '0');
+
+  //temp low
+  getdata[0] = 0; getdata[1] = 0; getdata[2] = 0; getdata[3] = 0; getdata[4] = 0;
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_temp_low_limit,
+                                              0,
+                                              3,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_temp_low_limit returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if(value_len == 3)
+    ble_data.low_temp_threshold = (getdata[0] - '0')*10 + (getdata[1] - '0');
+
+  //hum high
+  getdata[0] = 0; getdata[1] = 0; getdata[2] = 0; getdata[3] = 0; getdata[4] = 0;
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_hum_high_limit,
+                                              0,
+                                              4,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_hum_high_limit returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if(value_len == 4 && getdata[2])
+    ble_data.high_hum_threshold = (getdata[0] - '0')*100 + (getdata[1] - '0')*10 + (getdata[2] - '0');
+  else
+    ble_data.high_hum_threshold = (getdata[0] - '0')*10 + (getdata[1] - '0');
+
+  //hum high
+  getdata[0] = 0; getdata[1] = 0; getdata[2] = 0; getdata[3] = 0; getdata[4] = 0;
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_hum_low_limit,
+                                              0,
+                                              4,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_hum_low_limit returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+
+  if(value_len == 4 && getdata[2])
+    ble_data.low_hum_threshold = (getdata[0] - '0')*100 + (getdata[1] - '0')*10 + (getdata[2] - '0');
+  else
+    ble_data.low_hum_threshold = (getdata[0] - '0')*10 + (getdata[1] - '0');
+
+  //accel limit
+  getdata[0] = 0; getdata[1] = 0; getdata[2] = 0; getdata[3] = 0; getdata[4] = 0;
+  value_len = 0;
+  sc = sl_bt_gatt_server_read_attribute_value(gattdb_acc_limit,
+                                              0,
+                                              4,
+                                              (size_t *)&value_len,
+                                              (uint8_t *)&getdata[0]
+                                              );
+  if (sc != SL_STATUS_OK)
+  {
+     LOG_ERROR("sl_bt_gatt_server_read_attribute_value() gattdb_hum_low_limit returned != 0 status=0x%04x\r", (unsigned int) sc);
+  }
+char * val = &getdata[0];
+  if(value_len == 4)
+    ble_data.ignore_accl_threshold = *(int16_t *)val;
+
+  ble_data.low_accl_threshold = ble_data.ignore_accl_threshold + 40;
+
+#endif
+}
+
+void application_task()
+{
+  uint16_t year, ms;
+  uint8_t month, day, weekday, hour, min, sec;
+  uint16_t updays, uphours, upmins, upsec, upms;
+  static uint32_t last_time = 0;
+  static uint32_t overflow = 0;
+  char buffer[100]; memset(buffer,0,sizeof(buffer));
+
+  uint32_t uptime = RTCC_CounterGet();
+
+  // Check if counter has overflown.
+  if (uptime < last_time) {
+      overflow++;
+  }
+
+  last_time = uptime;
+
+  updays = (overflow * 131072 + uptime / TICKS_PER_SECOND) / 60 / 60 / 24;
+  uphours = (overflow * 131072 + uptime / TICKS_PER_SECOND) / 60 / 60 % 24;
+  upmins = (overflow * 131072 + uptime / TICKS_PER_SECOND) / 60 % 60;
+  upsec = (overflow * 131072 + uptime / TICKS_PER_SECOND) % 60;
+  upms = uptime % TICKS_PER_SECOND * 1000 / TICKS_PER_SECOND;
+
+  getDateAndTime(&year, &month, &day, &weekday, &hour, &min, &sec, &ms);
+  //LOG_INFO("AFT:%4d-%02d-%02d %02d:%02d:%02d\r",year,month,day,hour,min,sec);
+  sprintf(ble_data.time_array, "%4d-%02d-%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
+}
+
+

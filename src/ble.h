@@ -17,8 +17,15 @@
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
 #include "lcd.h"
+#include "calendar.h"
 #include "ble_device_type.h"
 
+
+
+#define TICKS_PER_SECOND                            (32768)
+
+#define SEC_TIMER_HANDLE                  (9)
+#define MINUTE_TIMER_HANDLE               (11)
 
 #define INDICATION_QUEUE_SIZE             (16)
 #define INDICATION_QUEUE_SIZE_MASK        (15)
@@ -55,6 +62,7 @@
 #define XYZ_STORE_SIZE                    (100)
 #define TRH_STORE_SIZE                    (100)
 #define GPS_STORE_SIZE                    (100)
+#define TIME_STORE_SIZE                   (100)
 #define DBG_STORE_SIZE                    (XYZ_STORE_SIZE+TRH_STORE_SIZE+GPS_STORE_SIZE)
 
 #define DEFAULT_HIGH_TEMP_THESHOLD         (20)
@@ -87,7 +95,13 @@ typedef struct ble_data_struct_s {
     bool s_ClientConnected;
     bool s_IndicationInFlight;
     bool s_Bonded;
+
     //Server - Services
+    bool transit_status;
+    bool s_TransitIndication;
+    bool send_error_log;
+    bool s_LogIndication;
+
     bool s_AccelIndication;
     uint8_t s_AccelService[ACCEL_SIZE];
     uint8_t s_AccelChar[ACCEL_SIZE];
@@ -104,11 +118,12 @@ typedef struct ble_data_struct_s {
     uint8_t s_DbgService[GPS_SIZE];
     uint8_t s_DbgChar[GPS_SIZE];
 
-
+    uint32_t memloc;
     char xyz_array[XYZ_STORE_SIZE];
-    char gps_array[TRH_STORE_SIZE];
-    char trh_array[GPS_STORE_SIZE];
+    char gps_array[GPS_STORE_SIZE];
+    char trh_array[TRH_STORE_SIZE];
     char dbg_array[DBG_STORE_SIZE];
+    char time_array[TIME_STORE_SIZE];
 
     int16_t prev_AccelX;
     int16_t prev_AccelY;
@@ -117,6 +132,7 @@ typedef struct ble_data_struct_s {
     int16_t prev_temp;
     int16_t prev_hum;
 
+    bool s_ThreshIndication;
     int16_t high_temp_threshold;
     int16_t low_temp_threshold;
 
@@ -255,11 +271,12 @@ ble_data_struct_t* BLE_GetDataStruct(void);
 /************************************************/
 /***************Server Functions*****************/
 /************************************************/
-
+void BleServer_SendDebugDataToClient(char *dbg_data);
 void BleServer_SendTRHDataToClient(float temperature_data, float RH_data);
 void BleServer_SendLatLongToClient(char *gps_data);
 
 void BleServer_SendAccelDataToClient(uint8_t* accel_buff);
-
+void BleServer_SendErrorLog();
+void BleServer_SendTransitStatus();
 
 #endif /* SRC_BLE_H_ */

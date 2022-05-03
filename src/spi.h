@@ -85,4 +85,7 @@ void update_write_params(uint8_t command, uint16_t write_count,
 
 void update_read_params(uint16_t read_count);
 
+void block_erase(uint32_t complete_address, uint8_t region_to_protect);
+uint8_t byte_read(uint32_t complete_address, uint32_t no_of_bytes_requested, uint8_t *buff);
+void byte_write(uint32_t complete_address, uint8_t data_to_be_written);
 #endif /* SRC_SPI_H_ */

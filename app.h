@@ -64,6 +64,7 @@
 #include "src/leuart.h"
 #include "src/GNSS.h"
 #include "src/spi.h"
+#include "src/calendar.h"
 #include "sl_uartdrv_instances.h"
 
 
@@ -73,7 +74,7 @@
 #define EM3                           (3)
 #define NO_BL                         (1)
 
-#define LOWEST_ENERGY_LEVEL           (EM0)
+#define LOWEST_ENERGY_LEVEL           (EM3)
 
 #define LFXO_FREQ                     (32768)
 #define ULFRCO_FREQ                   (1000)

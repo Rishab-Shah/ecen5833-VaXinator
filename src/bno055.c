@@ -103,8 +103,9 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         current_Y = ((int16_t)(bno055_rd_buff[2]) | (int16_t)(bno055_rd_buff[3] << 8));
         current_Z = ((int16_t)(bno055_rd_buff[4]) | (int16_t)(bno055_rd_buff[5] << 8));
 
-        LOG_INFO("X= %d::Y=%d::Z=%d\r",current_X,current_Y,current_Z);
+        //LOG_INFO("X= %d::Y=%d::Z=%d\r",current_X,current_Y,current_Z);
 #if NO_BL
+        //current
         if(ble_data->s_AccelIndication && ble_data->s_ClientConnected)
         {
             char xyz_data[100]; memset(xyz_data,0,sizeof(xyz_data));
@@ -113,27 +114,31 @@ BNO055_state_t init_bno055_machine(ble_ext_signal_event_t evt)
         }
 #endif
         static uint8_t running_status = 0; static uint8_t ref_cnt = 0;
-        ref_cnt++;
-        if(ref_cnt == 5)
+
+        if(ref_cnt < 5)
+        {
+            ref_cnt++;
+        }
+        else
         {
             if(((current_X > ble_data->prev_AccelX - ble_data->ignore_accl_threshold) && ( current_X < ble_data->prev_AccelX + ble_data->ignore_accl_threshold))
                 && ((current_Y > ble_data->prev_AccelY - ble_data->ignore_accl_threshold) && (current_Y < ble_data->prev_AccelY + ble_data->ignore_accl_threshold))
                 && ((current_Z > ble_data->prev_AccelZ - ble_data->ignore_accl_threshold) && (current_Z < ble_data->prev_AccelZ + ble_data->ignore_accl_threshold)))
             {
-              LOG_INFO("0\r");
+              //LOG_INFO("0\r");
               if(running_status == 1)
               {
-                strncpy(ble_data->xyz_array,"0",1);
                 running_status = 0;
               }
+              strncpy(ble_data->xyz_array,"A0",2);
             }
             else if(((current_X > ble_data->prev_AccelX - ble_data->low_accl_threshold) && ( current_X < ble_data->prev_AccelX + ble_data->low_accl_threshold))
                 || ((current_Y > ble_data->prev_AccelY - ble_data->low_accl_threshold) && (current_Y < ble_data->prev_AccelY + ble_data->low_accl_threshold))
                 || ((current_Z > ble_data->prev_AccelZ - ble_data->low_accl_threshold) && (current_Z < ble_data->prev_AccelZ + ble_data->low_accl_threshold)))
             {
-              LOG_INFO("1\r");
+             // LOG_INFO("1\r");
               running_status = 1;
-              strncpy(ble_data->xyz_array,"1",1);
+              strncpy(ble_data->xyz_array,"A1",2);
             }
         }
 

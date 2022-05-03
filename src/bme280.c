@@ -83,7 +83,7 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
 #if DEBUG_1
       LOG_INFO("BME280_READ_TRH_DATA\r");
 #endif
-      if(event == ev_LETIMER0_UF || event == ev_LETIMER0_COMP1)
+      if(event == ev_LETIMER0_UF)// || event == ev_LETIMER0_COMP1)
       {
         memset(bme280_rd_buff,0,sizeof(bme280_rd_buff));
         bme280_wr_buff[0] = BME280_DATA_ADDR;
@@ -130,7 +130,7 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
         }
 #endif
 #if 1
-        LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
+        //LOG_INFO("BME280 T = %f  RH = %f\r", temperature, humidity);
         int16_t current_temp = 0, current_hum = 0;
         char temp = 0;
         current_temp = (int16_t)temperature;
@@ -141,8 +141,10 @@ asset_monitoring_state_t bme280_read_machine(sl_bt_msg_t *evt)
             || (current_hum > ble_data->high_hum_threshold)
             || (current_hum < ble_data->low_hum_threshold))
         {
-          sprintf(ble_data->trh_array,"%d %d",current_temp,current_hum);
+          sprintf(ble_data->trh_array,"%dC %dR",current_temp,current_hum);
         }
+        ble_data->prev_temp = current_temp;
+        ble_data->prev_hum = current_hum;
 
 #endif
 #if 0

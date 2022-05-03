@@ -9,7 +9,7 @@
     <!--Debug Info-->
     <characteristic const="false" id="debug_info_state" name="Debug Info" sourceId="" uuid="00000008-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="50" type="hex" variable_length="false">00</value>
+      <value length="50" type="utf-8" variable_length="false">00</value>
       <properties>
         <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>
@@ -57,7 +57,7 @@
     <!--TRH Characteristic-->
     <characteristic const="false" id="trh_state" name="TRH Characteristic" sourceId="" uuid="00000004-38c8-433e-87ec-652a2d136289">
       <informativeText/>
-      <value length="12" type="utf-8" variable_length="false">00</value>
+      <value length="15" type="utf-8" variable_length="false">00</value>
       <properties>
         <indicate authenticated="false" bonded="false" encrypted="false"/>
       </properties>
@@ -98,6 +98,168 @@
     </characteristic>
   </service>
   
+  <!--Start Transit-->
+  <service advertise="true" name="Start Transit" requirement="mandatory" sourceId="" type="primary" uuid="00000009-38c8-433e-87ec-652a2d136289">
+    <informativeText/>
+    
+    <!--Transit status-->
+    <characteristic const="false" id="in_transit" name="Transit status" sourceId="" uuid="0000000a-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="1" type="hex" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_9" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+  </service>
+  
+  <!--Send Error log-->
+  <service advertise="true" name="Send Error log" requirement="mandatory" sourceId="" type="primary" uuid="0000000b-38c8-433e-87ec-652a2d136289">
+    <informativeText/>
+    
+    <!--Enable Error log-->
+    <characteristic const="false" id="en_error_log" name="Enable Error log" sourceId="" uuid="0000000c-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="1" type="hex" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_10" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+  </service>
+  
+  <!--Thresholds-->
+  <service advertise="true" name="Thresholds" requirement="mandatory" sourceId="" type="primary" uuid="0000000d-38c8-433e-87ec-652a2d136289">
+    <informativeText/>
+    
+    <!--Temp High Limit-->
+    <characteristic const="false" id="temp_high_limit" name="Temp High Limit" sourceId="" uuid="0000001d-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="3" type="utf-8" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_11" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+    
+    <!--Temp Low Limit-->
+    <characteristic const="false" id="temp_low_limit" name="Temp Low Limit" sourceId="" uuid="0000002d-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="3" type="utf-8" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_12" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+    
+    <!--RH High Limit-->
+    <characteristic const="false" id="hum_high_limit" name="RH High Limit" sourceId="" uuid="0000003d-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="4" type="utf-8" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_13" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+    
+    <!--RH Low Limit-->
+    <characteristic const="false" id="hum_low_limit" name="RH Low Limit" sourceId="" uuid="0000004d-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="4" type="utf-8" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_14" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+    
+    <!--accelerometer limit-->
+    <characteristic const="false" id="acc_limit" name="accelerometer limit" sourceId="" uuid="0000005d-38c8-433e-87ec-652a2d136289">
+      <informativeText/>
+      <value length="2" type="hex" variable_length="false">00</value>
+      <properties>
+        <read authenticated="false" bonded="false" encrypted="false"/>
+        <write authenticated="false" bonded="false" encrypted="false"/>
+        <indicate authenticated="false" bonded="false" encrypted="false"/>
+      </properties>
+      
+      <!--Client Characteristic Configuration-->
+      <descriptor const="false" discoverable="true" id="client_characteristic_configuration_15" name="Client Characteristic Configuration" sourceId="org.bluetooth.descriptor.gatt.client_characteristic_configuration" uuid="2902">
+        <properties>
+          <read authenticated="false" bonded="false" encrypted="false"/>
+          <write authenticated="false" bonded="false" encrypted="false"/>
+        </properties>
+        <value length="2" type="hex" variable_length="false">00</value>
+        <informativeText/>
+      </descriptor>
+    </characteristic>
+  </service>
+  
   <!--Device Information-->
   <service advertise="false" id="device_information" name="Device Information" requirement="mandatory" sourceId="org.bluetooth.service.device_information" type="primary" uuid="180A">
     <informativeText>Abstract:  The Device Information Service exposes manufacturer and/or vendor information about a device.  Summary:  This service exposes manufacturer information about a device. The Device Information Service is instantiated as a Primary Service. Only one instance of the Device Information Service is exposed on a device.  </informativeText>
@@ -128,7 +290,7 @@
     <!--Device Name-->
     <characteristic const="false" id="device_name" name="Device Name" sourceId="org.bluetooth.characteristic.gap.device_name" uuid="2A00">
       <informativeText/>
-      <value length="5" type="utf-8" variable_length="false">Nexus</value>
+      <value length="11" type="utf-8" variable_length="false">VaXinator</value>
       <properties>
         <read authenticated="false" bonded="false" encrypted="false"/>
         <write authenticated="false" bonded="false" encrypted="false"/>

@@ -16,10 +16,17 @@ extern const sli_bt_gattdb_t gattdb;
 #define gattdb_xyz_accel_state                15
 #define gattdb_trh_state                      19
 #define gattdb_gps_lat_long_state             23
-#define gattdb_manufacturer_name_string       27
-#define gattdb_system_id                      29
-#define gattdb_device_name                    32
-#define gattdb_ota_control                    37
+#define gattdb_in_transit                     27
+#define gattdb_en_error_log                   31
+#define gattdb_temp_high_limit                35
+#define gattdb_temp_low_limit                 38
+#define gattdb_hum_high_limit                 41
+#define gattdb_hum_low_limit                  44
+#define gattdb_acc_limit                      47
+#define gattdb_manufacturer_name_string       51
+#define gattdb_system_id                      53
+#define gattdb_device_name                    56
+#define gattdb_ota_control                    61
 
 
 #endif // __GATT_DB_H

@@ -33,7 +33,7 @@
 #define FLASH_OPERATING_FREQUENCY   ((4)*(MHZ_1))
 
 #define TX_BUFFER_SIZE              (10)
-#define RX_BUFFER_SIZE              (30)
+#define RX_BUFFER_SIZE              (50)
 #define SANITY_DELAY                ((0.5)*(MSEC_TO_USEC))
 
 #define BYTE_0                      (0x000000ff)
@@ -168,8 +168,8 @@ uint8_t poll_read_status_reg()
 
   uint8_t busy_bit = 0;
   busy_bit = rx_sequence[0] & (1<<0);
-  LOG_INFO("rx_sequence[0] = %d\r",rx_sequence[0]);
-  LOG_INFO("busy_bit = %d\r",busy_bit);
+  //LOG_INFO("rx_sequence[0] = %d\r",rx_sequence[0]);
+  //LOG_INFO("busy_bit = %d\r",busy_bit);
   return busy_bit;
 }
 
@@ -239,8 +239,9 @@ void get_memory_address(uint32_t complete_address,uint8_t *add1,uint8_t *add2,ui
   //LOG_INFO("address1 = 0x%.8X - address2 = 0x%.8X -------address3 = 0x%.8X\r",*add1,*add2,*add3);
 
 }
-uint8_t byte_read(uint32_t complete_address, uint32_t no_of_bytes_requested)
+uint8_t byte_read(uint32_t complete_address, uint32_t no_of_bytes_requested, uint8_t *buff)
 {
+  uint32_t i=0;
 #if 1
   if(no_of_bytes_requested > RX_BUFFER_SIZE)
   {
@@ -267,13 +268,29 @@ uint8_t byte_read(uint32_t complete_address, uint32_t no_of_bytes_requested)
   //Read start
   memset(g_rx_sequence,0,sizeof(g_rx_sequence));
   USART1->CMD |= USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-  for (uint32_t i=0; i<no_of_bytes_requested; i++)
+  for (i=0; i<no_of_bytes_requested; i++)
   {
     g_rx_sequence[i] = USART_SpiTransfer(USART1, 0xFF);
+    buff[i] = g_rx_sequence[i];
     LOG_INFO("INSIDE::g_rx_sequence[%d] = %x\r",i,g_rx_sequence[i]);
+    if(buff[i] == '\r' || buff[i] == 0xFF)
+      {
+        buff[i] = '\0';
+        i++;
+        break;
+      }
     //LOG_INFO("%x \r",USART_SpiTransfer(USART1, 0xFF));
   }
+  buff[i] = '\0';
   trigger_CE_low_to_high_transition();
+#if 1
+  this:
+  if(1 == poll_read_status_reg())
+  {
+      goto this;
+  };
+#endif
+  return (uint8_t)i;
 }
 
 FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
@@ -313,7 +330,7 @@ FLASH_state_t init_flash_setup(sl_bt_msg_t *evt)
           byte_write(x,check_data[x]);
         }
 
-        byte_read(0x00,20);
+        byte_read(0x00,20, check_data);
 
         for(uint32_t q = 0;q < z;q++)
         {

@@ -48,7 +48,7 @@ void I2C0_IRQHandler(void) {
       NVIC_DisableIRQ(I2C0_IRQn);
   }
   else if (transfer_status < i2cTransferDone) {
-      LOG_ERROR("I2C Error Code %d\r", transfer_status);
+      //LOG_ERROR("I2C Error Code %d\r", transfer_status);
   }
 }
 

@@ -64,11 +64,12 @@ asset_monitoring_state_t debug_machine(sl_bt_msg_t *evt)
   ble_ext_signal_event_t event = evt;
 #endif
   /* return state logic */
-  asset_monitoring_state_t return_state = DEBUG_READ;
+  asset_monitoring_state_t return_state = DEBUG_STATE;
   /* current machine logic */
   debug_state_t currentState;
   static debug_state_t nextState = DEBUG_STATE;
   int ret_status = 0;
+  static uint32_t loc = 0;
 #if NO_BL
   if (SL_BT_MSG_ID(evt->header) != sl_bt_evt_system_external_signal_id) {
       return return_state;
@@ -80,30 +81,103 @@ asset_monitoring_state_t debug_machine(sl_bt_msg_t *evt)
   {
     case DEBUG_STATE:
     {
+#if PWR_MGMT_RUN_MODE
+        //Enter EM1 mode
+        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
       //LOG_INFO("HEY\r");
       //default state
-      return_state = DEBUG_READ;
+      return_state = DEBUG_STATE;
       if(event == ev_LETIMER0_COMP1)
       {
-        if(ble_data->s_DbgIndication && ble_data->s_ClientConnected)
-        {
-          sprintf(ble_data->dbg_array,"%s %s",ble_data->xyz_array,ble_data->trh_array);
-          LOG_INFO("%s\r",ble_data->dbg_array);
-          BleServer_SendDebugDataToClient(ble_data->dbg_array);
-        }
+          LETIMER_IntDisable(LETIMER0,LETIMER_IEN_COMP1);
+          if(ble_data->send_error_log)
+            {
+              if(loc < ble_data->memloc)
+                {
+                  memset(ble_data->dbg_array, 0, DBG_STORE_SIZE);
+                  //read from memory
+                  byte_read(loc,48,ble_data->dbg_array);
+                  LOG_INFO("%s\r",ble_data->dbg_array);
 
-        ret_status = timerWaitUs_irq(NEXT_ITERATION_DELAY);
-        if(ret_status == ERROR)
-        {
-          LOG_ERROR("The value is more than the routine can provide\r");
-        }
-        else
-        {
+                  //send log every COMP1
+                  if(ble_data->s_DbgIndication && ble_data->s_ClientConnected)
+                  {
+                    BleServer_SendDebugDataToClient(ble_data->dbg_array);
+                  }
+
+//                  ret_status = timerWaitUs_irq(NEXT_ITERATION_DELAY);
+//                  if(ret_status == ERROR)
+//                  {
+//                    LOG_ERROR("The value is more than the routine can provide\r");
+//                  }
+                  memset(ble_data->dbg_array, 0, DBG_STORE_SIZE);
+                }
+
+              loc+=48;
+              if(loc == ble_data->memloc)
+                {
+                  ble_data->send_error_log = 0;
+                  //send log every COMP1
+                  if(ble_data->s_ClientConnected)
+                  {
+                      BleServer_SendErrorLog();
+                  }
+
+//                  ret_status = timerWaitUs_irq(NEXT_ITERATION_DELAY);
+//                  if(ret_status == ERROR)
+//                  {
+//                    LOG_ERROR("The value is more than the routine can provide\r");
+//                  }
+//                  else
+//                  {
+//                    //update return state for next iteration
+//                    nextState = DEBUG_STATE;
+//                    //next state to switch in Asset SM
+//                    return_state = BME280_READ;
+//                  }
+                }
+            }
+          else if(ble_data->transit_status && ((ble_data->trh_array[0] != 0) || (ble_data->xyz_array[1] == '1')))
+            {
+              if(ble_data->trh_array[0] == 0)
+                sprintf(ble_data->trh_array,"%dC %dR",ble_data->prev_temp,ble_data->prev_hum);
+              //check if error log is present
+              sprintf(ble_data->dbg_array,"%s %s %s\r", ble_data->time_array, ble_data->trh_array, ble_data->xyz_array);
+              LOG_INFO("%s\r",ble_data->dbg_array);
+
+              //Write log in flash
+              for(uint32_t i=0; i<strlen(ble_data->dbg_array); i++)
+                byte_write(ble_data->memloc + i, ble_data->dbg_array[i]);
+
+              ble_data->memloc += 48;
+
+              if(ble_data->s_DbgIndication && ble_data->s_ClientConnected)
+              {
+                BleServer_SendDebugDataToClient(ble_data->dbg_array);
+              }
+
+//              ret_status = timerWaitUs_irq(NEXT_ITERATION_DELAY);
+//              if(ret_status == ERROR)
+//              {
+//                LOG_ERROR("The value is more than the routine can provide\r");
+//              }
+//              else
+//              {
+//                //update return state for next iteration
+//                nextState = DEBUG_STATE;
+//                //next state to switch in Asset SM
+//                return_state = BME280_READ;
+//              }
+              memset(ble_data->dbg_array, 0, DBG_STORE_SIZE);
+              memset(ble_data->trh_array, 0, TRH_STORE_SIZE);
+              memset(ble_data->xyz_array, 0, XYZ_STORE_SIZE);
+            }
+
           //update return state for next iteration
           nextState = DEBUG_STATE;
           //next state to switch in Asset SM
           return_state = BME280_READ;
-        }
       }
       nextState = DEBUG_STATE;
       break;
